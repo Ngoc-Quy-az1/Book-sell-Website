@@ -1,8 +1,9 @@
 import React from "react";
+import Logo from "../../assets/website/logo.png";
+import { FaCartShopping } from "react-icons/fa6";
+import DarkMode from "./DarkMode";
+import { FaCaretDown } from "react-icons/fa";
 
-<<<<<<< Updated upstream
-const Navbar = ({ handleLoginPopup }) => {
-=======
 const Menu = [
   {
     id: 1,
@@ -31,86 +32,77 @@ const DropdownLinks = [
   },
 ];
 
-const Navbar = ({ handleLoginPopup, handleOrderPopup } ) => {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   return (
     <>
-      <main className="shadow-lg bg-white/70 backdrop-blur-sm">
-        <div className="container">
-          <nav className="flex justify-between items-center">
-            <a
-              href="#"
-              className="text-gray-800 text-3xl font-bold flex justify-center items-center"
-            >
-              Logo
-            </a>
-            <div className="hidden sm:block">
-              <ul className="flex font-semibold justify-center items-center gap-4">
-                <li>
+      <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200">
+        <div className="container py-3 sm:py-0">
+          <div className="flex justify-between items-center">
+            <div>
+              <a href="#" className="font-bold text-2xl sm:text-3xl flex gap-2">
+                <img src={Logo} alt="Logo" className="w-10" />
+                Books
+              </a>
+            </div>
+            <div className="flex justify-between items-center gap-4">
+              <div>
+                <DarkMode />
+              </div>
+              <ul className="hidden sm:flex items-center gap-4">
+                {Menu.map((menu) => (
+                  <li key={menu.id}>
+                    <a
+                      href={menu.link}
+                      className="inline-block py-4 px-4 hover:text-primary duration-200"
+                    >
+                      {menu.name}
+                    </a>
+                  </li>
+                ))}
+                {/* Simple Dropdown and Links */}
+                <li className="group relative cursor-pointer">
                   <a
-                    href="#"
-                    className="text-gray-700 hover:text-gray-900 px-4 py-4 inline-block select-none"
+                    href="/#home"
+                    className="flex h-[72px] items-center gap-[2px]"
                   >
-                    Home
+                    Quick Links{" "}
+                    <span>
+                      <FaCaretDown className="transition-all duration-200 group-hover:rotate-180" />
+                    </span>
                   </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="text-gray-700 hover:text-gray-900 px-4 py-4 inline-block select-none"
-                  >
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="text-gray-700 hover:text-gray-900 px-4 py-4 inline-block select-none"
-                  >
-                    Contact
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onClick={handleLoginPopup}
-                    className="text-gray-700 hover:text-gray-900 px-4 py-4 inline-block select-none"
-                  >
-                    Login
-                  </a>
+                  <div className="absolute -left-9 z-[9999] hidden w-[150px] rounded-md bg-white p-2 text-black group-hover:block  ">
+                    <ul className="space-y-3">
+                      {DropdownLinks.map((data) => (
+                        <li key={data.name}>
+                          <a
+                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                            href={data.link}
+                          >
+                            {data.name}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </li>
               </ul>
-            </div>
-
-            {/* hamburger menu */}
-            <div className="block sm:hidden">
               <button
-                onClick={handleLoginPopup}
-                className="text-gray-700 text-xl font-semibold hover:text-gray-900 px-4 py-4 inline-block"
+                onClick={() => handleOrderPopup()}
+                className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-1 px-4 rounded-full flex items-center gap-3"
               >
-<<<<<<< Updated upstream
-                Login
-=======
                 Order
                 <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
               </button>
               <button
-                onClick={() => handleLoginPopup()}
+                onClick={() => handleLoginPopup() }
                 className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
               >
                 Sign In
->>>>>>> Stashed changes
               </button>
             </div>
-          </nav>
+          </div>
         </div>
-      </main>
+      </div>
     </>
   );
 };

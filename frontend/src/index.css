@@ -2,29 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  .input {
-    @apply border border-white w-full rounded-full py-2 outline-none px-4 focus:ring-2 focus:border-transparent focus:ring-white/80 bg-transparent text-white text-shadow;
-  }
-
-  .input-label {
-    @apply text-white block pb-1 text-shadow;
-  }
-}
-
-@layer components {
-  .primary-btn {
-    @apply bg-gradient-to-l from-blue-500 to-orange-500 text-white py-2 px-5 rounded-full mt-7 block w-full hover:bg-gradient-to-r hover:from-black hover:to-lime-500 hover:scale-105 transition-all duration-300 shadow-custom-inset;
-  }
-}
-
 @layer utilities {
-  .text-shadow {
-    text-shadow: 2px 2px 2px #1128015b;
+  .duration-high {
+    @apply transition-all duration-300 ease-in-out;
   }
 }
-<<<<<<< Updated upstream
-=======
 
 @keyframes spin {
   from {
@@ -46,33 +28,18 @@ html {
 ::selection {
   @apply bg-primary text-white;
 }
+
 @layer base {
   .input {
-    @apply border w-full rounded-full py-2 outline-none px-4 focus:ring-2 focus:border-transparent focus:ring-white/80 bg-transparent text-shadow;
+    @apply w-full rounded-full border border-gray-300 dark:border-gray-500 dark:bg-gray-800 px-2 py-1 mb-4;
   }
 
   .input-label {
-    @apply block pb-1 text-shadow;
+    @apply  block pb-1 ;
   }
 }
-
 @layer components {
   .primary-btn {
-    @apply bg-gradient-to-l from-blue-500 text-white to-blue-600 py-2 px-5 rounded-full mt-7 block w-full hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-600 hover:scale-105 transition-all duration-300;
+    @apply bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-1 px-4 rounded-full ;
   }
 }
-
-@layer utilities {
-  .text-shadow {
-    text-shadow: 2px 2px 2px #1128015b;
-  }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-}
->>>>>>> Stashed changes
-=======
-}
->>>>>>> Stashed changes
-=======
-}
->>>>>>> Stashed changes

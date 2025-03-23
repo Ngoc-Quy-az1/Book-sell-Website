@@ -6,20 +6,9 @@ const Login = ({ handleSignIn }) => {
 
   return (
     <>
-      <div className={"p-6"}>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        <h1 className="text-3xl text-white font-bold text-center mb-4 text-shadow">
-=======
+      <div className={"h-screen w-screen fixed top-0 left-0 bg-black/50 z-50 backdrop-blur-sm"}>
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[300px]">
         <h1 className="text-3xl font-bold text-center mb-4 text-shadow">
->>>>>>> Stashed changes
-=======
-        <h1 className="text-3xl font-bold text-center mb-4 text-shadow">
->>>>>>> Stashed changes
-=======
-        <h1 className="text-3xl font-bold text-center mb-4 text-shadow">
->>>>>>> Stashed changes
           Login
         </h1>
         <form className="flex flex-col gap-3">
@@ -42,44 +31,22 @@ const Login = ({ handleSignIn }) => {
 
               {showPassword ? (
                 <FaEye
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                  className="text-white absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
-=======
                   className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
->>>>>>> Stashed changes
-=======
-                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
->>>>>>> Stashed changes
-=======
-                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
->>>>>>> Stashed changes
                   onClick={() => setShowPassword(!showPassword)}
                 />
               ) : (
                 <FaEyeSlash
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                  className="text-white absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
-=======
                   className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
->>>>>>> Stashed changes
-=======
-                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
->>>>>>> Stashed changes
-=======
-                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
->>>>>>> Stashed changes
                   onClick={() => setShowPassword(!showPassword)}
                 />
               )}
             </div>
           </div>
         </form>
-        <button className="primary-btn">Submit</button>
-        <p className="text-center text-white text-sm my-3">or login with</p>
+        <div className="flex justify-center">
+          <button className="primary-btn">Submit</button>
+        </div>
+        <p className="text-center text-sm my-3">or login with</p>
         <div className="flex gap-6 justify-center">
           <div className="bg-white w-9 h-9 rounded-full flex items-center justify-center shadow-custom-inset hover:scale-110 transition-all duration-300">
             <FcGoogle className="text-3xl" />
@@ -89,11 +56,12 @@ const Login = ({ handleSignIn }) => {
           </div>
         </div>
         <p
-          className="text-center text-white text-sm my-3 hover:text-lime-100 cursor-pointer text-shadow"
+          className="text-center text-sm my-3 hover:text-red-100 cursor-pointer text-shadow"
           onClick={handleSignIn}
         >
           No Account? create Signup here
         </p>
+      </div>
       </div>
     </>
   );

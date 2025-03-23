@@ -1,19 +1,27 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
-      fontFamily: {},
-      boxShadow: {
-        "custom-inset":
-          "3px 3px 4px rgba(0, 0, 0, 0.25) ,inset 2px 5px 6px rgba(255, 255, 255, 0.37),inset 0px -5px 6px rgba(0, 0, 0, 0.37)",
+      fontFamily: {
+        sans: ["Poppins", "sans-serif"],
+      },
+      colors: {
+        primary: "#1182c5",
+        secondary: "#2aa6df",
+        dark: "#1e1e1e",
+        light: "#f5f5f5",
       },
       container: {
         center: true,
         padding: {
           DEFAULT: "1rem",
-          md: "3rem",
+          sm: "3rem",
         },
+      },
+      animation: {
+        "spin-slow": "spin 40s linear infinite",
       },
     },
   },
