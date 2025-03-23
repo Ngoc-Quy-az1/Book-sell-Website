@@ -16,6 +16,9 @@
     "10_project_biryani-shop": "file:",
     "aos": "^2.3.4",
     "framer-motion": "^12.5.0",
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

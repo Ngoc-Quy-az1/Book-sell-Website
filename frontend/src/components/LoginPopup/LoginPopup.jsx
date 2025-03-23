@@ -22,7 +22,11 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
     <>
       {loginPopup && (
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <div
+=======
+        <div 
+>>>>>>> Stashed changes
 =======
         <div 
 >>>>>>> Stashed changes
@@ -34,7 +38,11 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
               className="rounded-2xl bg-white/10 backdrop-blur-md shadow-custom-inset sm:w-[600px] md:w-[380px] "
+=======
+              className="rounded-2xl bg-white backdrop-md shadow-custom-inset sm:w-[600px] md:w-[380px] "
+>>>>>>> Stashed changes
 =======
               className="rounded-2xl bg-white backdrop-md shadow-custom-inset sm:w-[600px] md:w-[380px] "
 >>>>>>> Stashed changes
