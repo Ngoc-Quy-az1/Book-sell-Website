@@ -10,7 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< Updated upstream
     "framer-motion": "^11.2.12",
+=======
+    "10_project_biryani-shop": "file:",
+    "aos": "^2.3.4",
+    "framer-motion": "^12.5.0",
+>>>>>>> Stashed changes
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0"

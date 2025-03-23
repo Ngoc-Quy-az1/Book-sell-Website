@@ -21,7 +21,11 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
   return (
     <>
       {loginPopup && (
+<<<<<<< Updated upstream
         <div
+=======
+        <div 
+>>>>>>> Stashed changes
           ref={loginPopupRef}
           className="fixed top-0 left-0 w-full h-full z-50 overflow-y-auto"
         >
@@ -29,7 +33,11 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
+<<<<<<< Updated upstream
               className="rounded-2xl bg-white/10 backdrop-blur-md shadow-custom-inset sm:w-[600px] md:w-[380px] "
+=======
+              className="rounded-2xl bg-white backdrop-md shadow-custom-inset sm:w-[600px] md:w-[380px] "
+>>>>>>> Stashed changes
             >
               {showSignIn ? (
                 <Signin handleSignIn={handleSignIn} />

@@ -7,7 +7,11 @@ const Signin = ({ handleSignIn }) => {
   return (
     <>
       <div className={"p-6"}>
+<<<<<<< Updated upstream
         <h1 className="text-3xl text-shadow text-white font-bold text-center mb-4">
+=======
+        <h1 className="text-3xl text-shadow font-bold text-center mb-4">
+>>>>>>> Stashed changes
           Create Your Account
         </h1>
         <form className="flex flex-col gap-3">
@@ -36,12 +40,20 @@ const Signin = ({ handleSignIn }) => {
 
               {showPassword ? (
                 <FaEye
+<<<<<<< Updated upstream
                   className="text-white absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+=======
+                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+>>>>>>> Stashed changes
                   onClick={() => setShowPassword(!showPassword)}
                 />
               ) : (
                 <FaEyeSlash
+<<<<<<< Updated upstream
                   className="text-white absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+=======
+                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+>>>>>>> Stashed changes
                   onClick={() => setShowPassword(!showPassword)}
                 />
               )}

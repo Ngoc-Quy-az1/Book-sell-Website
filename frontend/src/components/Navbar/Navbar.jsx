@@ -1,6 +1,38 @@
 import React from "react";
 
+<<<<<<< Updated upstream
 const Navbar = ({ handleLoginPopup }) => {
+=======
+const Menu = [
+  {
+    id: 1,
+    name: "Home",
+    link: "/#",
+  },
+  {
+    id: 2,
+    name: "Best Seller",
+    link: "/#services",
+  },
+];
+
+const DropdownLinks = [
+  {
+    name: "Trending Books",
+    link: "/#",
+  },
+  {
+    name: "Best Selling",
+    link: "/#",
+  },
+  {
+    name: "Authors",
+    link: "/#",
+  },
+];
+
+const Navbar = ({ handleLoginPopup, handleOrderPopup } ) => {
+>>>>>>> Stashed changes
   return (
     <>
       <main className="shadow-lg bg-white/70 backdrop-blur-sm">
@@ -56,7 +88,18 @@ const Navbar = ({ handleLoginPopup }) => {
                 onClick={handleLoginPopup}
                 className="text-gray-700 text-xl font-semibold hover:text-gray-900 px-4 py-4 inline-block"
               >
+<<<<<<< Updated upstream
                 Login
+=======
+                Order
+                <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
+              </button>
+              <button
+                onClick={() => handleLoginPopup()}
+                className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
+              >
+                Sign In
+>>>>>>> Stashed changes
               </button>
             </div>
           </nav>
