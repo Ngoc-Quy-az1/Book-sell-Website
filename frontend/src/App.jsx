@@ -30,6 +30,10 @@ const App = () => {
   const handleLoginPopup = () => {
     setLoginPopup(!loginPopup);
   };
+  const [loginPopup, setLoginPopup] = React.useState(false);
+  const handleLoginPopup = () => {
+    setLoginPopup(!loginPopup);
+  };
 
   const bgImage = {
     width: "100%",

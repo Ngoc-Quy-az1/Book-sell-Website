@@ -33,6 +33,9 @@ const DropdownLinks = [
 
 const Navbar = ({ handleLoginPopup, handleOrderPopup } ) => {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

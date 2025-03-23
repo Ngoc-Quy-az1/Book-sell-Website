@@ -9,7 +9,11 @@ const Signin = ({ handleSignIn }) => {
       <div className={"p-6"}>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <h1 className="text-3xl text-shadow text-white font-bold text-center mb-4">
+=======
+        <h1 className="text-3xl text-shadow font-bold text-center mb-4">
+>>>>>>> Stashed changes
 =======
         <h1 className="text-3xl text-shadow font-bold text-center mb-4">
 >>>>>>> Stashed changes
@@ -46,7 +50,11 @@ const Signin = ({ handleSignIn }) => {
                 <FaEye
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                   className="text-white absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+=======
+                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+>>>>>>> Stashed changes
 =======
                   className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
 >>>>>>> Stashed changes
@@ -59,7 +67,11 @@ const Signin = ({ handleSignIn }) => {
                 <FaEyeSlash
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                   className="text-white absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+=======
+                  className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
+>>>>>>> Stashed changes
 =======
                   className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
 >>>>>>> Stashed changes
