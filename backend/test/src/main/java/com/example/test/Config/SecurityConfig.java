@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/verify").permitAll() // Cho phép truy cập công khai
                         .requestMatchers("/register").permitAll() // Cũng cho phép đăng ký công khai
+                        .requestMatchers("/api/adminadmin").permitAll()
                         .requestMatchers("/").authenticated()
                         .anyRequest().permitAll()
                 )

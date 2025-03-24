@@ -2,13 +2,13 @@ package com.example.test.Entity;
 
 import jakarta.persistence.*;
 
-
 @Entity
 @Table(name = "users")
 public class User {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private int ID;
 
     @Column(name = "username")
@@ -38,6 +38,18 @@ public class User {
     @Column(name = "balance")
     private double balance;
 
+    @Column(name = "membership_level")
+    private String membershipLevel;
+
+    public String getMembershipLevel() {
+        return membershipLevel;
+    }
+
+    public void setMembershipLevel(String membershipLevel) {
+        this.membershipLevel = membershipLevel;
+    }
+
+    // Getter và Setter khác
     public int getID() {
         return ID;
     }
@@ -77,7 +89,7 @@ public class User {
     public void setMail(String mail) {
         this.mail = mail;
     }
-    
+
     public boolean isIs_admin() {
         return is_admin;
     }
@@ -117,5 +129,4 @@ public class User {
     public void setBalance(double balance) {
         this.balance = balance;
     }
-
 }

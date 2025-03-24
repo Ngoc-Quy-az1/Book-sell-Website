@@ -1,6 +1,7 @@
 package com.example.test.Service;
 
 
+import com.example.test.DTO.MoreRegisterDTO;
 import com.example.test.DTO.ResponseLogInDTO;
 import com.example.test.DTO.logInDTO;
 import com.example.test.DTO.registerDTO;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -157,6 +159,25 @@ public class UserService {
 
         return result;
     }
+    // update infor
+    public boolean updateUserDetails(int userId, MoreRegisterDTO moreRegisterDTO) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setFull_name(moreRegisterDTO.getFul_name());
+            user.setAddress(moreRegisterDTO.getAddress());
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+        }
 
+    // log out
+    // public String logout(boolean Islogout) {
+    //     // if (Islogout) {
+    //     //     return result.setStatus(false);;
+    //     // }
 
+    // }
+    
 }

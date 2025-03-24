@@ -1,5 +1,6 @@
-package com.example.test.API;
+package com.example.test.controller;
 
+import com.example.test.DTO.MoreRegisterDTO;
 import com.example.test.DTO.ResponseLogInDTO;
 import com.example.test.DTO.logInDTO;
 import com.example.test.DTO.registerDTO;
@@ -8,12 +9,15 @@ import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
 import com.example.test.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+
+
 @RestController
-public class userAPI {
+public class userController {
 
     @Autowired
     private UserService userService;
@@ -49,5 +53,20 @@ public class userAPI {
     {
         return userService.logIn(infor);
     }
+
+    @PutMapping("/moreRegister/{userId}")
+    public ResponseEntity<String> moreRegister(@PathVariable int userId, @RequestBody MoreRegisterDTO moreRegisterDTO) {
+        boolean updated = userService.updateUserDetails(userId, moreRegisterDTO);
+        if (updated) {
+            return ResponseEntity.ok("Cập nhật thành công");
+        }
+        return ResponseEntity.badRequest().body("Không tìm thấy người dùng");
+    }
+
+    // @GetMapping("/logout")
+    // public String logout(@RequestParam boolean Islogout) {
+    //     return userService.logout(Islogout);
+    // }
+    
 
 }
