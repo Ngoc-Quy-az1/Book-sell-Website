@@ -1,8 +1,7 @@
 package com.example.test.Service;
 
 import com.example.test.Entity.User;
-import com.example.test.Repository.UserRepository;
-
+import com.example.test.Repository.UserRepo.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
@@ -52,4 +51,5 @@ public class AdminService {
     public void delete(Integer id) {
         userRepository.deleteById(id);
     }
+
 }

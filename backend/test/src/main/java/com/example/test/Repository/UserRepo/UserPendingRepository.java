@@ -1,4 +1,4 @@
-package com.example.test.Repository;
+package com.example.test.Repository.UserRepo;
 
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
