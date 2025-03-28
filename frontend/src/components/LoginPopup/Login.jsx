@@ -3,13 +3,6 @@ import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash, FaLinkedinIn } from "react-icons/fa";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { MdOutlineVpnKey } from "react-icons/md";
-import Admin from "../../admin.jsx";
-const handleAdmin = () =>{
-  alert("login");
-  return (
-    <Admin/>
-  )
-}
 const Login = ({ handleSignIn,handleVerify }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,7 +14,7 @@ const Login = ({ handleSignIn,handleVerify }) => {
         </h1>
         <form className="flex flex-col gap-3">
           <div>
-            <label htmlFor="username" className="input-label">
+            <label for="username" className="input-label">
               Username
             </label>
             <div className="relative">
@@ -30,7 +23,7 @@ const Login = ({ handleSignIn,handleVerify }) => {
             </div>
           </div>
           <div>
-            <label htmlFor="password" className="input-label">
+            <label for="password" className="input-label">
               Password
             </label>
             <div className="relative py-3">
@@ -57,7 +50,6 @@ const Login = ({ handleSignIn,handleVerify }) => {
         </form>
         <div className="flex justify-center">
           <button className="primary-btn"
-          onClick = {handleAdmin}
           >
             Submit</button>
         </div>
