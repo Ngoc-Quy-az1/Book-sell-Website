@@ -6,7 +6,6 @@ const Signin = ({ handleSignIn }) => {
 
   return (
     <>
-      <div className={"h-screen w-screen fixed top-0 left-0 bg-black/50 z-50 backdrop-blur-sm"}>
       <div className={"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[300px]"}>
         <h1 className="text-3xl text-shadow font-bold text-center mb-4">
           Create Your Account
@@ -67,7 +66,6 @@ const Signin = ({ handleSignIn }) => {
         >
           Already have an Account? Log in
         </p>
-      </div>
       </div>
     </>
   );

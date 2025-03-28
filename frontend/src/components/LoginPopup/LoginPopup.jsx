@@ -23,7 +23,7 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
       {loginPopup && (
         <div
           ref={loginPopupRef}
-          className="fixed top-0 left-0 w-full h-full z-50 overflow-y-auto"
+          className="h-screen w-screen fixed top-0 left-0 bg-black/50 z-50 backdrop-blur-sm"
         >
           <div >
             <motion.div
