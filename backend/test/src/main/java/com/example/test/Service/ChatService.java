@@ -3,7 +3,6 @@ package com.example.test.Service;
 import com.example.test.Entity.*;
 import com.example.test.Entity.chatEntity.ChatGroup;
 import com.example.test.Entity.chatEntity.SupportMessage;
-import com.example.test.Repository.*;
 import com.example.test.Repository.chatRepo.SupportMessageRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
