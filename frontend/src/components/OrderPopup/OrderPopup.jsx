@@ -25,17 +25,17 @@ const OrderPopup = ({ orderPopup, setOrderPopup }) => {
               <input
                 type="text"
                 placeholder="Name"
-                className="input"
+                className="order-input"
               />
               <input
                 type="email"
                 placeholder="email"
-                className="input"
+                className="order-input"
               />
               <input
                 type="text"
                 placeholder="Address"
-                className="input"
+                className="order-input"
               />
               <div className="flex justify-center">
                 <button className="primary-btn">

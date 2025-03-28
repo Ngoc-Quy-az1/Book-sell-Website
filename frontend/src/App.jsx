@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import Hero from "./components/Hero/Hero";
 import Navbar from "./components/Navbar/Navbar";
 import Services from "./components/Services/Services.jsx";
@@ -35,7 +36,7 @@ const App = () => {
 
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
-      <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={ handleLoginPopup} />
+      <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       <Hero handleOrderPopup={handleOrderPopup} />
       <Services handleOrderPopup={handleOrderPopup} />
       <Banner />

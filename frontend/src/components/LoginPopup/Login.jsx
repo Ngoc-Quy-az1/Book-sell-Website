@@ -1,29 +1,42 @@
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash, FaLinkedinIn } from "react-icons/fa";
-const Login = ({ handleSignIn }) => {
+import { IoPersonCircleOutline } from "react-icons/io5";
+import { MdOutlineVpnKey } from "react-icons/md";
+import Admin from "../../admin.jsx";
+const handleAdmin = () =>{
+  alert("login");
+  return (
+    <Admin/>
+  )
+}
+const Login = ({ handleSignIn,handleVerify }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[300px]">
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[400px] h-[450px]">
         <h1 className="text-3xl font-bold text-center mb-4 text-shadow">
           Login
         </h1>
         <form className="flex flex-col gap-3">
           <div>
-            <label for="username" className="input-label">
+            <label htmlFor="username" className="input-label">
               Username
             </label>
-            <input id="username" type="text" className="input" />
+            <div className="relative">
+              <IoPersonCircleOutline className=" absolute top-1/2 left-3 -translate-y-1/2"/>
+              <input id="username" type="text" className="input pl-8" />
+            </div>
           </div>
           <div>
-            <label for="password" className="input-label">
+            <label htmlFor="password" className="input-label">
               Password
             </label>
-            <div className="relative">
+            <div className="relative py-3">
+            <MdOutlineVpnKey className=" absolute top-1/2 left-3 -translate-y-1/2"/>
               <input
-                className="input pr-8"
+                className="input pl-8 pr-8"
                 id="password"
                 type={showPassword ? "text" : "password"}
               />
@@ -43,8 +56,17 @@ const Login = ({ handleSignIn }) => {
           </div>
         </form>
         <div className="flex justify-center">
-          <button className="primary-btn">Submit</button>
+          <button className="primary-btn"
+          onClick = {handleAdmin}
+          >
+            Submit</button>
         </div>
+        <p
+          className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
+          onClick={handleVerify}
+        >
+          Forgot your password?
+        </p>
         <p className="text-center text-sm my-3">or login with</p>
         <div className="flex gap-6 justify-center">
           <div className="bg-white w-9 h-9 rounded-full flex items-center justify-center shadow-custom-inset hover:scale-110 transition-all duration-300">
@@ -55,10 +77,10 @@ const Login = ({ handleSignIn }) => {
           </div>
         </div>
         <p
-          className="text-center text-sm my-3 hover:text-red-100 cursor-pointer text-shadow"
+          className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
           onClick={handleSignIn}
         >
-          No Account? create Signup here
+          No Account? Signup here
         </p>
       </div>
     </>

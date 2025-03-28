@@ -1,6 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+html,
+body,
+#root,
+.app,
+.content {
+  height: 100%;
+  width: 100%;
+  font-family: "Source Sans Pro", sans-serif;
+}
+.app {
+  display: flex;
+  position: relative;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #e0e0e0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 
 @layer utilities {
   .duration-high {
@@ -30,10 +64,12 @@ html {
 }
 
 @layer base {
-  .input {
+  .order-input {
     @apply w-full rounded-full border border-gray-300 dark:border-gray-500 dark:bg-gray-800 px-2 py-1 mb-4;
   }
-
+  .input{
+    @apply w-full border rounded-full border-gray-300 dark:border-gray-500 dark:bg-gray-800 ;
+  }
   .input-label {
     @apply  block pb-1 ;
   }
@@ -42,4 +78,5 @@ html {
   .primary-btn {
     @apply bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-1 px-4 rounded-full ;
   }
+  
 }

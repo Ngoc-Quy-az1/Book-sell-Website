@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash, FaLinkedinIn } from "react-icons/fa";
-const Signin = ({ handleSignIn }) => {
+const Signin = ( {handleSignIn,handleVerify} ) => {
   const [showPassword, setShowPassword] = useState(false);
-
   return (
     <>
-      <div className={"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[300px]"}>
+      <div className={"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[400px]"}>
         <h1 className="text-3xl text-shadow font-bold text-center mb-4">
           Create Your Account
         </h1>
@@ -22,6 +21,12 @@ const Signin = ({ handleSignIn }) => {
               Email
             </label>
             <input id="email" type="email" className="input" />
+          </div>
+          <div>
+            <label for="phone" className="input-label">
+              Phone
+            </label>
+            <input id="phone" type="phone" className="input" />
           </div>
           <div>
             <label for="password" className="input-label">
@@ -48,8 +53,10 @@ const Signin = ({ handleSignIn }) => {
             </div>
           </div>
         </form>
-        <div className="flex justify-center">
-          <button className="primary-btn">Create Account</button>
+        <div className="flex justify-center py-5">
+          <button className="primary-btn"
+          onClick={handleVerify}
+          >Create Account</button>
         </div>
         <p className="text-center  text-sm my-3">or login with</p>
         <div className="flex gap-6 justify-center">
@@ -61,7 +68,7 @@ const Signin = ({ handleSignIn }) => {
           </div>
         </div>
         <p
-          className="text-center text-sm my-3 hover:text-red-100 cursor-pointer text-shadow"
+          className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
           onClick={handleSignIn}
         >
           Already have an Account? Log in

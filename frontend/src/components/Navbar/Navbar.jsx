@@ -3,7 +3,6 @@ import Logo from "../../assets/website/logo.png";
 import { FaCartShopping } from "react-icons/fa6";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
-
 const Menu = [
   {
     id: 1,
