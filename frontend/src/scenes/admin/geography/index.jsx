@@ -12,6 +12,7 @@ const Geography = () => {
 
       <Box
         height="75vh"
+        minWidth="400px"
         border={`1px solid ${colors.grey[100]}`}
         borderRadius="4px"
       >
