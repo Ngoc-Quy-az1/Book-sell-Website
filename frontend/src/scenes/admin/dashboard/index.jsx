@@ -6,12 +6,12 @@ import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import TrafficIcon from "@mui/icons-material/Traffic";
-import Header from "../../../components/Header";
-import LineChart from "../../../components/LineChart";
-import GeographyChart from "../../../components/GeographyChart";
-import BarChart from "../../../components/BarChart";
-import StatBox from "../../../components/StatBox";
-import ProgressCircle from "../../../components/ProgressCircle";
+import Header from "../../../components/Admin/Header";
+import LineChart from "../../../components/Admin/LineChart";
+import GeographyChart from "../../../components/Admin/GeographyChart";
+import BarChart from "../../../components/Admin/BarChart";
+import StatBox from "../../../components/Admin/StatBox";
+import ProgressCircle from "../../../components/Admin/ProgressCircle";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -42,7 +42,7 @@ const Dashboard = () => {
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
+        gridTemplateColumns="repeat(12,minmax(30px,1fr))"
         gridAutoRows="140px"
         gap="20px"
       >

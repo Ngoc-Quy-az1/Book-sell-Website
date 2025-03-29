@@ -14,12 +14,11 @@ const Admin = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-        <Sidebar isSidebar={isSidebar}   />
-          <main className="content">
-            <Topbar setIsSidebar={setIsSidebar} />
-            
-        <Outlet/>
-          </main>
+        <Sidebar isSidebar={isSidebar}/>
+        <main className="content">
+          <Topbar setIsSidebar={setIsSidebar} />
+          <Outlet/>
+        </main>
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
