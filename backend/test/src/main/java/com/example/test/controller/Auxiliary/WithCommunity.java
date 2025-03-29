@@ -1,4 +1,4 @@
-package com.example.test.controller.ChatController;
+package com.example.test.controller.Auxiliary;
 
 import com.example.test.Entity.*;
 import com.example.test.Entity.chatEntity.ChatGroup;

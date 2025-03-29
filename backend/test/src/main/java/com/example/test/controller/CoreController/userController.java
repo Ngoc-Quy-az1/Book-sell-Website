@@ -1,10 +1,12 @@
-package com.example.test.controller;
+package com.example.test.controller.CoreController;
 
 import com.example.test.DTO.Login_logout_register.MoreRegisterDTO;
 import com.example.test.DTO.Login_logout_register.ResponseLogInDTO;
 import com.example.test.DTO.Login_logout_register.logInDTO;
 import com.example.test.DTO.Login_logout_register.registerDTO;
 import com.example.test.DTO.Login_logout_register.registerResponseDTO;
+import com.example.test.DTO.ReviewDTO.ReviewDTO;
+import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
 import com.example.test.Service.UserService;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -84,5 +87,24 @@ public class userController {
     public boolean logout(@PathVariable Integer userId) {
         return userService.logOut(userId);
     }
-    
+
+    //Review
+    // http://localhost:8090/api/users/review/2/1
+    // {
+    //     "rating": "5",
+    //     "comment": "I like this book"
+    //   }
+      
+    @PostMapping("/review/{userId}/{bookId}")
+    public boolean review(@PathVariable Integer userId, @PathVariable Integer bookId, @RequestBody Map<String, String> body) {
+        return userService.review(userId, bookId, body);
+    }
+
+    //Get all review of a book
+    // http://localhost:8090/api/users/review/2
+    @GetMapping("/review/{bookId}")
+    public List<ReviewDTO> getAllReview(@PathVariable Integer bookId) {
+        return userService.getAllReviews(bookId);
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.test.controller;
+package com.example.test.controller.CoreController;
 
 import com.example.test.Entity.Book;
 import com.example.test.Service.BookService;
@@ -22,6 +22,22 @@ public class BookController {
     private WishlistService wishlistService;
 
     // API thêm sách
+    // http://localhost:8080/api/books/add
+//    {
+    //     "title": "Book Title",
+    //     "price_original": 199000,
+    //     "price_discounted": 149000,
+    //     "description": "Book Description",
+    //     "author": "Author Name",
+    //     "translator": "Translator Name",
+    //     "publisher": "Publisher Name",
+    //     "category": "Category Name",
+    //     "stock": 100,
+    //     "dimensions": "10x15x20 cm",
+    //     "pages": 300,
+    //     "created_at": "2022-01-01"
+    //     "image": "https://example.com/book-image.jpg"
+//    }
     @PostMapping("/add")
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
         Book addedBook = bookService.addBook(book);
@@ -29,6 +45,22 @@ public class BookController {
     }
 
     // API sửa sách
+    // http://localhost:8080/api/books/update/1
+//    {
+    //     "title": "Updated Book Title",
+    //     "price_original": 199000,
+    //     "price_discounted": 149000,
+    //     "description": "Updated Book Description",
+    //     "author": "Updated Author Name",
+    //     "translator": "Updated Translator Name",
+    //     "publisher": "Updated Publisher Name",
+    //     "category": "Updated Category Name",
+    //     "stock": 100,
+    //     "dimensions": "10x15x20 cm",
+    //     "pages": 300,
+    //     "created_at": "2022-01-01"
+    //     "image": "https://example.com/updated-book-image.jpg"
+//}
     @PutMapping("/update/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Book bookDetails) {
         Book updatedBook = bookService.updateBook(id, bookDetails);
@@ -36,6 +68,7 @@ public class BookController {
     }
 
     // API xóa sách
+    // http://localhost:8080/api/books/delete/1  
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable int id) {
         bookService.deleteBook(id);
@@ -43,6 +76,7 @@ public class BookController {
     }
 
     // API lấy thông tin sách theo ID
+    // http://localhost:8080/api/books/1
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable int id) {
         Book book = bookService.getBookById(id);
@@ -50,6 +84,7 @@ public class BookController {
     }
 
     // API lấy danh sách tất cả sách
+    //http://localhost:8080/api/book/all
     @GetMapping("/all")
     public ResponseEntity<List<Book>> getAllBooks() {
         Iterable<Book> booksIterable = bookService.getAllBooks();  

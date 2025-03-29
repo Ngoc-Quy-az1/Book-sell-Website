@@ -6,10 +6,15 @@ import com.example.test.DTO.Login_logout_register.ResponseLogInDTO;
 import com.example.test.DTO.Login_logout_register.logInDTO;
 import com.example.test.DTO.Login_logout_register.registerDTO;
 import com.example.test.DTO.Login_logout_register.registerResponseDTO;
+import com.example.test.DTO.ReviewDTO.ReviewDTO;
+import com.example.test.Entity.Book;
+import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
 import com.example.test.Repository.UserRepo.UserPendingRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
+import com.example.test.Repository.UserRepo.reviewRepository;
+import com.example.test.Repository.BookRepo.BookRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -17,8 +22,13 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.util.Tuple;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -38,6 +48,12 @@ public class UserService {
 
     @Autowired
     private UserPendingRepository userPendingRepository;
+
+    @Autowired
+    private reviewRepository reviewRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -211,5 +227,37 @@ public class UserService {
         return false;
     }
 
+
+    // create review
+    @Transactional
+    public boolean review(int userId, int bookId, Map<String, String> body) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return false;
+        }
+        
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        if (optionalBook.isEmpty()) {
+            return false;
+        }
+    
+        int rating = Integer.parseInt(body.get("rating"));
+        
+        Review review = new Review();
+        review.setRating(rating);
+        review.setUser(optionalUser.get());
+        review.setBook(optionalBook.get());
+        review.setComment(body.get("comment"));
+        review.setCreatedAt(LocalDateTime.now());
+        reviewRepository.save(review);
+        
+        return true;
+    }
+
+    // get reviews
+        public List<ReviewDTO> getAllReviews(int bookId) {
+            List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsWithDTO(bookId);
+            return reviewDTOs;
+        }
     
 }

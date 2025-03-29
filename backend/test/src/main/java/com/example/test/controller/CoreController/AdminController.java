@@ -1,4 +1,4 @@
-package com.example.test.controller;
+package com.example.test.controller.CoreController;
 
 import com.example.test.Entity.User;
 import com.example.test.Service.AdminService;
@@ -16,6 +16,7 @@ public class AdminController {
     private AdminService adminService;
 
     // Lấy danh sách tất cả người dùng
+    // http://localhost:8090/api/admin/users
     @GetMapping("/users")
     public List<User> getAllUsers() {
         System.out.println("Calling getAllUsers");
@@ -23,6 +24,7 @@ public class AdminController {
     }
 
     // Lấy thông tin chi tiết một người dùng theo ID
+    // http://localhost:8090/api/admin/users/2
     @GetMapping("/users/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable int userId) {
         User user = adminService.findById(userId);
@@ -33,6 +35,8 @@ public class AdminController {
     }
 
     // Tạo mới một người dùng
+    // http://localhost:8090/api/admin/createUsers
+
     @PostMapping("/createUsers")
     public ResponseEntity<User> createUser(@RequestBody User userDto) {
         User createdUser = adminService.create(userDto);
@@ -40,7 +44,8 @@ public class AdminController {
     }
 
     // Cập nhật thông tin một người dùng
-    @PutMapping("/users/{userId}")
+    // http://localhost:8090/api/admin/updateuUsers/
+    @PutMapping("/updateUsers/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable int userId, @RequestBody User userDetails) {
         User updatedUser = adminService.update(userId, userDetails);
         if (updatedUser != null) {
@@ -50,7 +55,8 @@ public class AdminController {
     }
 
     // Xóa người dùng
-    @DeleteMapping("/users/{userId}")
+    // http://localhost:8090/api/admin/deleteUsers/2
+    @DeleteMapping("/deleteUsers/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable int userId) {
         adminService.delete(userId);
         return ResponseEntity.ok("Xóa người dùng thành công");
