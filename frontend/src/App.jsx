@@ -9,7 +9,9 @@ import Footer from "./components/Footer/Footer.jsx";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
+
 import LoginPopup from "./components/LoginPopup/LoginPopup";
+
 import Books from "./components/BooksSlider/Books.jsx";
 
 const App = () => {
@@ -23,6 +25,7 @@ const App = () => {
   const handleLoginPopup = () => {
     setLoginPopup(!loginPopup);
   };
+
   React.useEffect(() => {
     AOS.init({
       offset: 100,
@@ -35,7 +38,9 @@ const App = () => {
 
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
+
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
+
       <Hero handleOrderPopup={handleOrderPopup} />
       <Services handleOrderPopup={handleOrderPopup} />
       <Banner />
@@ -46,7 +51,9 @@ const App = () => {
       <Testimonial />
       <Footer />
       <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
+
       <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
+
     </div>
   );
 };

@@ -3,6 +3,7 @@ import Logo from "../../assets/website/logo.png";
 import { FaCartShopping } from "react-icons/fa6";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
+
 const Menu = [
   {
     id: 1,
@@ -31,7 +32,9 @@ const DropdownLinks = [
   },
 ];
 
+
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
+
   return (
     <>
       <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200">
@@ -92,12 +95,14 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                 Order
                 <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
               </button>
+
               <button
                 onClick={() => handleLoginPopup() }
                 className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
               >
                 Sign In
               </button>
+
             </div>
           </div>
         </div>

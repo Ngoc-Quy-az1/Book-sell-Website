@@ -1,3 +1,4 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
 @tailwind base;
 @tailwind components;
@@ -35,6 +36,7 @@ body,
   background: #555;
 }
 
+
 @layer utilities {
   .duration-high {
     @apply transition-all duration-300 ease-in-out;
@@ -62,6 +64,7 @@ html {
   @apply bg-primary text-white;
 }
 
+
 @layer base {
   .order-input {
     @apply w-full rounded-full border border-gray-300 dark:border-gray-500 dark:bg-gray-800 px-2 py-1 mb-4;
@@ -79,3 +82,4 @@ html {
   }
   
 }
+
