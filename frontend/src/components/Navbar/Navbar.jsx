@@ -93,12 +93,6 @@ const Navbar = ({ handleOrderPopup }) => {
                 Order
                 <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
               </button>
-              <button
-                onClick={()=>null}
-                className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
-              >
-                Sign In
-              </button>
             </div>
           </div>
         </div>
