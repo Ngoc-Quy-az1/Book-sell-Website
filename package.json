@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "framer-motion": "^12.5.0",
+    "mui": "^0.0.1"
+  }
+}
