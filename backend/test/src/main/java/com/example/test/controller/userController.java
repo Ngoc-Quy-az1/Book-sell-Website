@@ -1,10 +1,10 @@
 package com.example.test.controller;
 
-import com.example.test.DTO.MoreRegisterDTO;
-import com.example.test.DTO.ResponseLogInDTO;
-import com.example.test.DTO.logInDTO;
-import com.example.test.DTO.registerDTO;
-import com.example.test.DTO.registerResponseDTO;
+import com.example.test.DTO.Login_logout_register.MoreRegisterDTO;
+import com.example.test.DTO.Login_logout_register.ResponseLogInDTO;
+import com.example.test.DTO.Login_logout_register.logInDTO;
+import com.example.test.DTO.Login_logout_register.registerDTO;
+import com.example.test.DTO.Login_logout_register.registerResponseDTO;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
 import com.example.test.Service.UserService;
@@ -17,6 +17,7 @@ import java.util.Map;
 
 
 @RestController
+@RequestMapping("/api/users")
 public class userController {
 
     @Autowired
@@ -48,25 +49,40 @@ public class userController {
         return userService.verify(mail, code);
     }
 
+    // {
+    //     "phone":"12091112212",
+    //     "password":"12345"
+    // }
     @GetMapping("/login")
     public ResponseLogInDTO login(@RequestBody logInDTO infor)
     {
         return userService.logIn(infor);
     }
 
-    @PutMapping("/moreRegister/{userId}")
-    public ResponseEntity<String> moreRegister(@PathVariable int userId, @RequestBody MoreRegisterDTO moreRegisterDTO) {
-        boolean updated = userService.updateUserDetails(userId, moreRegisterDTO);
-        if (updated) {
-            return ResponseEntity.ok("Cập nhật thành công");
-        }
-        return ResponseEntity.badRequest().body("Không tìm thấy người dùng");
-    }
-
-    // @GetMapping("/logout")
-    // public String logout(@RequestParam boolean Islogout) {
-    //     return userService.logout(Islogout);
+    //Bổ sung thông tin về người dùng sau khi đã đăng kí thành công 
+    // {
+    //     "full_name": "Nguyen Van A",
+    //     "address": "123 Nguyen Trai, Ha Noi"
     // }
     
+    @PutMapping("/update/{userId}")
+    public User updateUser(@PathVariable Integer userId, @RequestBody MoreRegisterDTO moreRegisterDTO) {
+        return userService.updateUserInfo(userId, moreRegisterDTO);
+    }
 
+    //Quy đổi số tiền người dùng nạp về xu cho tài khoản người dùng(10000vnd = 1 xu)
+
+    // http://localhost:8090/api/users/update/balance/6?money=1000000
+    @PostMapping("/update/balance/{userId}")
+    public User updateBalance(@PathVariable Integer userId, @RequestParam double money) {
+        return userService.updateBalance(userId, money);
+    }
+
+    //logout
+    // http://localhost:8090/api/users/logout/6
+    @GetMapping("/logout/{userId}")
+    public boolean logout(@PathVariable Integer userId) {
+        return userService.logOut(userId);
+    }
+    
 }

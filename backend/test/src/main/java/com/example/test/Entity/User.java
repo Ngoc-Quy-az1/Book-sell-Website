@@ -39,14 +39,16 @@ public class User {
     private double balance;
 
     @Column(name = "membership_level")
-    private String membershipLevel;
+    @Enumerated(EnumType.STRING)  
+    private MembershipLevel membershipLevel;  
 
-    public String getMembershipLevel() {
-        return membershipLevel;
-    }
+    @Column(name = "is_login")
+    private boolean is_login;
 
-    public void setMembershipLevel(String membershipLevel) {
-        this.membershipLevel = membershipLevel;
+    public enum MembershipLevel {
+        Silver,
+        Gold,
+        Platinum
     }
 
     // Getter và Setter khác
@@ -94,18 +96,18 @@ public class User {
         return is_admin;
     }
 
-    public void setIs_admin(boolean is_admin) {
-        this.is_admin = is_admin;
-    }
-
-    public String getFull_name() {
-        return full_name;
+    public boolean isAdmin() {
+        return is_admin;
     }
 
     public void setFull_name(String full_name) {
         this.full_name = full_name;
     }
 
+    public String getFull_name() {
+        return full_name;
+    }
+    
     public String getAddress() {
         return address;
     }
@@ -128,5 +130,21 @@ public class User {
 
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    public MembershipLevel getMembershipLevel() {
+        return membershipLevel;
+    }
+
+    public void setMembershipLevel(MembershipLevel membershipLevel) {
+        this.membershipLevel = membershipLevel;
+    }
+
+    public boolean isIs_login() {
+        return is_login;
+    }
+
+    public void setIs_login(boolean is_login) {
+        this.is_login = is_login;
     }
 }

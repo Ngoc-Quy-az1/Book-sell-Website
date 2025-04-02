@@ -1,15 +1,16 @@
 package com.example.test.Service;
 
 
-import com.example.test.DTO.MoreRegisterDTO;
-import com.example.test.DTO.ResponseLogInDTO;
-import com.example.test.DTO.logInDTO;
-import com.example.test.DTO.registerDTO;
-import com.example.test.DTO.registerResponseDTO;
+import com.example.test.DTO.Login_logout_register.MoreRegisterDTO;
+import com.example.test.DTO.Login_logout_register.ResponseLogInDTO;
+import com.example.test.DTO.Login_logout_register.logInDTO;
+import com.example.test.DTO.Login_logout_register.registerDTO;
+import com.example.test.DTO.Login_logout_register.registerResponseDTO;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
-import com.example.test.Repository.UserPendingRepository;
-import com.example.test.Repository.UserRepository;
+import com.example.test.Repository.UserRepo.UserPendingRepository;
+import com.example.test.Repository.UserRepo.UserRepository;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
@@ -98,6 +99,7 @@ public class UserService {
             {
                 User user1 = new User();
                 user1.setPassword(user.getPassword());
+                user1.setMembershipLevel(User.MembershipLevel.Silver);
                 user1.setName(user.getName());
                 user1.setMail(user.getMail());
                 user1.setPhone(user.getPhone());
@@ -150,8 +152,10 @@ public class UserService {
 
         // Kiểm tra mật khẩu
         if (passwordEncoder.matches(infor.getPassword(), user.getPassword())) {
+            result.setUser_id(user.getID());
             result.setMessage("Successfully log in!");
             result.setStatus(true);
+            user.setIs_login(true);
         } else {
             result.setMessage("Wrong password!");
             result.setStatus(false);
@@ -164,20 +168,48 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setFull_name(moreRegisterDTO.getFul_name());
+            user.setFull_name(moreRegisterDTO.getFull_name());
             user.setAddress(moreRegisterDTO.getAddress());
             userRepository.save(user);
             return true;
         }
         return false;
         }
+        public User updateUserInfo(Integer userId, MoreRegisterDTO moreRegisterDTO) {
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                user.setFull_name(moreRegisterDTO.getFull_name());
+                user.setAddress(moreRegisterDTO.getAddress());
+                return userRepository.save(user);
+            } else {
+                throw new RuntimeException("User not found!");
+            }
+        }
+
+    // update balance
+        public User updateBalance(int userId, double money) {
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                user.setBalance(user.getBalance() + money/10000);
+                return userRepository.save(user);
+            } else {
+                throw new RuntimeException("User not found!");
+            }
+        }
 
     // log out
-    // public String logout(boolean Islogout) {
-    //     // if (Islogout) {
-    //     //     return result.setStatus(false);;
-    //     // }
+    public boolean logOut(int userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setIs_login(false);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
 
-    // }
     
 }

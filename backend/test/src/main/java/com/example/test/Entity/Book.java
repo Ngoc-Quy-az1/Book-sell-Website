@@ -2,11 +2,12 @@ package com.example.test.Entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "bookss")
+@Table(name = "books")
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "book_id")
     private int ID;
 
     @Column(name = "title")
