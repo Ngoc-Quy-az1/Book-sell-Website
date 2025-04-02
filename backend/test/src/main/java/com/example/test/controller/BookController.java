@@ -1,15 +1,21 @@
 package com.example.test.controller;
 
+import com.example.test.DTO.book.request.BookGetAllRequest;
+import com.example.test.DTO.book.response.BookResponse;
 import com.example.test.Entity.Book;
 import com.example.test.Service.BookService;
 import com.example.test.Service.WishlistService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
@@ -88,5 +94,26 @@ public class BookController {
     public ResponseEntity<String> deleteBookFromWishlist(@PathVariable int userId, @PathVariable int bookId) {
         wishlistService.deleteBookFromWishlist(userId, bookId);
         return ResponseEntity.ok("Book deleted from wishlist successfully.");
+    }
+
+    @GetMapping("/GetAllPaginated")
+    public ResponseEntity<Page<BookResponse>> getAllBooksPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<Book> booksPage = bookService.getAllBooksPaginated(page, size);
+        List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
+            BookResponse response = new BookResponse();
+            response.setId(book.getID());
+            response.setTitle(book.getTitle());
+            response.setAuthor(book.getAuthor());
+            response.setCategory(book.getCategory());
+            response.setImage(book.getImage());
+            response.setPrice_discounted(book.getPrice_discounted());
+            response.setPrice_original(book.getPrice_original());
+            response.setDescription(book.getDescription());
+            return response;
+        }).collect(Collectors.toList());
+        Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
+        return ResponseEntity.ok(responsePage);
     }
 }
