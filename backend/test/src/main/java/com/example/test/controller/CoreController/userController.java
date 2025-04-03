@@ -102,9 +102,9 @@ public class userController {
 
     //Get all review of a book
     // http://localhost:8090/api/users/review/2
-//    @GetMapping("/review/{bookId}")
-//    public List<ReviewDTO> getAllReview(@PathVariable Integer bookId) {
-//        return userService.getAllReviews(bookId);
-//    }
+    @GetMapping("/review/{bookId}")
+    public List<ReviewDTO> getAllReview(@PathVariable Integer bookId) {
+        return userService.getAllReviews(bookId);
+    }
 
 }
