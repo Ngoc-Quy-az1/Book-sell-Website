@@ -11,14 +11,27 @@ public class Cart {
     private CartId id;
 
     @ManyToOne
-    @MapsId("userId")
+    @MapsId("userId") 
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @MapsId("bookId")
+    @MapsId("bookId") 
     @JoinColumn(name = "book_id")
     private Book book;
+
+    @Column(name = "is_purchased", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean isPurchased;
+
+    @Column(name = "quantity", nullable = false, columnDefinition = "INT DEFAULT 1")
+    private int quantity;
+
+    @Column(name = "is_love", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int isLove;
+
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private java.sql.Timestamp createdAt;
+
 
     public CartId getId() {
         return id;
@@ -42,6 +55,38 @@ public class Cart {
 
     public void setBook(Book book) {
         this.book = book;
+    }
+
+    public boolean isPurchased() {
+        return isPurchased;
+    }
+
+    public void setPurchased(boolean purchased) {
+        isPurchased = purchased;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public int getIsLove() {
+        return isLove;
+    }
+
+    public void setIsLove(int isLove) {
+        this.isLove = isLove;
+    }
+
+    public java.sql.Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.sql.Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }
 
