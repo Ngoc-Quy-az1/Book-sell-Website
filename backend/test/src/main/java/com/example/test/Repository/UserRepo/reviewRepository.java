@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.test.DTO.ReviewDTO.ReviewDTO;
+import com.example.test.DTO.ReviewDTO.Response.ReviewDTO;
 import com.example.test.Entity.Review;
 
 import jakarta.persistence.Tuple;

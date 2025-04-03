@@ -1,7 +1,6 @@
-package com.example.test.DTO.chatDTO;
+package com.example.test.DTO.chatDTO.Request;
 
-
-public class ChatHistoryRequestDTO {
+public class JoinRequestDTO {
     private int userId;
 
     public int getUserId() {

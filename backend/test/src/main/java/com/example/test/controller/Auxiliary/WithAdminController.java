@@ -3,9 +3,9 @@ package com.example.test.controller.Auxiliary;
 import com.example.test.Entity.User;
 import com.example.test.Entity.chatEntity.SupportMessage;
 import com.example.test.Repository.UserRepo.UserRepository;
-import com.example.test.DTO.chatDTO.ChatHistoryRequestDTO;
-import com.example.test.DTO.chatDTO.ChatReplyRequestDTO;
-import com.example.test.DTO.chatDTO.ChatSendRequestDTO;
+import com.example.test.DTO.chatDTO.Request.ChatHistoryRequestDTO;
+import com.example.test.DTO.chatDTO.Request.ChatReplyRequestDTO;
+import com.example.test.DTO.chatDTO.Request.ChatSendRequestDTO;
 import com.example.test.Service.ChatService;
 
 import org.springframework.beans.factory.annotation.Autowired;

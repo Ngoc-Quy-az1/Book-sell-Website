@@ -35,11 +35,10 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // Tạo người dùng tùy chỉnh thay vì dùng user mặc định
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(
                 User.withUsername("admin")
-                        .password("{noop}admin123") // {noop} để không mã hóa mật khẩu (chỉ dùng cho test)
+                        .password("{noop}admin123") 
                         .roles("ADMIN")
                         .build()
         );

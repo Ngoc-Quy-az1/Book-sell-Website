@@ -1,11 +1,11 @@
 package com.example.test.controller.CoreController;
 
-import com.example.test.DTO.Login_logout_register.MoreRegisterDTO;
-import com.example.test.DTO.Login_logout_register.ResponseLogInDTO;
-import com.example.test.DTO.Login_logout_register.logInDTO;
-import com.example.test.DTO.Login_logout_register.registerDTO;
-import com.example.test.DTO.Login_logout_register.registerResponseDTO;
-import com.example.test.DTO.ReviewDTO.ReviewDTO;
+import com.example.test.DTO.Login_logout_register.Request.MoreRegisterDTO;
+import com.example.test.DTO.Login_logout_register.Request.logInDTO;
+import com.example.test.DTO.Login_logout_register.Request.registerDTO;
+import com.example.test.DTO.Login_logout_register.Respose.ResponseLogInDTO;
+import com.example.test.DTO.Login_logout_register.Respose.registerResponseDTO;
+import com.example.test.DTO.ReviewDTO.Response.ReviewDTO;
 import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
