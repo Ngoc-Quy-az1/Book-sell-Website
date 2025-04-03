@@ -255,9 +255,9 @@ public class UserService {
     }
 
     // get reviews
-        public List<ReviewDTO> getAllReviews(int bookId) {
-            List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsWithDTO(bookId);
-            return reviewDTOs;
-        }
+//        public List<ReviewDTO> getAllReviews(int bookId) {
+//            List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsWithDTO(bookId);
+//            return reviewDTOs;
+//        }
     
 }
