@@ -3,6 +3,8 @@ package com.example.test.Service;
 import com.example.test.Entity.Book;
 import com.example.test.Repository.BookRepo.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,5 +69,10 @@ public class BookService {
     // Lấy danh sách sách theo thể loại
     public List<Book> getBooksByCategory(String category) {
         return bookRepository.findByCategory(category);
+    }
+
+    //Lấy tất cả sách, phân trang mỗi trang 20 object
+    public Page<Book> getAllBooksPaginated(int page, int size) {
+        return bookRepository.findAll(PageRequest.of(page, size));
     }
 }
