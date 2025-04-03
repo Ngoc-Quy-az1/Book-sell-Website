@@ -256,7 +256,7 @@ public class UserService {
 
     // get reviews
         public List<ReviewDTO> getAllReviews(int bookId) {
-            List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsWithDTO(bookId);
+            List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsByBookId(bookId);
             return reviewDTOs;
         }
     
