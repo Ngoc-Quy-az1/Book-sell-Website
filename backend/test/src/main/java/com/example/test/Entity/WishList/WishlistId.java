@@ -10,7 +10,6 @@ public class WishlistId implements Serializable {
     private int user_id;
     private int book_id;
 
-    // Constructor mặc định, getters và setters
     public WishlistId() {}
 
     public WishlistId(int user_id, int book_id) {
