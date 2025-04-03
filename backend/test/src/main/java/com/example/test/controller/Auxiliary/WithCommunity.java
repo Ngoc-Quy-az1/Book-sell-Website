@@ -1,4 +1,4 @@
-package com.example.test.controller.ChatController;
+package com.example.test.controller.Auxiliary;
 
 import com.example.test.Entity.*;
 import com.example.test.Entity.chatEntity.ChatGroup;
@@ -6,10 +6,11 @@ import com.example.test.Entity.chatEntity.GroupJoinRequest;
 import com.example.test.Entity.chatEntity.GroupMembers;
 import com.example.test.Entity.chatEntity.SupportMessage;
 import com.example.test.Entity.chatEntity.GroupJoinRequest.RequestStatus;
-import com.example.test.DTO.chatDTO.ApproveRequestDTO;
-import com.example.test.DTO.chatDTO.GroupChatRequestDTO;
-import com.example.test.DTO.chatDTO.GroupHistoryRequestDTO;
-import com.example.test.DTO.chatDTO.JoinRequestDTO;
+import com.example.test.DTO.chatDTO.Request.ApproveRequestDTO;
+import com.example.test.DTO.chatDTO.Request.GroupChatRequestDTO;
+import com.example.test.DTO.chatDTO.Request.GroupHistoryRequestDTO;
+import com.example.test.DTO.chatDTO.Request.JoinRequestDTO;
+import com.example.test.Repository.*;
 import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Repository.chatRepo.ChatGroupRepository;
 import com.example.test.Repository.chatRepo.GroupJoinRequestRepository;

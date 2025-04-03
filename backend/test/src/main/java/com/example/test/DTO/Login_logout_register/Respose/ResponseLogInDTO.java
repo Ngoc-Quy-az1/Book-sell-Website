@@ -1,4 +1,4 @@
-package com.example.test.DTO.Login_logout_register;
+package com.example.test.DTO.Login_logout_register.Respose;
 
 public class ResponseLogInDTO {
     private int user_id;

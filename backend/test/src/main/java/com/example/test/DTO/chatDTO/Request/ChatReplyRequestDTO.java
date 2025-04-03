@@ -1,4 +1,4 @@
-package com.example.test.DTO.chatDTO;
+package com.example.test.DTO.chatDTO.Request;
 
 public class ChatReplyRequestDTO {
     private int adminId;

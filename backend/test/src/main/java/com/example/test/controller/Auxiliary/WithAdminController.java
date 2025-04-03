@@ -1,11 +1,11 @@
-package com.example.test.controller.ChatController;
+package com.example.test.controller.Auxiliary;
 
 import com.example.test.Entity.User;
 import com.example.test.Entity.chatEntity.SupportMessage;
 import com.example.test.Repository.UserRepo.UserRepository;
-import com.example.test.DTO.chatDTO.ChatHistoryRequestDTO;
-import com.example.test.DTO.chatDTO.ChatReplyRequestDTO;
-import com.example.test.DTO.chatDTO.ChatSendRequestDTO;
+import com.example.test.DTO.chatDTO.Request.ChatHistoryRequestDTO;
+import com.example.test.DTO.chatDTO.Request.ChatReplyRequestDTO;
+import com.example.test.DTO.chatDTO.Request.ChatSendRequestDTO;
 import com.example.test.Service.ChatService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class WithAdminController {
     @Autowired
     private UserRepository userRepository;
 
-    // 📨 1. Người dùng gửi tin nhắn cho admin
+    // 1. Người dùng gửi tin nhắn cho admin
     @PostMapping("/send")
     public ResponseEntity<SupportMessage> sendMessageToAdmin(@RequestBody ChatSendRequestDTO request) {
         User sender = userRepository.findById(request.getSenderId()).orElseThrow();
@@ -36,7 +36,7 @@ public class WithAdminController {
         return ResponseEntity.ok(result);
     }
 
-    // 📥 2. Admin phản hồi người dùng
+    // 2. Admin phản hồi người dùng
     @PostMapping("/reply")
     public ResponseEntity<SupportMessage> adminReplyToUser(@RequestBody ChatReplyRequestDTO request) {
         User admin = userRepository.findById(request.getAdminId()).orElseThrow();
@@ -50,7 +50,7 @@ public class WithAdminController {
         return ResponseEntity.ok(result);
     }
 
-    // 📄 3. Lấy lịch sử chat giữa user và admin
+    //  3. Lấy lịch sử chat giữa user và admin
     @PostMapping("/history")
     public ResponseEntity<List<SupportMessage>> getChatWithAdmin(@RequestBody ChatHistoryRequestDTO request) {
         User user = userRepository.findById(request.getUserId()).orElseThrow();

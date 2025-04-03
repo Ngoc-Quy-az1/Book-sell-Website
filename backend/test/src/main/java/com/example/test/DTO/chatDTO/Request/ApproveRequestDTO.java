@@ -1,9 +1,9 @@
-package com.example.test.DTO.chatDTO;
+package com.example.test.DTO.chatDTO.Request;
 
 
 public class ApproveRequestDTO {
     private int adminId;
-    private String status; // "APPROVED" or "REJECTED"
+    private String status; 
 
     public int getAdminId() {
         return adminId;

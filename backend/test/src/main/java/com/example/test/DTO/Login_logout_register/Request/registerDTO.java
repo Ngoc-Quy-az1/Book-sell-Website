@@ -1,4 +1,4 @@
-package com.example.test.DTO.Login_logout_register;
+package com.example.test.DTO.Login_logout_register.Request;
 
 public class registerDTO {
     private String name;
