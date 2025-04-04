@@ -1,45 +1,27 @@
 package com.example.test.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "orders")
 public class Orders {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
-    private int orderId;  
+    private Integer orderId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)  
-    private User user;  
+    @Column(name = "user_id")
+    private Integer userId;
 
-    @Column(name = "total_amount", nullable = false)
-    private BigDecimal totalAmount;  
+    @Column(name = "total_amount")
+    private BigDecimal totalAmount;
 
-    public int getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 }

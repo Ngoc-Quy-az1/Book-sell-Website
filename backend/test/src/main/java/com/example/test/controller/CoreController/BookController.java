@@ -143,8 +143,8 @@ public class BookController {
             response.setAuthor(book.getAuthor());
             response.setCategory(book.getCategory());
             response.setImage(book.getImage());
-            response.setPrice_discounted(book.getPrice_discounted());
-            response.setPrice_original(book.getPrice_original());
+            response.setPrice_discounted((int)book.getPrice_discounted());
+            response.setPrice_original((int) book.getPrice_original());
             response.setDescription(book.getDescription());
             return response;
         }).collect(Collectors.toList());

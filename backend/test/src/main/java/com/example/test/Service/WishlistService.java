@@ -5,7 +5,7 @@ import com.example.test.Entity.User;
 import com.example.test.Entity.WishList.Wishlist;
 import com.example.test.Entity.WishList.WishlistId;
 import com.example.test.Repository.BookRepo.BookRepository;
-import com.example.test.Repository.BookRepo.WishlistRepository;
+import com.example.test.Repository.WishListRepo.WishlistRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
