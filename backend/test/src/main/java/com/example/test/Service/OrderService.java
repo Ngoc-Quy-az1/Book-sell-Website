@@ -1,7 +1,9 @@
 package com.example.test.Service;
 
 import com.example.test.DTO.order.request.CreateOrderRequest;
+import com.example.test.DTO.order.response.OrderResponse;
 import com.example.test.Entity.*;
+import com.example.test.Entity.User.MembershipLevel;
 import com.example.test.Repository.BookRepo.BookRepository;
 import com.example.test.Repository.CartRepo.CartRepository;
 import com.example.test.Repository.OrdersRepo.OrderDetailsRepository;
@@ -34,8 +36,11 @@ public class OrderService {
     @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
 
+    @Autowired
+    private AdminService adminService;
+
     @Transactional
-    public Orders createOrder(CreateOrderRequest request) {
+    public OrderResponse createOrder(CreateOrderRequest request) {
         try {
             // Tính tổng tiền và kiểm tra giỏ hàng
             BigDecimal totalAmount = BigDecimal.ZERO;
@@ -98,7 +103,16 @@ public class OrderService {
                 bookRepository.save(book);
             }
 
-            return order;
+            // 4. Kiểm tra và nâng cấp membership dựa trên tổng chi tiêu
+            MembershipLevel newLevel = adminService.checkAndUpgradeMembership(request.getUserId(), totalAmount);
+            
+            // 5. Tạo response với thông tin nâng cấp membership
+            OrderResponse response = OrderResponse.fromOrder(order);
+            if (newLevel != null) {
+                response.setUpgradeInfo(newLevel);
+            }
+            
+            return response;
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi tạo đơn hàng: " + e.getMessage());
         }

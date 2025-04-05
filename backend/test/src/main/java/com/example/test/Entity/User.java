@@ -95,6 +95,10 @@ public class User {
             return is_admin;
         }
 
+        public void setIs_admin(boolean is_admin) {
+            this.is_admin = is_admin;
+        }
+
         public boolean isAdmin() {
             return is_admin;
         }
