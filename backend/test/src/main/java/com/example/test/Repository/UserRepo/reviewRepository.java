@@ -12,8 +12,8 @@ import com.example.test.Entity.Review;
 import jakarta.persistence.Tuple;
 
 public interface reviewRepository extends JpaRepository<Review, Integer> {
-
-    @Query("SELECT new com.example.test.DTO.ReviewDTO.Response.ReviewDTO(r.comment, r.rating, r.user.ID, u.name, r.createdAt) " +
-            "FROM Review r JOIN r.user u JOIN r.book b WHERE b.ID = :bookId")
+  
+    @Query("SELECT new com.example.test.DTO.ReviewDTO.Response.ReviewDTO(r.comment, r.rating, r.user.id, u.name, r.createdAt) " +
+       "FROM Review r JOIN r.user u JOIN r.book b WHERE b.ID = :bookId")
     List<ReviewDTO> findReviewsByBookId(@Param("bookId") int bookId);
 }

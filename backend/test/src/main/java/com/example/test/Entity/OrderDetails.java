@@ -1,97 +1,35 @@
 package com.example.test.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "order_details")
+@IdClass(OrderDetailsId.class)
 public class OrderDetails {
+    @Id
+    @Column(name = "order_id")
+    private Integer orderId;
 
-    @EmbeddedId
-    private OrderDetailsId id;
+    @Id
+    @Column(name = "book_id")
+    private Integer bookId;
 
-    @ManyToOne
-    @MapsId("orderId")
-    @JoinColumn(name = "order_id", nullable = false)
-    private PurchaseHistory order;
+    @Column(name = "quantity")
+    private Integer quantity;
 
-    @ManyToOne
-    @MapsId("bookId")
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
-
-    @Column(name = "quantity", nullable = false)
-    private int quantity;
-
-    @Column(name = "price", nullable = false)
+    @Column(name = "price")
     private BigDecimal price;
 
-    public OrderDetailsId getId() {
-        return id;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private Orders order;
 
-    public void setId(OrderDetailsId id) {
-        this.id = id;
-    }
-
-    public PurchaseHistory getOrder() {
-        return order;
-    }
-
-    public void setOrder(PurchaseHistory order) {
-        this.order = order;
-    }
-
-    public Book getBook() {
-        return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-}
-
-@Embeddable
-class OrderDetailsId implements java.io.Serializable {
-    private int orderId;
-    private int bookId;
-
-    public OrderDetailsId() {}
-
-    public OrderDetailsId(int orderId, int bookId) {
-        this.orderId = orderId;
-        this.bookId = bookId;
-    }
-
-    public int getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public int getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(int bookId) {
-        this.bookId = bookId;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id", insertable = false, updatable = false)
+    private Book book;
 }
