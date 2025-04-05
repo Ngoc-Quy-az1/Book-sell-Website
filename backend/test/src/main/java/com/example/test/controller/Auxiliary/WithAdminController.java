@@ -24,7 +24,32 @@ public class WithAdminController {
     @Autowired
     private UserRepository userRepository;
 
-    // 1. Người dùng gửi tin nhắn cho admin
+    /**
+     * Người dùng gửi tin nhắn cho admin
+     * Method: POST
+     * URL: http://localhost:8090/api/chat/admin/send
+     * 
+     * Request Body:
+     * {
+     *   "senderId": 1,           // ID của người gửi
+     *   "message": "Xin chào"    // Nội dung tin nhắn
+     * }
+     * 
+     * Success Response (200 OK):
+     * {
+     *   "id": 1,
+     *   "sender": {
+     *     "id": 1,
+     *     "name": "Nguyen Van A"
+     *   },
+     *   "receiver": {
+     *     "id": 2,
+     *     "name": "Admin"
+     *   },
+     *   "message": "Xin chào",
+     *   "createdAt": "2024-03-14T10:30:00"
+     * }
+     */
     @PostMapping("/send")
     public ResponseEntity<SupportMessage> sendMessageToAdmin(@RequestBody ChatSendRequestDTO request) {
         User sender = userRepository.findById(request.getSenderId()).orElseThrow();
@@ -36,7 +61,36 @@ public class WithAdminController {
         return ResponseEntity.ok(result);
     }
 
-    // 2. Admin phản hồi người dùng
+    /**
+     * Admin phản hồi tin nhắn cho người dùng
+     * Method: POST
+     * URL: http://localhost:8090/api/chat/admin/reply
+     * 
+     * Request Body:
+     * {
+     *   "adminId": 2,            // ID của admin
+     *   "userId": 1,             // ID của người dùng
+     *   "message": "Chào bạn"    // Nội dung phản hồi
+     * }
+     * 
+     * Success Response (200 OK):
+     * {
+     *   "id": 2,
+     *   "sender": {
+     *     "id": 2,
+     *     "name": "Admin"
+     *   },
+     *   "receiver": {
+     *     "id": 1,
+     *     "name": "Nguyen Van A"
+     *   },
+     *   "message": "Chào bạn",
+     *   "createdAt": "2024-03-14T10:31:00"
+     * }
+     * 
+     * Error Response (400 Bad Request):
+     * "Sender is not admin" - Nếu người gửi không phải là admin
+     */
     @PostMapping("/reply")
     public ResponseEntity<SupportMessage> adminReplyToUser(@RequestBody ChatReplyRequestDTO request) {
         User admin = userRepository.findById(request.getAdminId()).orElseThrow();
@@ -50,7 +104,46 @@ public class WithAdminController {
         return ResponseEntity.ok(result);
     }
 
-    //  3. Lấy lịch sử chat giữa user và admin
+    /**
+     * Lấy lịch sử chat giữa người dùng và admin
+     * Method: POST
+     * URL: http://localhost:8090/api/chat/admin/history
+     * 
+     * Request Body:
+     * {
+     *   "userId": 1  // ID của người dùng
+     * }
+     * 
+     * Success Response (200 OK):
+     * [
+     *   {
+     *     "id": 1,
+     *     "sender": {
+     *       "id": 1,
+     *       "name": "Nguyen Van A"
+     *     },
+     *     "receiver": {
+     *       "id": 2,
+     *       "name": "Admin"
+     *     },
+     *     "message": "Xin chào",
+     *     "createdAt": "2024-03-14T10:30:00"
+     *   },
+     *   {
+     *     "id": 2,
+     *     "sender": {
+     *       "id": 2,
+     *       "name": "Admin"
+     *     },
+     *     "receiver": {
+     *       "id": 1,
+     *       "name": "Nguyen Van A"
+     *     },
+     *     "message": "Chào bạn",
+     *     "createdAt": "2024-03-14T10:31:00"
+     *   }
+     * ]
+     */
     @PostMapping("/history")
     public ResponseEntity<List<SupportMessage>> getChatWithAdmin(@RequestBody ChatHistoryRequestDTO request) {
         User user = userRepository.findById(request.getUserId()).orElseThrow();

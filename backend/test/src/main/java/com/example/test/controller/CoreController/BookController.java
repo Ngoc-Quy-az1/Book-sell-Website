@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
+@CrossOrigin(origins = "*")
 public class BookController {
 
     @Autowired
@@ -27,70 +28,125 @@ public class BookController {
     @Autowired
     private WishlistService wishlistService;
 
-    // API thêm sách
-    // http://localhost:8080/api/books/add
-//    {
-    //     "title": "Book Title",
-    //     "price_original": 199000,
-    //     "price_discounted": 149000,
-    //     "description": "Book Description",
-    //     "author": "Author Name",
-    //     "translator": "Translator Name",
-    //     "publisher": "Publisher Name",
-    //     "category": "Category Name",
-    //     "stock": 100,
-    //     "dimensions": "10x15x20 cm",
-    //     "pages": 300,
-    //     "created_at": "2022-01-01"
-    //     "image": "https://example.com/book-image.jpg"
-//    }
+    /**
+     * Thêm sách mới vào hệ thống
+     * Method: POST
+     * URL: http://localhost:8090/api/books/add
+     * 
+     * Request Body:
+     * {
+     *   "title": "Book Title",           // Tên sách
+     *   "price_original": 199000,        // Giá gốc
+     *   "price_discounted": 149000,      // Giá đã giảm
+     *   "description": "Book Description", // Mô tả sách
+     *   "author": "Author Name",         // Tác giả
+     *   "translator": "Translator Name", // Dịch giả (nếu có)
+     *   "publisher": "Publisher Name",   // Nhà xuất bản
+     *   "category": "Category Name",     // Thể loại
+     *   "stock": 100,                    // Số lượng tồn kho
+     *   "dimensions": "10x15x20 cm",     // Kích thước
+     *   "pages": 300,                    // Số trang
+     *   "created_at": "2022-01-01",      // Ngày tạo
+     *   "image": "https://example.com/book-image.jpg" // URL hình ảnh
+     * }
+     * 
+     * Success Response (200 OK):
+     * {
+     *   "id": 1,
+     *   ... // Thông tin sách vừa thêm
+     * }
+     */
     @PostMapping("/add")
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
         Book addedBook = bookService.addBook(book);
         return ResponseEntity.ok(addedBook);
     }
 
-    // API sửa sách
-    // http://localhost:8080/api/books/update/1
-//    {
-    //     "title": "Updated Book Title",
-    //     "price_original": 199000,
-    //     "price_discounted": 149000,
-    //     "description": "Updated Book Description",
-    //     "author": "Updated Author Name",
-    //     "translator": "Updated Translator Name",
-    //     "publisher": "Updated Publisher Name",
-    //     "category": "Updated Category Name",
-    //     "stock": 100,
-    //     "dimensions": "10x15x20 cm",
-    //     "pages": 300,
-    //     "created_at": "2022-01-01"
-    //     "image": "https://example.com/updated-book-image.jpg"
-//}
+    /**
+     * Cập nhật thông tin sách
+     * Method: PUT
+     * URL: http://localhost:8090/api/books/update/{id}
+     * 
+     * Path Variable:
+     * - id: ID của sách cần cập nhật
+     * 
+     * Request Body: (Chỉ cần gửi các trường cần cập nhật)
+     * {
+     *   "title": "Updated Book Title",
+     *   "price_original": 199000,
+     *   "price_discounted": 149000,
+     *   ... // Các trường khác tương tự như khi thêm sách
+     * }
+     * 
+     * Success Response (200 OK):
+     * {
+     *   "id": 1,
+     *   ... // Thông tin sách sau khi cập nhật
+     * }
+     */
     @PutMapping("/update/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Book bookDetails) {
         Book updatedBook = bookService.updateBook(id, bookDetails);
         return ResponseEntity.ok(updatedBook);
     }
 
-    // API xóa sách
-    // http://localhost:8080/api/books/delete/1  
+    /**
+     * Xóa sách khỏi hệ thống
+     * Method: DELETE
+     * URL: http://localhost:8090/api/books/delete/{id}
+     * 
+     * Path Variable:
+     * - id: ID của sách cần xóa
+     * 
+     * Success Response (200 OK):
+     * "Book deleted successfully."
+     */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable int id) {
         bookService.deleteBook(id);
         return ResponseEntity.ok("Book deleted successfully.");
     }
 
-    // API lấy thông tin sách theo ID
-    // http://localhost:8080/api/books/1
+    /**
+     * Lấy thông tin chi tiết của một sách
+     * Method: GET
+     * URL: http://localhost:8090/api/books/{id}
+     * 
+     * Path Variable:
+     * - id: ID của sách cần xem
+     * 
+     * Success Response (200 OK):
+     * {
+     *   "id": 1,
+     *   "title": "Book Title",
+     *   "price_original": 199000,
+     *   "price_discounted": 149000,
+     *   ... // Toàn bộ thông tin của sách
+     * }
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable int id) {
         Book book = bookService.getBookById(id);
         return ResponseEntity.ok(book);
     }
 
-    // API lấy danh sách tất cả sách
-    //http://localhost:8080/api/book/all
+    /**
+     * Lấy danh sách tất cả sách
+     * Method: GET
+     * URL: http://localhost:8090/api/books/all
+     * 
+     * Success Response (200 OK):
+     * [
+     *   {
+     *     "id": 1,
+     *     ... // Thông tin sách 1
+     *   },
+     *   {
+     *     "id": 2,
+     *     ... // Thông tin sách 2
+     *   }
+     * ]
+     */
     @GetMapping("/all")
     public ResponseEntity<List<Book>> getAllBooks() {
         Iterable<Book> booksIterable = bookService.getAllBooks();  
@@ -99,14 +155,44 @@ public class BookController {
         return ResponseEntity.ok(booksList);  
     }
 
-    // API lấy sách theo danh mục thể loại
+    /**
+     * Lấy danh sách sách theo thể loại
+     * Method: GET
+     * URL: http://localhost:8090/api/books/category?category=Tiểu thuyết
+     * 
+     * Query Parameter:
+     * - category: Tên thể loại cần tìm
+     * 
+     * Success Response (200 OK):
+     * [
+     *   {
+     *     "id": 1,
+     *     "category": "Tiểu thuyết",
+     *     ... // Thông tin sách
+     *   }
+     * ]
+     */
     @GetMapping("/category")
     public ResponseEntity<List<Book>> getBooksByCategory(@RequestParam String category) {
         List<Book> books = bookService.getBooksByCategory(category);
         return ResponseEntity.ok(books);
     }
 
-    // API thêm sách vào wishlist
+    /**
+     * Thêm sách vào danh sách yêu thích
+     * Method: POST
+     * URL: http://localhost:8090/api/books/wishlist/{userId}/{bookId}
+     * 
+     * Path Variables:
+     * - userId: ID của người dùng
+     * - bookId: ID của sách muốn thêm vào wishlist
+     * 
+     * Success Response (200 OK):
+     * "Book added to wishlist successfully."
+     * 
+     * Error Response (400 Bad Request):
+     * "Book is already in the wishlist."
+     */
     @PostMapping("/wishlist/{userId}/{bookId}")
     public ResponseEntity<String> addBookToWishlist(@PathVariable int userId, @PathVariable int bookId) {
         boolean isAdded = wishlistService.addBookToWishlist(userId, bookId);
@@ -117,20 +203,75 @@ public class BookController {
         }
     }
 
-    // API lấy danh sách yêu thích của người dùng
+    /**
+     * Lấy danh sách sách yêu thích của người dùng
+     * Method: GET
+     * URL: http://localhost:8090/api/books/wishlist/{userId}
+     * 
+     * Path Variable:
+     * - userId: ID của người dùng
+     * 
+     * Success Response (200 OK):
+     * [
+     *   {
+     *     "id": 1,
+     *     ... // Thông tin sách trong wishlist
+     *   }
+     * ]
+     */
     @GetMapping("/wishlist/{userId}")
     public ResponseEntity<List<Book>> getWishlist(@PathVariable int userId) {
         List<Book> wishlist = wishlistService.getWishlistByUserId(userId);
         return ResponseEntity.ok(wishlist);
     }
 
-    // API xóa sách khỏi wishlist
+    /**
+     * Xóa sách khỏi danh sách yêu thích
+     * Method: DELETE
+     * URL: http://localhost:8090/api/books/wishlist/{userId}/{bookId}
+     * 
+     * Path Variables:
+     * - userId: ID của người dùng
+     * - bookId: ID của sách muốn xóa khỏi wishlist
+     * 
+     * Success Response (200 OK):
+     * "Book deleted from wishlist successfully."
+     */
     @DeleteMapping("/wishlist/{userId}/{bookId}")
     public ResponseEntity<String> deleteBookFromWishlist(@PathVariable int userId, @PathVariable int bookId) {
         wishlistService.deleteBookFromWishlist(userId, bookId);
         return ResponseEntity.ok("Book deleted from wishlist successfully.");
     }
 
+    /**
+     * Lấy danh sách sách có phân trang
+     * Method: GET
+     * URL: http://localhost:8090/api/books/GetAllPaginated?page=0&size=20
+     * 
+     * Query Parameters:
+     * - page: Số trang (mặc định: 0)
+     * - size: Số sách mỗi trang (mặc định: 20)
+     * 
+     * Success Response (200 OK):
+     * {
+     *   "content": [
+     *     {
+     *       "id": 1,
+     *       "title": "Book Title",
+     *       "author": "Author Name",
+     *       "category": "Category",
+     *       "image": "image_url",
+     *       "price_discounted": 149000,
+     *       "price_original": 199000,
+     *       "description": "Book Description"
+     *     }
+     *   ],
+     *   "totalPages": 5,
+     *   "totalElements": 100,
+     *   "size": 20,
+     *   "number": 0
+     * }
+     */
     @GetMapping("/GetAllPaginated")
     public ResponseEntity<Page<BookResponse>> getAllBooksPaginated(
             @RequestParam(defaultValue = "0") int page,
@@ -143,8 +284,8 @@ public class BookController {
             response.setAuthor(book.getAuthor());
             response.setCategory(book.getCategory());
             response.setImage(book.getImage());
-            response.setPrice_discounted(book.getPrice_discounted());
-            response.setPrice_original(book.getPrice_original());
+            response.setPrice_discounted((int)book.getPrice_discounted());
+            response.setPrice_original((int) book.getPrice_original());
             response.setDescription(book.getDescription());
             return response;
         }).collect(Collectors.toList());

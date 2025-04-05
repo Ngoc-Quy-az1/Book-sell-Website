@@ -1,70 +1,30 @@
 package com.example.test.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "purchase_history")
 public class PurchaseHistory {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int orderId;
+    @Column(name = "order_id")
+    private Integer orderId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id")
+    private Integer userId;
 
-    @Column(name = "total_amount", nullable = false)
+    @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private PurchaseStatus status = PurchaseStatus.PENDING;
+    private PurchaseStatus status;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    public int getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public PurchaseStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PurchaseStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-}
-
-enum PurchaseStatus {
-    PENDING,
-    COMPLETED,
-    CANCELLED
+    @Column(name = "created_at")
+    private Timestamp createdAt;
 }

@@ -1,8 +1,10 @@
 package com.example.test.Entity;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "books")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Book {
 
     @Id
@@ -17,12 +19,12 @@ public class Book {
     private String image;  
 
     @Column(name = "price_discounted")
-    private int price_discounted;
+    private double price_discounted;
 
     @Column(name = "price_original")
-    private int price_original;
+    private double price_original;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "author")
@@ -73,19 +75,19 @@ public class Book {
         this.image = image;
     }
 
-    public int getPrice_discounted() {
+    public double getPrice_discounted() {
         return price_discounted;
     }
 
-    public void setPrice_discounted(int price_discounted) {
+    public void setPrice_discounted(double price_discounted) {
         this.price_discounted = price_discounted;
     }
 
-    public int getPrice_original() {
+    public double getPrice_original() {
         return price_original;
     }
 
-    public void setPrice_original(int price_original) {
+    public void setPrice_original(double price_original) {
         this.price_original = price_original;
     }
 
