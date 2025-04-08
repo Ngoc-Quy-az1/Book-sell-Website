@@ -35,7 +35,7 @@ public class ChatService {
         SupportMessage supportMessage = new SupportMessage();
         supportMessage.setSender(sender);
         supportMessage.setChatGroup(group);
-        supportMessage.setConversationUser(sender); // placeholder
+        supportMessage.setConversationUser(sender);
         supportMessage.setMessage(message);
         supportMessage.setChatType(SupportMessage.ChatType.GROUP);
         supportMessage.setCreatedAt(LocalDateTime.now());

@@ -2,8 +2,12 @@ package com.example.test.controller.CoreController;
 
 import com.example.test.Entity.User;
 import com.example.test.Service.AdminService;
+import com.example.test.Service.JwtService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -20,6 +24,9 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private JwtService jwtService;
+
     /**
      * Lấy danh sách tất cả người dùng
      * Method: GET
@@ -35,11 +42,21 @@ public class AdminController {
      *   }
      * ]
      */
-    @GetMapping("/users")
-    public List<User> getAllUsers() {
-        System.out.println("Calling getAllUsers");
-        return adminService.findAllUser();
+
+@GetMapping("/users")
+public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") String token) {
+    // Remove "Bearer " prefix if present
+    if (token.startsWith("Bearer ")) {
+        token = token.substring(7);
     }
+    
+    String role = jwtService.getUserRoleFromToken(token);
+    if (!role.equals("ROLE_ADMIN")) {
+        return ResponseEntity.status(403).build(); 
+    }
+    return ResponseEntity.ok(adminService.findAllUser());
+}
+
 
     /**
      * Lấy số lượng người dùng
@@ -48,6 +65,7 @@ public class AdminController {
      * Response: Số lượng người dùng trong hệ thống
      * Example: 42
      */
+    @PreAuthorize("hasRole('1')")
     @GetMapping("/users/count")
     public ResponseEntity<Long> getTotalUsers() {
         long totalUsers = adminService.getTotalUsers();
@@ -263,9 +281,5 @@ public class AdminController {
         }
         
         return ResponseEntity.ok(response);
-    }
-
-    public AdminController() {
-        System.out.println("AdminController Loaded!");
     }
 }

@@ -10,5 +10,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Integer> {
         List<Book> findByCategory(String category);
-
 }

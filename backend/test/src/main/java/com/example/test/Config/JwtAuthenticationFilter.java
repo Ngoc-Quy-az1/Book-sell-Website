@@ -44,6 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             
             if (jwtService.isTokenValid(jwt, userDetails)) {
+                String role = jwtService.getUserRoleFromToken(jwt); // Lấy role từ token
+
+                // Dựa vào role, bạn có thể quyết định quyền hạn
+                if(role.contains("ROLE_ADMIN")) {
+                    // Token là của admin
+                } else if(role.contains("ROLE_USER")) {
+                    // Token là của user
+                }
+
+                // Tiến hành xử lý xác thực thông qua Spring Security
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
@@ -55,4 +65,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-} 
+}

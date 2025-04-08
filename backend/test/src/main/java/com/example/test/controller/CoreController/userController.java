@@ -9,6 +9,7 @@ import com.example.test.DTO.ReviewDTO.Response.ReviewDTO;
 import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
+import com.example.test.Service.JwtService;
 import com.example.test.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,11 @@ public class userController {
     private UserService userService;
 
     @Autowired
+    private JwtService jwtService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
 
 //    {
 //         "name" : "linh",
@@ -57,6 +62,11 @@ public class userController {
     }
 
     // {
+    //     "mail": "Phamthuy20102006@gmail.com",
+    //     "password": "12345"
+    // }
+    // hoặc
+    // {
     //     "phone":"12091112212",
     //     "password":"12345"
     // }
@@ -74,6 +84,7 @@ public class userController {
     
     @PutMapping("/update/{userId}")
     public User updateUser(@PathVariable Integer userId, @RequestBody MoreRegisterDTO moreRegisterDTO) {
+        
         return userService.updateUserInfo(userId, moreRegisterDTO);
     }
 

@@ -24,10 +24,13 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
 
+        // Xác định role dựa trên is_admin
+        String role = user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
+
         return new org.springframework.security.core.userdetails.User(
-                user.getMail(),
-                user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER"))
+            user.getMail(),
+            user.getPassword(),
+            Collections.singletonList(new SimpleGrantedAuthority(role))
         );
     }
 } 

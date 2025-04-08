@@ -18,10 +18,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.DayOfWeek;
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
 import com.example.test.Entity.User.MembershipLevel;
 
 @Service
@@ -208,9 +206,9 @@ public class AdminService {
         if (newLevel != null && newLevel.ordinal() > user.getMembershipLevel().ordinal()) {
             user.setMembershipLevel(newLevel);
             userRepository.save(user);
-            return newLevel; // Trả về cấp độ mới nếu có nâng cấp
+            return newLevel; 
         }
         
-        return null; // Trả về null nếu không có nâng cấp
+        return null; 
     }
 }

@@ -57,6 +57,12 @@ public class UserService {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
     public String generateRandomNumber() {
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -141,14 +147,14 @@ public class UserService {
     // log in
     public ResponseLogInDTO logIn(logInDTO infor) {
         ResponseLogInDTO result = new ResponseLogInDTO();
-
+    
         // Kiểm tra đầu vào
         if (infor == null || (infor.getPhone() == null && infor.getMail() == null)) {
             result.setMessage("Phone or email is required!");
             result.setStatus(false);
             return result;
         }
-
+    
         // Tìm user theo phone hoặc mail
         User user = null;
         if (infor.getPhone() != null) {
@@ -157,27 +163,37 @@ public class UserService {
         if (user == null && infor.getMail() != null) {
             user = userRepository.findUserByMail(infor.getMail());
         }
-
+    
         // Kiểm tra tài khoản tồn tại
         if (user == null) {
             result.setMessage("This account doesn't exist!");
             result.setStatus(false);
             return result;
         }
-
+    
         // Kiểm tra mật khẩu
         if (passwordEncoder.matches(infor.getPassword(), user.getPassword())) {
             result.setUser_id(user.getID());
             result.setMessage("Successfully log in!");
             result.setStatus(true);
             user.setIs_login(true);
+    
+            // Tạo JWT token sau khi đăng nhập thành công
+            String token = jwtService.generateToken(userDetailsService.loadUserByUsername(user.getMail())); 
+    
+            // Thêm token vào kết quả trả về
+            result.setToken(token);  // Trả token về trong response
+    
+            // Lưu lại trạng thái login của user
+            userRepository.save(user);  // Cập nhật trạng thái is_login trong database
         } else {
             result.setMessage("Wrong password!");
             result.setStatus(false);
         }
-
+    
         return result;
     }
+    
     // update infor
     public boolean updateUserDetails(int userId, MoreRegisterDTO moreRegisterDTO) {
         Optional<User> optionalUser = userRepository.findById(userId);
