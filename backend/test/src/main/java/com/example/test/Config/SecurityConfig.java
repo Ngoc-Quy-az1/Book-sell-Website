@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -31,35 +32,77 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and()
-            .csrf().disable()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeHttpRequests(authorize -> authorize
-                // Public APIs - không cần đăng nhập
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
+                // Public endpoints - Không cần đăng nhập
                 .requestMatchers(
-                    "/api/users/register",
-                    "/api/users/verify",
-                    "/api/users/login",
-                    "/api/users/forgot-password",
-                    "/api/users/reset-password"
+                    "/api/auth/**",                    // Các API xác thực
+                    "/api/users/login",                // API đăng nhập
+                    "/api/users/register",             // API đăng ký
+                    "/api/users/verify",               // API xác thực email
+                    "/api/books/search/**",            // API tìm kiếm sách
+                    "/api/books/categories/**",        // API danh mục sách
+                    "/api/books/details/**"            // API chi tiết sách
                 ).permitAll()
-                
-                // Admin APIs - cần role ADMIN
-                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                
-                // User APIs - cần đăng nhập
+
+                // Payment endpoints - Không cần đăng nhập
                 .requestMatchers(
-                    "/api/users/**",
-                    "/api/books/**",
-                    "/api/cart/**",
-                    "/api/order/**"
+                    "/api/payment/create-payment/**",
+                    "/api/payment/check-status/**",
+                    "/api/payment/vnpay-return/**"
+                ).permitAll()
+
+                // User endpoints - Cần đăng nhập
+                .requestMatchers(
+                    "/api/users/profile/**",           // Thông tin cá nhân
+                    "/api/users/update-profile/**",    // Cập nhật thông tin
+                    "/api/users/change-password/**",   // Đổi mật khẩu
+                    "/api/users/orders/**",            // Lịch sử đơn hàng
+                    "/api/cart/**",                    // Giỏ hàng
+                    "/api/orders/**"                   // Đặt hàng
                 ).authenticated()
+
+                // Admin endpoints - Cần role ADMIN
+                .requestMatchers(
+                    "/api/admin/**",                   // Tất cả API admin
+                    "/api/books/add/**",               // Thêm sách
+                    "/api/books/update/**",            // Cập nhật sách
+                    "/api/books/delete/**"             // Xóa sách
+                ).hasRole("ADMIN")
+
+                // Mặc định - Yêu cầu xác thực
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type",
+            "X-Requested-With",
+            "Accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers"
+        ));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
@@ -78,18 +121,5 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Thay đổi theo domain của frontend
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }

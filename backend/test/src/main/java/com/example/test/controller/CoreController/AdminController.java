@@ -27,6 +27,14 @@ public class AdminController {
     @Autowired
     private JwtService jwtService;
 
+    private boolean isAdmin(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String role = jwtService.getUserRoleFromToken(token);
+        return "ROLE_ADMIN".equals(role);
+    }
+
     /**
      * Lấy danh sách tất cả người dùng
      * Method: GET
@@ -43,20 +51,13 @@ public class AdminController {
      * ]
      */
 
-@GetMapping("/users")
-public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") String token) {
-    // Remove "Bearer " prefix if present
-    if (token.startsWith("Bearer ")) {
-        token = token.substring(7);
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(adminService.findAllUser());
     }
-    
-    String role = jwtService.getUserRoleFromToken(token);
-    if (!role.equals("ROLE_ADMIN")) {
-        return ResponseEntity.status(403).build(); 
-    }
-    return ResponseEntity.ok(adminService.findAllUser());
-}
-
 
     /**
      * Lấy số lượng người dùng
@@ -65,9 +66,12 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Response: Số lượng người dùng trong hệ thống
      * Example: 42
      */
-    @PreAuthorize("hasRole('1')")
+
     @GetMapping("/users/count")
-    public ResponseEntity<Long> getTotalUsers() {
+    public ResponseEntity<Long> getTotalUsers(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         long totalUsers = adminService.getTotalUsers();
         return ResponseEntity.ok(totalUsers);
     }
@@ -77,16 +81,27 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Method: GET
      * URL: http://localhost:8090/api/admin/users/{userId}
      * Response: Thông tin chi tiết của người dùng hoặc 404 Not Found
-     * {
-     *   "id": 14,
-     *   "name": "Nguyen A",
-     *   "email": "nguyena@example.com",
-     *   "membershipLevel": "SILVER",
-     *   "balance": 30000.00
-     * }
+    {
+    "name": "linh",
+    "phone": "12091212",
+    "password": "$2a$10$MlvLoIecFw2/2SmV/ucnveW8G4dV35Ohsfwtzj2aw7FQ2sazLc5be",
+    "mail": "mahndugn2@gmail.com",
+    "is_admin": false,
+    "full_name": null,
+    "address": "123 Nguyen Trai, Ha Noi",
+    "points": 16,
+    "balance": 1.0,
+    "membershipLevel": "Platinum",
+    "is_login": true,
+    "id": 2,
+    "admin": false
+}
      */
     @GetMapping("/users/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable int userId) {
+    public ResponseEntity<User> getUserById(@RequestHeader("Authorization") String token, @PathVariable int userId) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         User user = adminService.findById(userId);
         if (user != null) {
             return ResponseEntity.ok(user);
@@ -108,11 +123,28 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      *   "address": "123 ABC Street"
      * }
      * Response: Thông tin người dùng đã được tạo
+     * {
+    "name": "Nguyen A3",
+    "phone": "09367957292",
+    "password": "$2a$10$MgvrjICNtzlHXcLhO9cVpOjhCYIPrIZSPMv1z6zCOllU0LyhrQ8ni",
+    "mail": "nguyena1@example.com",
+    "is_admin": false,
+    "full_name": "Nguyen Van A",
+    "address": "123 ABC Street",
+    "points": 0,
+    "balance": 0.0,
+    "membershipLevel": "Silver",
+    "is_login": false,
+    "id": 23,
+    "admin": false
+    }
      */
     @PostMapping("/createUsers")
-    public ResponseEntity<?> createUser(@RequestBody User userDto) {
+    public ResponseEntity<?> createUser(@RequestHeader("Authorization") String token, @RequestBody User userDto) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         try {
-            // Set giá trị mặc định
             userDto.setIs_admin(false);
             userDto.setIs_login(false);
             userDto.setPoints(0);
@@ -138,7 +170,12 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Response: Thông báo kết quả cập nhật
      */
     @PutMapping("/updateUsers/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable int userId, @RequestBody User userDetails) {
+    public ResponseEntity<String> updateUser(@RequestHeader("Authorization") String token, 
+                                           @PathVariable int userId, 
+                                           @RequestBody User userDetails) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         User updatedUser = adminService.update(userId, userDetails);
         if (updatedUser != null) {
             return ResponseEntity.ok("Cập nhật thành công");
@@ -150,10 +187,15 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Xóa người dùng
      * Method: DELETE
      * URL: http://localhost:8090/api/admin/deleteUsers/{userId}
+     * ví dụ : http://localhost:8090/api/admin/deleteUsers/1
      * Response: Thông báo kết quả xóa
      */
     @DeleteMapping("/deleteUsers/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable int userId) {
+    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String token, 
+                                                            @PathVariable int userId) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         adminService.delete(userId);
         return ResponseEntity.ok("Xóa người dùng thành công");
     }
@@ -166,7 +208,10 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Example: 150
      */
     @GetMapping("/orders/count")
-    public ResponseEntity<Long> getTotalOrders() {
+    public ResponseEntity<Long> getTotalOrders(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         long totalOrders = adminService.getTotalOrders();
         return ResponseEntity.ok(totalOrders);
     }
@@ -179,7 +224,10 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Example: 15000000.00
      */
     @GetMapping("/revenue/total")
-    public ResponseEntity<BigDecimal> getTotalRevenue() {
+    public ResponseEntity<BigDecimal> getTotalRevenue(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         BigDecimal totalRevenue = adminService.getTotalRevenue();
         return ResponseEntity.ok(totalRevenue);
     }
@@ -192,7 +240,10 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Example: 5000000.00
      */
     @GetMapping("/revenue/monthly")
-    public ResponseEntity<BigDecimal> getMonthlyRevenue() {
+    public ResponseEntity<BigDecimal> getMonthlyRevenue(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         BigDecimal monthlyRevenue = adminService.getMonthlyRevenue();
         return ResponseEntity.ok(monthlyRevenue);
     }
@@ -205,7 +256,10 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Example: 2000000.00
      */
     @GetMapping("/revenue/weekly")
-    public ResponseEntity<BigDecimal> getWeeklyRevenue() {
+    public ResponseEntity<BigDecimal> getWeeklyRevenue(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         BigDecimal weeklyRevenue = adminService.getWeeklyRevenue();
         return ResponseEntity.ok(weeklyRevenue);
     }
@@ -218,7 +272,10 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * Example: 500000.00
      */
     @GetMapping("/revenue/daily")
-    public ResponseEntity<BigDecimal> getDailyRevenue() {
+    public ResponseEntity<BigDecimal> getDailyRevenue(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         BigDecimal dailyRevenue = adminService.getDailyRevenue();
         return ResponseEntity.ok(dailyRevenue);
     }
@@ -238,7 +295,10 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * ]
      */
     @GetMapping("/users/top-spenders")
-    public ResponseEntity<List<Map<String, Object>>> getTopSpendingUsers() {
+    public ResponseEntity<List<Map<String, Object>>> getTopSpendingUsers(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         List<Object[]> results = adminService.getTopSpendingUsers();
         List<Map<String, Object>> response = new ArrayList<>();
         
@@ -268,7 +328,10 @@ public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") St
      * ]
      */
     @GetMapping("/revenue/by-category")
-    public ResponseEntity<List<Map<String, Object>>> getRevenueByCategory() {
+    public ResponseEntity<List<Map<String, Object>>> getRevenueByCategory(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         List<Object[]> results = adminService.getRevenueByCategory();
         List<Map<String, Object>> response = new ArrayList<>();
         

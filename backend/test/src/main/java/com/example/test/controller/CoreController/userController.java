@@ -61,6 +61,7 @@ public class userController {
         return userService.verify(mail, code);
     }
 
+    //      localhost:8090/api/users/login
     // {
     //     "mail": "Phamthuy20102006@gmail.com",
     //     "password": "12345"
@@ -103,18 +104,6 @@ public class userController {
         return userService.logOut(userId);
     }
 
-    //Review
-    // http://localhost:8090/api/users/review/2/1
-    // {
-    //     "rating": "5",
-    //     "comment": "I like this book"
-    //   }
-      
-    @PostMapping("/review/{userId}/{bookId}")
-    public boolean review(@PathVariable Integer userId, @PathVariable Integer bookId, @RequestBody Map<String, String> body) {
-        return userService.review(userId, bookId, body);
-    }
-
     //Get all review of a book
     // http://localhost:8090/api/users/review/2
     @GetMapping("/review/{bookId}")
@@ -122,4 +111,14 @@ public class userController {
         return userService.getAllReviews(bookId);
     }
 
+    //Add review for a book
+    // http://localhost:8090/api/users/review/2/1
+    // {
+    //     "rating": "5",
+    //     "comment": "I like this book"
+    //   }
+    @PostMapping("/review/{userId}/{bookId}")
+    public boolean review(@PathVariable Integer userId, @PathVariable Integer bookId, @RequestBody Map<String, String> body) {
+        return userService.review(userId, bookId, body);
+    }
 }

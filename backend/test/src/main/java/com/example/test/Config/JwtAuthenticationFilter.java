@@ -29,31 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
+        System.out.println("Auth header: " + authHeader); // Debug log
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("No valid auth header found"); // Debug log
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
+        String jwt = authHeader.substring(7);
+        String userEmail = jwtService.extractUsername(jwt);
+        System.out.println("Extracted email: " + userEmail); // Debug log
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            
+            System.out.println("User authorities: " + userDetails.getAuthorities()); // Debug log
+
             if (jwtService.isTokenValid(jwt, userDetails)) {
-                String role = jwtService.getUserRoleFromToken(jwt); // Lấy role từ token
-
-                // Dựa vào role, bạn có thể quyết định quyền hạn
-                if(role.contains("ROLE_ADMIN")) {
-                    // Token là của admin
-                } else if(role.contains("ROLE_USER")) {
-                    // Token là của user
-                }
-
-                // Tiến hành xử lý xác thực thông qua Spring Security
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
@@ -61,8 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("Authentication set in context"); // Debug log
+            } else {
+                System.out.println("Token validation failed"); // Debug log
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }

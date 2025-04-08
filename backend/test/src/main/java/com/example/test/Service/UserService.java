@@ -275,4 +275,7 @@ public class UserService {
             return reviewDTOs;
         }
     
+    public User findUserByMail(String email) {
+        return userRepository.findUserByMail(email);
+    }
 }

@@ -77,7 +77,7 @@ public class OrderService {
             purchaseHistory.setOrderId(order.getOrderId());
             purchaseHistory.setUserId(request.getUserId());
             purchaseHistory.setTotalAmount(totalAmount);
-            purchaseHistory.setStatus(PurchaseStatus.Completed);
+            purchaseHistory.setStatus(PurchaseStatus.Pending);
             purchaseHistory.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             purchaseHistoryRepository.save(purchaseHistory);
 
