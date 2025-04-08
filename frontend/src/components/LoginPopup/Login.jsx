@@ -1,38 +1,85 @@
 import React, { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { FaEye, FaEyeSlash, FaLinkedinIn } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { MdOutlineVpnKey } from "react-icons/md";
-const Login = ({ handleSignIn,handleVerify }) => {
+import { Formik } from "formik";
+import { TextField } from "@mui/material";
+import * as yup from "yup";
+const Login = ({ handleSignIn, handleNotice, handleForgotPassword }) => {
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleFormSubmit = (values) => {
+    if (phoneRegExp.test(values.input)) values.phone = values.input;
+    else values.mail = values.input;
+    handleLogin(values);
+  };
+
+  //Đẩy DL lên Database 
+  const handleLogin = (form) =>{
+    fetch("http://localhost:8090/api/users/login",{
+      method:"POST",      
+      headers: {      
+        'Content-Type': 'application/json'
+        },
+      body: JSON.stringify(form)
+    }) .then((response) => {
+      if (!response.ok) return response.text();
+      return response.json();
+    }).then((data) => {
+      console.log(data);
+      handleNotice(data.message, !data.status);
+    });
+  }
+
   return (
-    <>
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[400px] h-[450px]">
-        <h1 className="text-3xl font-bold text-center mb-4 text-shadow">
-          Login
-        </h1>
-        <form className="flex flex-col gap-3">
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[400px] ">
+      <h1 className="text-3xl font-bold text-center mb-4 text-shadow">
+        Login
+      </h1>
+      <Formik
+        onSubmit={handleFormSubmit}
+        initialValues={initialValues}
+        validationSchema={checkoutSchema}
+      >
+      {({
+        values,
+        errors,
+        touched,
+        handleBlur,
+        handleChange,
+        handleSubmit,
+      }) => (
+        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <div>
-            <label for="username" className="input-label">
-              Username
-            </label>
+   
             <div className="relative">
-              <IoPersonCircleOutline className=" absolute top-1/2 left-3 -translate-y-1/2"/>
-              <input id="username" type="text" className="input pl-8" />
+              <IoPersonCircleOutline size={30} className=" absolute top-1/2 -translate-y-1/2" />
+              <TextField id="input" 
+              type="text" 
+              className="input" 
+              onBlur={handleBlur}
+              label="Phone or Email"
+              sx={{ marginLeft: "30px", width:"90%"}}
+              onChange={handleChange}
+              value={values.input}
+              name="input"
+              error={!!touched.input && !!errors.input}
+              helperText={touched.input && errors.input}/>
             </div>
           </div>
           <div>
-            <label for="password" className="input-label">
-              Password
-            </label>
             <div className="relative py-3">
-            <MdOutlineVpnKey className=" absolute top-1/2 left-3 -translate-y-1/2"/>
-              <input
-                className="input pl-8 pr-8"
-                id="password"
-                type={showPassword ? "text" : "password"}
-              />
+            <MdOutlineVpnKey size={30} className=" absolute top-1/2 -translate-y-1/2"/>
+            <TextField id="password" 
+              type={showPassword ? "text" : "password"}
+              className="input" 
+              onBlur={handleBlur}
+              label="password"
+              sx={{ marginLeft: "30px", width:"90%"}}
+              onChange={handleChange}
+              value={values.password}
+              name="password"
+              error={!!touched.password && !!errors.password}/>
 
               {showPassword ? (
                 <FaEye
@@ -47,27 +94,21 @@ const Login = ({ handleSignIn,handleVerify }) => {
               )}
             </div>
           </div>
-        </form>
         <div className="flex justify-center">
-          <button className="primary-btn"
+          <button className="primary-btn" type="submit"
           >
-            Submit</button>
+            Submit
+          </button>
         </div>
+        </form>
+      )}
+      </Formik>
         <p
           className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
-          onClick={handleVerify}
+          onClick={handleForgotPassword}
         >
           Forgot your password?
         </p>
-        <p className="text-center text-sm my-3">or login with</p>
-        <div className="flex gap-6 justify-center">
-          <div className="bg-white w-9 h-9 rounded-full flex items-center justify-center shadow-custom-inset hover:scale-110 transition-all duration-300">
-            <FcGoogle className="text-3xl" />
-          </div>
-          <div className="bg-blue-600 w-9 h-9 rounded-full flex items-center justify-center shadow-custom-inset hover:scale-110 transition-all duration-300">
-            <FaLinkedinIn className="text-2xl text-white" />
-          </div>
-        </div>
         <p
           className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
           onClick={handleSignIn}
@@ -75,8 +116,23 @@ const Login = ({ handleSignIn,handleVerify }) => {
           No Account? Signup here
         </p>
       </div>
-    </>
   );
+};
+const phoneRegExp =/^\d{5,15}$/;
+const emailRegExp = /^[^@\s]+$/
+const checkoutSchema = yup.object().shape({
+  input: yup.string()
+  .test("checkInput", "Phone or Email is Required",(item) => {
+    return (phoneRegExp.test(item) || !(emailRegExp.test(item)))
+  })
+  .required("required"),
+  password: yup.string().required("required"),
+});
+const initialValues = {
+  input: "",
+  phone: "",
+  mail: "",
+  password: "",
 };
 
 export default Login;

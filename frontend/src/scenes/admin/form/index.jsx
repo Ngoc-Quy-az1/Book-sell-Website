@@ -2,24 +2,22 @@ import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import Notice from "../Notice/index";
 import Header from "../../../components/Admin/Header";
-import Notice from "../notice";
 import { useState } from "react";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [notice, setNotice] = useState(false);
   const [error, setError] = useState(false);
-  
-  //Báo lỗi
   const [message, setMessage] = useState("");
   const showNotice = () => {
     setNotice(!notice);
     setTimeout(() => {setNotice()},3000)
   }
+
   const handleFormSubmit = (values) => {
     values.full_name = values.firstName + ' ' + values.lastName;
-    console.log(JSON.stringify(values));
     createUser(values);
   };
 
@@ -168,8 +166,7 @@ const Form = () => {
   );
 };
 //Ràng buộc 
-const phoneRegExp =
-  /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
+const phoneRegExp =/^\d{5,15}$/;
 
 const checkoutSchema = yup.object().shape({
   firstName: yup.string().required("required"),

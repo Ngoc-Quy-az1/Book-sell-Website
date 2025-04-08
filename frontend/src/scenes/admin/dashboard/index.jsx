@@ -94,7 +94,7 @@ const Dashboard = () => {
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(15,minmax(40px,1fr))"
+        gridTemplateColumns="repeat(16,minmax(40px,1fr))"
         gridAutoRows="140px"
         gap="20px"
       >
@@ -197,7 +197,7 @@ const Dashboard = () => {
 
         {/* ROW 2 */}
         <Box
-          gridColumn="span 8"
+          gridColumn="span 16"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >

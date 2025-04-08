@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import Notice from "../notice";
+import Notice from "../../../components/Notice";
 import {
   GridRowModes,
   DataGrid,
@@ -52,7 +52,7 @@ const ManageUsers = () => {
     })});
   }
 
-  //Update nguoiwf dung
+  //Update người dùng
   const updateUsers = (user) => {
     let res = "";
     
@@ -66,7 +66,6 @@ const ManageUsers = () => {
     }).then((data) => {
       if (data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
       else {res="Account Successfully Updated"; setError(false)}
-      console.log(res);
       setMessage(res); 
       showNotice();
     });
