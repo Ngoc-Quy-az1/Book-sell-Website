@@ -27,6 +27,7 @@
     "@nivo/pie": "^0.88.0",
     "10_project_biryani-shop": "file:",
     "aos": "^2.3.4",
+    "axios": "^1.8.4",
     "book-sell-website": "file:",
     "formik": "^2.4.6",
     "framer-motion": "^12.5.0",

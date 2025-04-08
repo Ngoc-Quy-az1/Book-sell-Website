@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import UserDetail from "./components/UserDetail/UserDetail.jsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Admin from "./admin.jsx";
@@ -21,6 +22,10 @@ import "slick-carousel/slick/slick-theme.css";
 const router = createBrowserRouter([{
   path: '/',
   element: <App/>,
+},
+{
+  path: '/user-detail',
+  element: <UserDetail />
 },
 {path:'/admin', 
   element:<Admin />,
