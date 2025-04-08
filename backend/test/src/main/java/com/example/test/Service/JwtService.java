@@ -16,7 +16,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private static final long JWT_EXPIRATION = 86400000; // 24 hours
+    private static final long JWT_EXPIRATION = 86400000; 
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -29,7 +29,6 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        // Add role to claims
         String role = userDetails.getAuthorities().stream()
             .map(auth -> auth.getAuthority())
             .findFirst()
@@ -79,7 +78,7 @@ public class JwtService {
             Claims claims = extractAllClaims(token);
             return claims.get("role", String.class);
         } catch (Exception e) {
-            return "ROLE_USER"; // Default role if token is invalid
+            return "ROLE_USER"; 
         }
     }
 }

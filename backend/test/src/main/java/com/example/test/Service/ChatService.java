@@ -33,6 +33,7 @@ public class ChatService {
 
     public List<SupportMessage> getPrivateMessages(User user1, User user2) {
         return supportMessageRepository.findBySenderAndReceiver(user1, user2);
+        
     }
 
     public SupportMessage sendGroupMessage(User sender, ChatGroup group, String message) {

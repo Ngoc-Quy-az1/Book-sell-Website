@@ -103,14 +103,17 @@
     </div>
 
     <script>
-        const orderId = 5; // Thay đổi orderId tại đây
+        const orderId = 7; // Thay đổi orderId tại đây
         const API_URL = 'http://localhost:8090';
+        const tmpString = "Bearer ";
+
 
         async function loadPaymentInfo() {
             try {
                 const response = await fetch(`${API_URL}/api/payment/create-payment/${orderId}`, {
                     method: 'POST',
                     headers: {
+                        'Authorization': tmpString+'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInN1YiI6IlBoYW10aHV5MjAxMDIwMDZAZ21haWwuY29tIiwiaWF0IjoxNzQ0MDg0NDU2LCJleHAiOjE3NDQxNzA4NTZ9.wHAkY2cAIlVkQBvLxGWJtDHdMvQLmFV_q1dgGwAEkUo',
                         'Content-Type': 'application/json'
                     }
                 });

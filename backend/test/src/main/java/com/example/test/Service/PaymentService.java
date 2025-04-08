@@ -1,184 +1,292 @@
 package com.example.test.Service;
 
-import com.example.test.Config.VNPayConfig;
 import com.example.test.Entity.PurchaseHistory;
 import com.example.test.Entity.PurchaseStatus;
+import com.example.test.Entity.User;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
+import com.example.test.Repository.UserRepo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import jakarta.mail.*;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimeBodyPart;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PaymentService {
 
     @Autowired
-    private VNPayConfig vnPayConfig;
-
-    @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Value("${spring.mail.username}")
+    private String emailUsername;
+    
+    @Value("${spring.mail.password}")
+    private String emailPassword;
 
-    public String createPaymentUrl(PurchaseHistory purchaseHistory) {
+    private static final double XU_TO_VND_RATE = 1000.0; // 1 xu = 1000 VND
+
+    /**
+     * Get all pending orders that need payment
+     */
+    public List<Map<String, Object>> getPendingOrders() {
         try {
-            String vnp_Version = "2.1.0";
-            String vnp_Command = "pay";
-            String vnp_TxnRef = String.valueOf(purchaseHistory.getOrderId());
-            String vnp_IpAddr = "127.0.0.1";
-            String vnp_TmnCode = vnPayConfig.getTmnCode();
+            List<PurchaseHistory> pendingOrders = purchaseHistoryRepository.findByStatus(PurchaseStatus.Pending);
+            List<Map<String, Object>> result = new ArrayList<>();
             
-            Map<String, String> vnp_Params = new HashMap<>();
-            vnp_Params.put("vnp_Version", vnp_Version);
-            vnp_Params.put("vnp_Command", vnp_Command);
-            vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-            vnp_Params.put("vnp_Amount", String.valueOf(purchaseHistory.getTotalAmount().multiply(new BigDecimal("100")).longValue()));
-            vnp_Params.put("vnp_CurrCode", "VND");
-            vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-            vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + purchaseHistory.getOrderId());
-            vnp_Params.put("vnp_OrderType", "other");
-            vnp_Params.put("vnp_Locale", "vn");
-            vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
-            vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+            for (PurchaseHistory order : pendingOrders) {
+                Map<String, Object> orderDetails = new HashMap<>();
+                orderDetails.put("orderId", order.getOrderId());
+                orderDetails.put("amount", order.getTotalAmount().toString());
+                orderDetails.put("userId", order.getUserId());
+                orderDetails.put("createdAt", order.getCreatedAt().toString());
+                result.add(orderDetails);
+            }
             
-            Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-            String vnp_CreateDate = formatter.format(cld.getTime());
-            vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Process new bank transfer from email and update order status for multiple orders
+     */
+    @Transactional
+    public Map<String, Object> processNewBankTransfer(List<Integer> orderIds, Integer userId) {
+        try {
+            // Tính tổng tiền của tất cả đơn hàng
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            List<PurchaseHistory> orders = new ArrayList<>();
             
-            cld.add(Calendar.MINUTE, 15);
-            String vnp_ExpireDate = formatter.format(cld.getTime());
-            vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+            for (Integer orderId : orderIds) {
+                PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+                
+                if (order.getStatus() != PurchaseStatus.Pending) {
+                    throw new RuntimeException("Đơn hàng #" + orderId + " không ở trạng thái chờ thanh toán");
+                }
+                
+                if (!order.getUserId().equals(userId)) {
+                    throw new RuntimeException("Đơn hàng #" + orderId + " không thuộc về người dùng này");
+                }
+                
+                totalAmount = totalAmount.add(order.getTotalAmount());
+                orders.add(order);
+            }
+
+            // Đọc email và kiểm tra thanh toán
+            Map<String, String> transactionDetails = readRecentEmails();
+            if (transactionDetails == null || !transactionDetails.containsKey("amount")) {
+                return createResponse(false, "Không tìm thấy email chuyển khoản mới");
+            }
+
+            // Kiểm tra số tiền
+            String amountStr = transactionDetails.get("amount");
+            BigDecimal transactionAmount = new BigDecimal(amountStr);
             
-            List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
-            Collections.sort(fieldNames);
-            StringBuilder hashData = new StringBuilder();
-            StringBuilder query = new StringBuilder();
-            Iterator<String> itr = fieldNames.iterator();
-            while (itr.hasNext()) {
-                String fieldName = itr.next();
-                String fieldValue = vnp_Params.get(fieldName);
-                if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                    hashData.append(fieldName);
-                    hashData.append('=');
-                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
-                    query.append('=');
-                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                    if (itr.hasNext()) {
-                        query.append('&');
-                        hashData.append('&');
+            if (transactionAmount.compareTo(totalAmount) < 0) {
+                return createResponse(false, "Số tiền chuyển khoản (" + amountStr + " VND) không đủ để thanh toán tổng đơn hàng (" + totalAmount + " VND)");
+            }
+
+            // Cập nhật trạng thái tất cả đơn hàng
+            for (PurchaseHistory order : orders) {
+                order.setStatus(PurchaseStatus.Completed);
+                purchaseHistoryRepository.save(order);
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Thanh toán thành công " + orders.size() + " đơn hàng");
+            result.put("orderIds", orderIds);
+            result.put("totalAmount", totalAmount);
+            result.put("transactionAmount", transactionAmount);
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createResponse(false, "Lỗi xử lý thanh toán: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Process payment using user's balance (xu) for multiple orders
+     */
+    @Transactional
+    public Map<String, Object> processBalancePayment(List<Integer> orderIds, Integer userId) {
+        try {
+            // Tính tổng tiền của tất cả đơn hàng
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            List<PurchaseHistory> orders = new ArrayList<>();
+            
+            for (Integer orderId : orderIds) {
+                PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+                
+                if (order.getStatus() != PurchaseStatus.Pending) {
+                    throw new RuntimeException("Đơn hàng #" + orderId + " không ở trạng thái chờ thanh toán");
+                }
+                
+                if (!order.getUserId().equals(userId)) {
+                    throw new RuntimeException("Đơn hàng #" + orderId + " không thuộc về người dùng này");
+                }
+                
+                totalAmount = totalAmount.add(order.getTotalAmount());
+                orders.add(order);
+            }
+
+            // Lấy thông tin người dùng
+            User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+            // Tính số xu cần thiết
+            double requiredXu = totalAmount.doubleValue() / XU_TO_VND_RATE;
+
+            // Kiểm tra số dư
+            if (user.getBalance() < requiredXu) {
+                throw new RuntimeException("Số dư xu không đủ. Cần " + requiredXu + " xu, hiện có " + user.getBalance() + " xu");
+            }
+
+            // Trừ xu
+            user.setBalance(user.getBalance() - requiredXu);
+            userRepository.save(user);
+
+            // Cập nhật trạng thái tất cả đơn hàng
+            for (PurchaseHistory order : orders) {
+                order.setStatus(PurchaseStatus.Completed);
+                purchaseHistoryRepository.save(order);
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Thanh toán thành công " + orders.size() + " đơn hàng bằng " + requiredXu + " xu");
+            result.put("orderIds", orderIds);
+            result.put("totalAmount", totalAmount);
+            result.put("remainingBalance", user.getBalance());
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createResponse(false, e.getMessage());
+        }
+    }
+
+    /**
+     * Read recent Sacombank emails and extract transaction details
+     */
+    public Map<String, String> readRecentEmails() throws MessagingException, IOException {
+        System.out.println("Starting email check with username: " + emailUsername);
+        
+        Properties props = new Properties();
+        props.put("mail.store.protocol", "imaps");
+        props.put("mail.imaps.host", "imap.gmail.com");
+        props.put("mail.imaps.port", "993");
+        props.put("mail.imaps.ssl.enable", "true");
+        props.put("mail.debug", "true");
+
+        Session session = Session.getInstance(props, null);
+        Store store = session.getStore();
+        
+        try {
+            store.connect("imap.gmail.com", emailUsername, emailPassword);
+            System.out.println("Connected to email server");
+
+            Folder inbox = store.getFolder("INBOX");
+            inbox.open(Folder.READ_ONLY);
+
+            int totalMessages = inbox.getMessageCount();
+            System.out.println("Total messages in inbox: " + totalMessages);
+            
+            int startMessage = Math.max(1, totalMessages - 10);
+            Message[] messages = inbox.getMessages(startMessage, totalMessages);
+            System.out.println("Fetched " + messages.length + " recent messages");
+
+            for (int i = messages.length - 1; i >= 0; i--) {
+                Message message = messages[i];
+                String from = Arrays.toString(message.getFrom());
+                String subject = message.getSubject();
+                System.out.println("Checking message from: " + from + ", subject: " + subject);
+
+                if (from.toLowerCase().contains("sacombank") || 
+                    (subject != null && subject.toUpperCase().contains("SACOMBANK"))) {
+                    
+                    String content = getEmailContent(message);
+                    System.out.println("Email content: " + content);
+                    
+                    Map<String, String> transactionDetails = new HashMap<>();
+
+                    Pattern amountPattern = Pattern.compile("\\+\\s*([\\d,]+)\\s*VND");
+                    Matcher amountMatcher = amountPattern.matcher(content);
+                    
+                    if (amountMatcher.find()) {
+                        String amountStr = amountMatcher.group(1).replace(",", "");
+                        System.out.println("Found transaction amount: " + amountStr);
+                        transactionDetails.put("amount", amountStr);
+                        
+                        Pattern datePattern = Pattern.compile("(\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2})");
+                        Matcher dateMatcher = datePattern.matcher(content);
+                        if (dateMatcher.find()) {
+                            transactionDetails.put("date", dateMatcher.group(1));
+                        }
+                        
+                        return transactionDetails;
                     }
                 }
             }
-            String queryUrl = query.toString();
-            String vnp_SecureHash = hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
-            queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-            return vnPayConfig.getPayUrl() + "?" + queryUrl;
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi tạo URL thanh toán: " + e.getMessage());
-        }
-    }
-
-    private String hmacSHA512(String key, String data) {
-        try {
-            Mac sha512Hmac = Mac.getInstance("HmacSHA512");
-            byte[] hmacKeyBytes = key.getBytes();
-            SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, "HmacSHA512");
-            sha512Hmac.init(secretKey);
-            byte[] dataBytes = data.getBytes();
-            byte[] result = sha512Hmac.doFinal(dataBytes);
-            StringBuilder sb = new StringBuilder();
-            for (byte b : result) {
-                sb.append(String.format("%02x", b));
+            System.out.println("No matching Sacombank emails found");
+            return null;
+        } finally {
+            try {
+                store.close();
+            } catch (MessagingException e) {
+                e.printStackTrace();
             }
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi tạo chữ ký: " + e.getMessage());
         }
     }
 
-    public byte[] generateQRCode(String paymentUrl) {
-        try {
-            QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode(
-                paymentUrl,
-                BarcodeFormat.QR_CODE,
-                250,
-                250
-            );
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi tạo QR code: " + e.getMessage());
-        }
-    }
-
-    public boolean processPaymentResponse(Map<String, String> vnpParams) {
-        // Kiểm tra chữ ký
-        String vnp_SecureHash = vnpParams.get("vnp_SecureHash");
-        String signValue = calculateSignature(vnpParams);
-        
-        if (vnp_SecureHash.equals(signValue)) {
-            String vnp_ResponseCode = vnpParams.get("vnp_ResponseCode");
-            String orderId = vnpParams.get("vnp_TxnRef");
+    /**
+     * Extract content from email message
+     */
+    private String getEmailContent(Message message) throws MessagingException, IOException {
+        Object content = message.getContent();
+        if (content instanceof String) {
+            return (String) content;
+        } else if (content instanceof MimeMultipart) {
+            MimeMultipart multipart = (MimeMultipart) content;
+            StringBuilder result = new StringBuilder();
             
-            // Cập nhật trạng thái đơn hàng
-            if ("00".equals(vnp_ResponseCode)) {
-                updateOrderStatus(Integer.parseInt(orderId), PurchaseStatus.Completed);
-                return true;
-            } else {
-                updateOrderStatus(Integer.parseInt(orderId), PurchaseStatus.Failed);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    private void updateOrderStatus(Integer orderId, PurchaseStatus status) {
-        PurchaseHistory purchaseHistory = purchaseHistoryRepository.findById(orderId)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
-        purchaseHistory.setStatus(status);
-        purchaseHistoryRepository.save(purchaseHistory);
-    }
-
-    private String calculateSignature(Map<String, String> params) {
-        List<String> fieldNames = new ArrayList<>(params.keySet());
-        fieldNames.remove("vnp_SecureHash");
-        fieldNames.remove("vnp_SecureHashType");
-        Collections.sort(fieldNames);
-        
-        StringBuilder hashData = new StringBuilder();
-        Iterator<String> itr = fieldNames.iterator();
-        while (itr.hasNext()) {
-            String fieldName = itr.next();
-            String fieldValue = params.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                hashData.append(fieldName);
-                hashData.append('=');
-                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
-                if (itr.hasNext()) {
-                    hashData.append('&');
+            for (int i = 0; i < multipart.getCount(); i++) {
+                BodyPart bodyPart = multipart.getBodyPart(i);
+                if (bodyPart.getContentType().toLowerCase().startsWith("text/html")) {
+                    String html = (String) bodyPart.getContent();
+                    String text = html.replaceAll("<[^>]*>", "")
+                                    .replaceAll("&nbsp;", " ")
+                                    .replaceAll("\\s+", " ")
+                                    .trim();
+                    result.append(text);
                 }
             }
+            return result.toString();
         }
-        return hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
+        return "";
     }
 
-    public PurchaseStatus checkOrderStatus(Integer orderId) {
-        PurchaseHistory purchaseHistory = purchaseHistoryRepository.findById(orderId)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
-        return purchaseHistory.getStatus();
+    private Map<String, Object> createResponse(boolean success, String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", success);
+        response.put("message", message);
+        return response;
     }
 } 

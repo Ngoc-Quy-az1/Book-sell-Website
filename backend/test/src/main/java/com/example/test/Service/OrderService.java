@@ -81,7 +81,7 @@ public class OrderService {
             purchaseHistory.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             purchaseHistoryRepository.save(purchaseHistory);
 
-            // 3. Tạo chi tiết đơn hàng, xóa khỏi giỏ hàng và cập nhật số lượng sách
+            // 3. Tạo chi tiết đơn hàng và cập nhật số lượng sách
             for (Cart cart : cartItems) {
                 // Lấy thông tin sách
                 Book book = bookRepository.findById(cart.getBookId())
@@ -95,7 +95,7 @@ public class OrderService {
                 orderDetail.setPrice(BigDecimal.valueOf(book.getPrice_discounted()));
                 orderDetailsRepository.save(orderDetail);
 
-                // Xóa sản phẩm khỏi giỏ hàng thay vì đánh dấu đã mua
+                // Xóa sản phẩm khỏi giỏ hàng
                 cartRepository.delete(cart);
 
                 // Cập nhật số lượng sách
@@ -114,6 +114,7 @@ public class OrderService {
             
             return response;
         } catch (Exception e) {
+            e.printStackTrace(); // Thêm log để debug
             throw new RuntimeException("Lỗi khi tạo đơn hàng: " + e.getMessage());
         }
     }

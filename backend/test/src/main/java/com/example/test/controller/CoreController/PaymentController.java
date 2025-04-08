@@ -1,18 +1,13 @@
 package com.example.test.controller.CoreController;
 
-import com.example.test.Entity.Orders;
 import com.example.test.Entity.PurchaseHistory;
 import com.example.test.Entity.PurchaseStatus;
 import com.example.test.Service.PaymentService;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.*;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -25,106 +20,158 @@ public class PaymentController {
     @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
 
-    // Lấy danh sách đơn hàng chờ thanh toán của người dùng
-    // @GetMapping("/pending-orders/{userId}")
-    // public ResponseEntity<?> getPendingOrders(@PathVariable Integer userId) {
-    //     try {
-    //         List<PurchaseHistory> pendingOrders = paymentService.getPendingOrders(userId);
-    //         return ResponseEntity.ok(pendingOrders);
-    //     } catch (Exception e) {
-    //         Map<String, String> response = new HashMap<>();
-    //         response.put("error", e.getMessage());
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    //     }
-    // }
-
-    // Lấy chi tiết đơn hàng
-    // @GetMapping("/order-details/{orderId}")
-    // public ResponseEntity<?> getOrderDetails(@PathVariable Integer orderId) {
-    //     try {
-    //         Orders order = paymentService.getOrderDetails(orderId);
-    //         return ResponseEntity.ok(order);
-    //     } catch (Exception e) {
-    //         Map<String, String> response = new HashMap<>();
-    //         response.put("error", e.getMessage());
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    //     }
-    // }
-
-    // Tạo yêu cầu thanh toán và sinh QR code
-    @PostMapping("/create-payment/{orderId}")
-    public ResponseEntity<?> createPayment(@PathVariable Integer orderId) {
+    /**
+     * API lấy danh sách đơn hàng đang chờ thanh toán
+     * Method: GET
+     * URL: http://localhost:8090/api/payment/pending-orders
+     * 
+     * Response thành công:
+     * [
+     *     {
+     *         "orderId": 5,
+     *         "amount": "100000",
+     *         "userId": 1,
+     *         "createdAt": "2024-04-08 10:30:00"
+     *     }
+     * ]
+     * 
+     * Response thất bại:
+     * {
+     *     "error": "Error getting pending orders: ..."
+     * }
+     */
+    @GetMapping("/pending-orders")
+    public ResponseEntity<?> getPendingOrders() {
         try {
-            PurchaseHistory purchaseHistory = purchaseHistoryRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
-
-            // In ra log để debug
-            System.out.println("Order status: " + purchaseHistory.getStatus());
-            System.out.println("Order amount: " + purchaseHistory.getTotalAmount());
-
-            if (purchaseHistory.getStatus() != PurchaseStatus.Pending) {
-                throw new RuntimeException("Đơn hàng không ở trạng thái chờ thanh toán");
-            }
-
-            // Tạo URL thanh toán VNPay
-            String paymentUrl = paymentService.createPaymentUrl(purchaseHistory);
-            
-            // Tạo QR code từ URL thanh toán
-            byte[] qrCodeImage = paymentService.generateQRCode(paymentUrl);
-            String qrCodeBase64 = Base64.getEncoder().encodeToString(qrCodeImage);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("orderId", orderId);
-            response.put("amount", purchaseHistory.getTotalAmount());
-            response.put("paymentUrl", paymentUrl);
-            response.put("qrCode", qrCodeBase64);
-
-            return ResponseEntity.ok(response);
+            List<Map<String, Object>> pendingOrders = paymentService.getPendingOrders();
+            return ResponseEntity.ok(pendingOrders);
         } catch (Exception e) {
-            e.printStackTrace(); 
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error getting pending orders: " + e.getMessage());
         }
     }
 
-    // Kiểm tra trạng thái thanh toán
+    /**
+     * API thanh toán qua chuyển khoản ngân hàng
+     * Method: POST
+     * URL: http://localhost:8090/api/payment/check-transfer
+     * Body: {
+     *    "orderIds": [1, 2, 3],
+     *    "userId": 1
+     * }
+     */
+    @PostMapping("/check-transfer")
+    public ResponseEntity<?> checkBankTransfer(@RequestBody Map<String, Object> request) {
+        try {
+            List<Integer> orderIds = (List<Integer>) request.get("orderIds");
+            Integer userId = (Integer) request.get("userId");
+            
+            if (orderIds == null || orderIds.isEmpty()) {
+                return ResponseEntity.badRequest().body("Vui lòng chọn ít nhất một đơn hàng");
+            }
+
+            Map<String, Object> result = paymentService.processNewBankTransfer(orderIds, userId);
+            if ((Boolean) result.get("success")) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.badRequest().body(result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error processing bank transfer: " + e.getMessage());
+        }
+    }
+
+    /**
+     * API test kết nối và đọc email từ Sacombank
+     * Method: GET
+     * URL: http://localhost:8090/api/payment/test-email
+     * 
+     * Response thành công:
+     * {
+     *     "amount": "100000",
+     *     "date": "08/04/2024 17:44"
+     * }
+     * 
+     * Response thất bại:
+     * {
+     *     "error": "Error testing email connection: ..."
+     * }
+     */
+    @GetMapping("/test-email")
+    public ResponseEntity<?> testEmailConnection() {
+        try {
+            Map<String, String> result = paymentService.readRecentEmails();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error testing email connection: " + e.getMessage());
+        }
+    }
+
+    /**
+     * API kiểm tra trạng thái thanh toán của đơn hàng
+     * Method: GET
+     * URL: http://localhost:8090/api/payment/check-status/{orderId}
+     * Example: http://localhost:8090/api/payment/check-status/5
+     * 
+     * Response thành công:
+     * {
+     *     "status": "Completed",
+     *     "amount": 100000
+     * }
+     * 
+     * Response thất bại:
+     * {
+     *     "error": "Không tìm thấy đơn hàng"
+     * }
+     */
     @GetMapping("/check-status/{orderId}")
     public ResponseEntity<?> checkPaymentStatus(@PathVariable Integer orderId) {
         try {
-            PurchaseStatus status = paymentService.checkOrderStatus(orderId);
+            Optional<PurchaseHistory> purchaseOpt = purchaseHistoryRepository.findById(orderId);
+            if (!purchaseOpt.isPresent()) {
+                return ResponseEntity.badRequest().body("Không tìm thấy đơn hàng");
+            }
+            
             Map<String, Object> response = new HashMap<>();
-            response.put("status", status.toString());
+            response.put("status", purchaseOpt.get().getStatus().toString());
+            response.put("amount", purchaseOpt.get().getTotalAmount());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace(); // In ra log để debug
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error checking payment status: " + e.getMessage());
         }
     }
 
-    // Xử lý callback từ VNPay
-    @GetMapping("/vnpay-return")
-    public ResponseEntity<?> vnpayReturn(@RequestParam Map<String, String> queryParams) {
+    /**
+     * API thanh toán bằng xu
+     * Method: POST
+     * URL: http://localhost:8090/api/payment/pay-with-balance
+     * Body: {
+     *    "orderIds": [1, 2, 3],
+     *    "userId": 1
+     * }
+     */
+    @PostMapping("/pay-with-balance")
+    public ResponseEntity<?> payWithBalance(@RequestBody Map<String, Object> request) {
         try {
-            boolean isValidPayment = paymentService.processPaymentResponse(queryParams);
-            String orderId = queryParams.get("vnp_TxnRef");
-            String transactionNo = queryParams.get("vnp_TransactionNo");
-            String responseCode = queryParams.get("vnp_ResponseCode");
+            List<Integer> orderIds = (List<Integer>) request.get("orderIds");
+            Integer userId = (Integer) request.get("userId");
+            
+            if (orderIds == null || orderIds.isEmpty()) {
+                return ResponseEntity.badRequest().body("Vui lòng chọn ít nhất một đơn hàng");
+            }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("orderId", orderId);
-            response.put("transactionNo", transactionNo);
-            response.put("isSuccess", isValidPayment);
-            response.put("message", isValidPayment ? "Thanh toán thành công" : "Thanh toán thất bại");
-
-            return ResponseEntity.ok(response);
+            Map<String, Object> result = paymentService.processBalancePayment(orderIds, userId);
+            if ((Boolean) result.get("success")) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.badRequest().body(result);
+            }
         } catch (Exception e) {
-            e.printStackTrace(); // In ra log để debug
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error processing balance payment: " + e.getMessage());
         }
     }
 } 

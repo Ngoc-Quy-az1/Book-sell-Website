@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
+        
         String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
         System.out.println("Extracted email: " + userEmail); // Debug log
@@ -53,12 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                System.out.println("Authentication set in context"); // Debug log
+                System.out.println("Authentication set in context"); 
             } else {
-                System.out.println("Token validation failed"); // Debug log
+                System.out.println("Token validation failed"); 
             }
         }
 
         filterChain.doFilter(request, response);
     }
+
 }

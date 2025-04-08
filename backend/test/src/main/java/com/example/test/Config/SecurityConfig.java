@@ -46,7 +46,10 @@ public class SecurityConfig {
                     "/api/users/verify",               // API xác thực email
                     "/api/books/search/**",            // API tìm kiếm sách
                     "/api/books/categories/**",        // API danh mục sách
-                    "/api/books/details/**"            // API chi tiết sách
+                    "/api/books/details/**",            // API chi tiết sách
+                    "/api/payment/process-balance/**", // API thanh toán sử dụng tiền mặt
+                    "/api/order/**" ,
+                    "/api/chat/community/**"                   // API đặt hàng
                 ).permitAll()
 
                 // Payment endpoints - Không cần đăng nhập
