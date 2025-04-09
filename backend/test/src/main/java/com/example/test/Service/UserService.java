@@ -196,6 +196,7 @@ public class UserService {
                 User user = optionalUser.get();
                 user.setFull_name(moreRegisterDTO.getFull_name());
                 user.setAddress(moreRegisterDTO.getAddress());
+                user.setPhone(moreRegisterDTO.getPhone());
                 return userRepository.save(user);
             } else {
                 throw new RuntimeException("User not found!");
@@ -254,9 +255,19 @@ public class UserService {
     }
 
     // get reviews
-        public List<ReviewDTO> getAllReviews(int bookId) {
-            List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsByBookId(bookId);
-            return reviewDTOs;
+    public List<ReviewDTO> getAllReviews(int bookId) {
+        List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsByBookId(bookId);
+        return reviewDTOs;
+    }
+
+    //thêm api trả về các trường cần thiết của trang user-detail như full_name, username, email, address, phone, balance, points, membership_level
+    public User getUserDetails(int userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else {
+            throw new RuntimeException("User not found!");
         }
-    
+    }
+
 }

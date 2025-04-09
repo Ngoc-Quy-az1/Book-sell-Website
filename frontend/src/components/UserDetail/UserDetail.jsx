@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const getColorFromName = (name) => {
     const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
-    const hash = Array.from(name).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = Array.from(name || "").reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
 };
 
 const generateAvatar = (name) => {
-    const initials = name
+    const initials = (name || "NA")
         .split(" ")
         .map((word) => word[0])
         .join("")
@@ -17,19 +18,22 @@ const generateAvatar = (name) => {
 };
 
 const UserDetail = () => {
-    const initialUser = {
-        full_name: "Nguyễn Văn A",
-        name: "nguyenvana",
-        phone: "0123456789",
-        mail: "nguyenvana@example.com",
-        address: "123 Đường ABC, Quận XYZ, TP.HCM",
-        membershipLevel: "Gold",
-        points: 1500,
-        balance: 2000000,
-    };
-
-    const [user, setUser] = useState(initialUser);
+    const [user, setUser] = useState(null); // Lưu thông tin người dùng
     const [isEditing, setIsEditing] = useState(false);
+
+    // Gọi API để lấy thông tin người dùng
+    useEffect(() => {
+        const userId = 2; // Biến userId để tận dụng sau này khi login
+        axios
+            .get(`http://localhost:8090/api/users/user-detail/${userId}`)
+            .then((response) => {
+                setUser(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching user data:", error);
+                alert("Không thể tải thông tin người dùng. Vui lòng thử lại sau.");
+            });
+    }, []);
 
     const handleChange = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value });
@@ -38,17 +42,36 @@ const UserDetail = () => {
     const handleEditToggle = () => setIsEditing(!isEditing);
 
     const handleSave = () => {
-        // Tùy bạn có thể gửi API ở đây
-        setIsEditing(false);
-        alert("Đã lưu thông tin!");
+        const userId = 2; // Biến userId
+        const updatedData = {
+            full_name: user.full_name,
+            address: user.address,
+            phone: user.phone,
+        };
+
+        axios
+            .put(`http://localhost:8090/api/users/update/${userId}`, updatedData)
+            .then((response) => {
+                setUser(response.data); // Cập nhật lại thông tin người dùng
+                setIsEditing(false);
+                alert("Thông tin đã được cập nhật thành công!");
+            })
+            .catch((error) => {
+                console.error("Error updating user data:", error);
+                alert("Không thể cập nhật thông tin. Vui lòng thử lại sau.");
+            });
     };
+
+    if (!user) {
+        return <div className="text-center mt-10">Đang tải thông tin người dùng...</div>;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 py-10 px-4">
             <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl p-8">
                 <div className="flex items-center mb-6">
                     <img
-                        src={generateAvatar(user.full_name)}
+                        src={generateAvatar(user.full_name || user.name)}
                         alt="Avatar"
                         className="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-lg mr-6"
                     />
@@ -57,16 +80,16 @@ const UserDetail = () => {
                             <input
                                 type="text"
                                 name="full_name"
-                                value={user.full_name}
+                                value={user.full_name || ""}
                                 onChange={handleChange}
                                 className="text-2xl font-bold text-gray-800 border-b border-gray-300 focus:outline-none"
                             />
                         ) : (
                             <h2 className="text-3xl font-bold text-gray-800">
-                                {user.full_name}
+                                {user.full_name || "Chưa cập nhật"}
                             </h2>
                         )}
-                        <p className="text-gray-500">@{user.name}</p>
+                        <p className="text-gray-500">{user.name}</p>
                     </div>
                 </div>
 
@@ -81,7 +104,7 @@ const UserDetail = () => {
                             <input
                                 type="text"
                                 name="phone"
-                                value={user.phone}
+                                value={user.phone || ""}
                                 onChange={handleChange}
                                 className="w-full border rounded px-2 py-1"
                             />
@@ -95,17 +118,16 @@ const UserDetail = () => {
                             <input
                                 type="text"
                                 name="address"
-                                value={user.address}
+                                value={user.address || ""}
                                 onChange={handleChange}
                                 className="w-full border rounded px-2 py-1"
                             />
                         ) : (
-                            <p className="text-lg text-gray-800">{user.address}</p>
+                            <p className="text-lg text-gray-800">{user.address || "Chưa cập nhật"}</p>
                         )}
                     </div>
                     <div>
                         <p className="text-sm text-gray-500 font-medium">Cấp độ thành viên</p>
-
                         <p className="text-lg text-yellow-600 font-semibold">
                             {user.membershipLevel}
                         </p>

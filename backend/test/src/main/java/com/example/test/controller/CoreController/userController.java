@@ -111,4 +111,16 @@ public class userController {
         return userService.getAllReviews(bookId);
     }
 
+    //thêm api trả về các trường cần thiết của trang user-detail như full_name, username, email, address, phone, balance, points, membership_level
+    // http://localhost:8090/api/users/user-detail/{userId}
+
+    @GetMapping("/user-detail/{userId}")
+    public ResponseEntity<User> getUserDetail(@PathVariable Integer userId) {
+        User user = userService.getUserDetails(userId);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

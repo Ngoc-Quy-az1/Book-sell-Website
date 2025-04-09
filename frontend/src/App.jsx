@@ -42,7 +42,7 @@ const App = () => {
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
 
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
-      <BookCategoryList/>
+      {/* <BookCategoryList/> */}
       {/* <Cart/> */}
       {/* <Hero handleOrderPopup={handleOrderPopup} />
       <Services handleOrderPopup={handleOrderPopup} /> */}
@@ -53,7 +53,7 @@ const App = () => {
       {/* <Books /> */}
       {/* <Testimonial /> */}
       <ChatButton />
-      <Footer />
+      {/* <Footer /> */}
       {/* <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
 
       <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} /> */}
