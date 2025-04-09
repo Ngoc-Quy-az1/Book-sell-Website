@@ -9,10 +9,10 @@ import Footer from "./components/Footer/Footer.jsx";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
+
 import LoginPopup from "./components/LoginPopup/LoginPopup";
+
 import Books from "./components/BooksSlider/Books.jsx";
-import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
-import Cart from "./components/Cart/cart.jsx";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -40,20 +40,19 @@ const App = () => {
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
 
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
-      {/* <BookCategoryList/> */}
-      <Cart/>
-      {/* <Hero handleOrderPopup={handleOrderPopup} />
-      <Services handleOrderPopup={handleOrderPopup} />
-      <Banner /> */}
-      {/* <CoverBanner /> */}
-      {/* <AppStore /> */}
-      {/* <PdfReader /> */}
-      {/* <Books /> */}
-      {/* <Testimonial /> */}
-      <Footer />
-      {/* <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
 
-      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} /> */}
+      <Hero handleOrderPopup={handleOrderPopup} />
+      <Services handleOrderPopup={handleOrderPopup} />
+      <Banner />
+      {/* <CoverBanner /> */}
+      <AppStore />
+      {/* <PdfReader /> */}
+      <Books />
+      <Testimonial />
+      <Footer />
+      <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
+
+      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
 
     </div>
   );

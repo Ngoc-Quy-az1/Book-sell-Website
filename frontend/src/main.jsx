@@ -2,10 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Router, RouterProvider } from "react-router-dom";
 import Admin from "./admin.jsx";
 import Dashboard from "./scenes/admin/dashboard";
-import ManageUsers from "./scenes/admin/manageUsers/index.jsx";
+import Team from "./scenes/admin/team";
+import Invoices from "./scenes/admin/invoices";
+import Contacts from "./scenes/admin/contacts";
 import Bar from "./scenes/admin/bar";
 import Form from "./scenes/admin/form";
 import Line from "./scenes/admin/line";
@@ -27,15 +29,16 @@ const router = createBrowserRouter([{
   children:[{
     index:true, element: <Dashboard/>
   },
-    {path:'manageUsers', element:<ManageUsers />},
+    {path:'team', element:<Team />},
+    {path:'contacts', element:<Contacts />},
+    {path:'invoices', element:<Invoices />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},
     {path:'pie', element:<Pie />},
     {path:'line', element:<Line />},
     {path:'faq', element:<FAQ />},
     {path:'calendar', element:<Calendar />},
-    {path:'geography', element:<Geography />}
-  ]
+    {path:'geography', element:<Geography />}]
 }
 ]);
 ReactDOM.createRoot(document.getElementById("root")).render(
