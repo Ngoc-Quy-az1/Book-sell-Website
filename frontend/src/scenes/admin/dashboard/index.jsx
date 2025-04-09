@@ -2,21 +2,73 @@ import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
 import { mockTransactions } from "../../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import PaidIcon from '@mui/icons-material/Paid';
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
+import PersonIcon from "@mui/icons-material/Person";
 import Header from "../../../components/Admin/Header";
 import LineChart from "../../../components/Admin/LineChart";
 import GeographyChart from "../../../components/Admin/GeographyChart";
 import BarChart from "../../../components/Admin/BarChart";
 import StatBox from "../../../components/Admin/StatBox";
 import ProgressCircle from "../../../components/Admin/ProgressCircle";
+import { useState,useEffect } from "react";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const [countUsers, getCountUsers] = useState();
+  useEffect(() => {
+    handleCountUser();
+  },[])
+  const handleCountUser = () =>{
+    
+    fetch("http://localhost:8090/api/admin/users/count",{
+      method:"GET"
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getCountUsers(Response);
+    })
+  }  
+  
+
+  const [countSales, getCountSales] = useState();
+  useEffect(() => {
+    handleCountSales();
+  },[])
+  const handleCountSales = () =>{
+    
+    fetch("http://localhost:8090/api/admin/orders/count",{
+      method:"GET"
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getCountSales(Response);
+    })
+  }  
+  
+  const [totalRevenue, getTotalRevenue] = useState();
+  useEffect(() => {
+    handleTotalRevenue();
+  },[])
+  const handleTotalRevenue = () =>{
+    
+    fetch("http://localhost:8090/api/admin/revenue/total",{
+      method:"GET"
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getTotalRevenue(Response);
+    })
+  }  
   return (
     <Box m="20px">
       {/* HEADER */}
@@ -42,7 +94,7 @@ const Dashboard = () => {
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(12,minmax(30px,1fr))"
+        gridTemplateColumns="repeat(16,minmax(40px,1fr))"
         gridAutoRows="140px"
         gap="20px"
       >
@@ -55,8 +107,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
+            title=""
+            subtitle=""
             progress="0.75"
             increase="+14%"
             icon={
@@ -74,7 +126,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
+            title={countSales}
             subtitle="Sales Obtained"
             progress="0.50"
             increase="+21%"
@@ -93,12 +145,12 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
+            title={countUsers}
+            subtitle="Clients"
             progress="0.30"
             increase="+5%"
             icon={
-              <PersonAddIcon
+              <PersonIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -112,12 +164,31 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
+            title={totalRevenue}
+            subtitle="Total Revenue"
             progress="0.80"
             increase="+43%"
             icon={
-              <TrafficIcon
+              <PaidIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title=""
+            subtitle=""
+            progress="0.75"
+            increase="+14%"
+            icon={
+              <EmailIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -126,7 +197,7 @@ const Dashboard = () => {
 
         {/* ROW 2 */}
         <Box
-          gridColumn="span 8"
+          gridColumn="span 16"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >
