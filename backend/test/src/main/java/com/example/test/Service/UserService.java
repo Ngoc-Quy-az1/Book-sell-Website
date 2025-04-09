@@ -8,23 +8,23 @@ import com.example.test.DTO.Login_logout_register.Respose.ResponseLogInDTO;
 import com.example.test.DTO.Login_logout_register.Respose.registerResponseDTO;
 import com.example.test.DTO.ReviewDTO.Response.ReviewDTO;
 import com.example.test.Entity.Book;
+import com.example.test.Entity.Notification;
 import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
+import com.example.test.Repository.UserRepo.NotificationRepository;
 import com.example.test.Repository.UserRepo.UserPendingRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Repository.UserRepo.reviewRepository;
 import com.example.test.Repository.BookRepo.BookRepository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +63,11 @@ public class UserService {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    private final Map<String, String> resetCodeMap = new java.util.concurrent.ConcurrentHashMap<>();
+
     public String generateRandomNumber() {
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -91,12 +96,12 @@ public class UserService {
             mailService.sendMail(user.getMail(), "Verify your email", code + " is your code to register, please don't share with anyone else");
             return false;
         }
-        // nếu tồn tại và chưa kích hoạt thì trả về true
-//        if((userPendingRepository.findUserByMail(user.getMail()) != null || userPendingRepository.findUserByPhone(user.getPhone()) != null) && !user.isStatus())
-//        {
-//            entityManager.merge(user.getID());
-//            return true;
-//        }
+            // nếu tồn tại và chưa kích hoạt thì trả về true
+    //        if((userPendingRepository.findUserByMail(user.getMail()) != null || userPendingRepository.findUserByPhone(user.getPhone()) != null) && !user.isStatus())
+    //        {
+    //            entityManager.merge(user.getID());
+    //            return true;
+    //        }
         return true;
     }
 
@@ -186,6 +191,15 @@ public class UserService {
     
             // Lưu lại trạng thái login của user
             userRepository.save(user);  // Cập nhật trạng thái is_login trong database
+
+            // Thêm thông báo cho người dùng
+            Notification notification = new Notification();
+            notification.setUser(user);
+            notification.setMessage("Bạn đã đăng nhập vào ngày"+" "+ new Date());
+            notification.setCreatedAt(new Date());
+            notification.setRead(false);
+            notificationRepository.save(notification);
+            
         } else {
             result.setMessage("Wrong password!");
             result.setStatus(false);
@@ -278,4 +292,66 @@ public class UserService {
     public User findUserByMail(String email) {
         return userRepository.findUserByMail(email);
     }
+
+    //Quên mật khẩu
+    public boolean forgetPass(String tmp, String password) {
+        User optionalUser = null;
+    
+        if (tmp.contains("@")) {
+            optionalUser = userRepository.findUserByMail(tmp);
+        } else {
+            optionalUser = userRepository.findUserByPhone(tmp);
+        }
+    
+        if (optionalUser == null || optionalUser.getMail() == null) {
+            return false;
+        }
+    
+        String email = optionalUser.getMail();
+        String code = generateRandomNumber();
+    
+        resetCodeMap.put(email, code); // lưu code với key là email
+    
+        mailService.sendMail(email, "Verify your email", code + " is your code to reset password. Do not share it with anyone.");
+        
+        return true;
+    }
+    
+    
+    
+
+    //Xác nhận code để đổi mật khẩu
+    public boolean confirmCode(String infor, String password, String code) {
+        User optionalUser = null;
+    
+        if (infor.contains("@")) {
+            optionalUser = userRepository.findUserByMail(infor);
+        } else {
+            optionalUser = userRepository.findUserByPhone(infor);
+        }
+    
+        if (optionalUser == null || optionalUser.getMail() == null) {
+            return false;
+        }
+    
+        String email = optionalUser.getMail(); // dùng lại email làm key map
+        String storedCode = resetCodeMap.get(email);
+    
+        if (storedCode != null && storedCode.equals(code)) {
+            optionalUser.setPassword(passwordEncoder.encode(password));
+            userRepository.save(optionalUser);
+            resetCodeMap.remove(email);
+            //thêm thông báo đã đổi mật khẩu thành công
+            Notification notification = new Notification();
+            notification.setUser(optionalUser);
+            notification.setMessage("Đổi mật khẩu thành công! ");
+            notification.setCreatedAt(new Date());
+            notification.setRead(false);
+            notificationRepository.save(notification);
+            return true;
+        }
+    
+        return false;
+    }
+    
 }

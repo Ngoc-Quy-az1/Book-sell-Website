@@ -46,17 +46,19 @@ public class SecurityConfig {
                     "/api/users/verify",               // API xác thực email
                     "/api/books/search/**",            // API tìm kiếm sách
                     "/api/books/categories/**",        // API danh mục sách
-                    "/api/books/details/**",            // API chi tiết sách
+                    "/api/books/details/**",           // API chi tiết sách
                     "/api/payment/process-balance/**", // API thanh toán sử dụng tiền mặt
-                    "/api/order/**" ,
-                    "/api/chat/community/**"                   // API đặt hàng
+                    "/api/order/**" ,                  // API đặt hàng
+                    "/api/chat/community/**",       
+                    "api/users/forgotpassword",        // API quên mật khẩu
+                    "api/users/confirmcode"  , 
+                    "/api/books/AllTypeCategories"        // API xác thực mã quên mật khẩu
                 ).permitAll()
 
                 // Payment endpoints - Không cần đăng nhập
                 .requestMatchers(
                     "/api/payment/create-payment/**",
-                    "/api/payment/check-status/**",
-                    "/api/payment/vnpay-return/**"
+                    "/api/payment/check-status/**"
                 ).permitAll()
 
                 // User endpoints - Cần đăng nhập

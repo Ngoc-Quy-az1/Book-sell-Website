@@ -1,9 +1,11 @@
 package com.example.test.Service;
 
+import com.example.test.Entity.Notification;
 import com.example.test.Entity.PurchaseHistory;
 import com.example.test.Entity.PurchaseStatus;
 import com.example.test.Entity.User;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
+import com.example.test.Repository.UserRepo.NotificationRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,9 @@ public class PaymentService {
     @Value("${spring.mail.password}")
     private String emailPassword;
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+    
     private static final double XU_TO_VND_RATE = 1000.0; // 1 xu = 1000 VND
 
     /**
@@ -106,6 +111,12 @@ public class PaymentService {
                 order.setStatus(PurchaseStatus.Completed);
                 purchaseHistoryRepository.save(order);
             }
+            Notification notification = new Notification();
+            notification.setUser(userRepository.findUserByID(userId));
+            notification.setMessage("Thanh toán thành công đơn hàng mã" + orderIds + " lúc " + new Date());
+            notification.setCreatedAt(new Date());
+            notification.setRead(false);
+            notificationRepository.save(notification);
 
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);
@@ -169,12 +180,19 @@ public class PaymentService {
                 purchaseHistoryRepository.save(order);
             }
 
+            Notification notification = new Notification();
+            notification.setUser(userRepository.findUserByID(userId));
+            notification.setMessage("Thanh toán thành công đơn hàng mã" + orderIds + " lúc " + new Date());
+            notification.setCreatedAt(new Date());
+            notification.setRead(false);
+            notificationRepository.save(notification);
+
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);
             result.put("message", "Thanh toán thành công " + orders.size() + " đơn hàng bằng " + requiredXu + " xu");
             result.put("orderIds", orderIds);
             result.put("totalAmount", totalAmount);
-            result.put("remainingBalance", user.getBalance());
+            result.put("remainingBalance", user.getBalance());         
             return result;
 
         } catch (Exception e) {

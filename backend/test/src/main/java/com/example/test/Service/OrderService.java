@@ -9,6 +9,9 @@ import com.example.test.Repository.CartRepo.CartRepository;
 import com.example.test.Repository.OrdersRepo.OrderDetailsRepository;
 import com.example.test.Repository.OrdersRepo.OrderRepository;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
+import com.example.test.Repository.UserRepo.NotificationRepository;
+import com.example.test.Repository.UserRepo.UserRepository;
+
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -38,6 +42,12 @@ public class OrderService {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
@@ -110,6 +120,12 @@ public class OrderService {
             OrderResponse response = OrderResponse.fromOrder(order);
             if (newLevel != null) {
                 response.setUpgradeInfo(newLevel);
+                Notification notification = new Notification();
+                notification.setUser(userRepository.findUserByID(request.getUserId()));
+                notification.setMessage("Bạn đã được nâng cấp lên cấp độ hội viên: " + newLevel.name());
+                notification.setCreatedAt(new Date());
+                notification.setRead(false);
+                notificationRepository.save(notification);
             }
             
             return response;

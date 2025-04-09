@@ -21,10 +21,6 @@ public class Orders {
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private PurchaseStatus status = PurchaseStatus.Pending;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;

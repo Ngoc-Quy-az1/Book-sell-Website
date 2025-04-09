@@ -6,24 +6,25 @@ import com.example.test.DTO.Login_logout_register.Request.registerDTO;
 import com.example.test.DTO.Login_logout_register.Respose.ResponseLogInDTO;
 import com.example.test.DTO.Login_logout_register.Respose.registerResponseDTO;
 import com.example.test.DTO.ReviewDTO.Response.ReviewDTO;
-import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
 import com.example.test.Service.JwtService;
+import com.example.test.Service.MailService;
 import com.example.test.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
 @RequestMapping("/api/users")
 public class userController {
+
 
     @Autowired
     private UserService userService;
@@ -33,6 +34,12 @@ public class userController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
+    private MailService mailService;
+
+
 
 
 //    {
@@ -102,6 +109,43 @@ public class userController {
     @GetMapping("/logout/{userId}")
     public boolean logout(@PathVariable Integer userId) {
         return userService.logOut(userId);
+    }
+
+    //Quên mật khẩu
+    // http://localhost:8090/api/users/forgotpassword
+    // {
+    //     "infor":"quy160104@gmail.com", 
+    //     "password": "123456"
+    // }
+
+    @PostMapping("/forgotpassword")
+    public String forgetPass(@RequestBody Map<String, String> body) {
+        String password = body.get("password");
+        String infor = body.get("infor");
+        if(userService.forgetPass(infor, password)){
+            return "ok";
+        }else{
+            return "Không tìm thấy tài khoản nào với email này";
+        }
+    }
+    //Xác nhận code để đổi mật khẩu
+    // http://localhost:8090/api/users/confirmcode
+    // {
+    //      "infor": "quy160104@gmail.com"
+    //      "password": "123456",
+    //     "code": "123456"
+    // }
+
+    @PostMapping("/confirmcode")
+    public String confirmCode(@RequestBody Map<String, String> body) {
+        String infor = body.get("infor");
+        String password = body.get("password");
+        String code = body.get("code");
+        if(userService.confirmCode(infor,password,code)){
+            return "ok";
+        }else{
+            return "Mã xác nhận không đúng";
+        }
     }
 
     //Get all review of a book
