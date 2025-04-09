@@ -14,6 +14,12 @@ import com.example.test.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import com.example.test.DTO.UserDiscountCodeDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Map;
@@ -57,6 +63,8 @@ public class userController {
         return false;
     }
 
+
+//  http://localhost:8090/api/users/verify?mail=quy160104@gmail.com
 //    {
 //        "code" : "123123"
 //    }
@@ -164,5 +172,41 @@ public class userController {
     @PostMapping("/review/{userId}/{bookId}")
     public boolean review(@PathVariable Integer userId, @PathVariable Integer bookId, @RequestBody Map<String, String> body) {
         return userService.review(userId, bookId, body);
+    }
+
+    /**
+     * API lấy danh sách mã giảm giá của người dùng
+     * Method: GET
+     * URL: http://localhost:8090/api/users/{userId}/discount-codes
+     * Headers:
+     *   Authorization: Bearer {your_jwt_token}
+     * Response (200 OK):
+     * [
+     *   {
+     *     "code": "OFFC5Y2R",
+     *     "discountPercentage": 30.00,
+     *     "expirationDate": "2025-12-31",
+     *     "numberCode": 123456789
+     *   },
+     *   ...
+     * ]
+     * Error Response (403 Forbidden): Nếu người dùng không có quyền xem
+     * Error Response (404 Not Found): Nếu userId không tồn tại
+     */
+    @GetMapping("/{userId}/discount-codes")
+    // Chỉ chủ sở hữu tài khoản hoặc admin mới có quyền truy cập
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")
+    public ResponseEntity<List<UserDiscountCodeDTO>> getUserDiscountCodes(@PathVariable Integer userId) {
+        try {
+            List<UserDiscountCodeDTO> discountCodes = userService.getUserDiscountCodes(userId);
+            return ResponseEntity.ok(discountCodes);
+        } catch (RuntimeException e) {
+            // Xử lý lỗi không tìm thấy user
+            if (e.getMessage().contains("User not found")) {
+                return ResponseEntity.notFound().build();
+            }
+            // Các lỗi khác
+            return ResponseEntity.badRequest().body(null); // Hoặc trả về lỗi cụ thể hơn
+        }
     }
 }

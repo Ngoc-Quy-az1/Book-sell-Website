@@ -12,11 +12,16 @@ import com.example.test.Entity.Notification;
 import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
+import com.example.test.Entity.DiscountCode;
+import com.example.test.Entity.DiscountCodesNumberCode;
 import com.example.test.Repository.UserRepo.NotificationRepository;
 import com.example.test.Repository.UserRepo.UserPendingRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Repository.UserRepo.reviewRepository;
 import com.example.test.Repository.BookRepo.BookRepository;
+import com.example.test.Repository.DiscountCodeRepository;
+import com.example.test.Repository.DiscountCodesNumberCodeRepository;
+import com.example.test.DTO.UserDiscountCodeDTO;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -31,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -65,6 +71,12 @@ public class UserService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private DiscountCodeRepository discountCodeRepository;
+
+    @Autowired
+    private DiscountCodesNumberCodeRepository discountCodesNumberCodeRepository;
 
     private final Map<String, String> resetCodeMap = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -108,33 +120,53 @@ public class UserService {
     // verify
     public registerResponseDTO verify(String mail, String code)
     {
-        pendingUser user = userPendingRepository.findUserByMail(mail);  
-//        System.out.println(user);
-//        pendingUser user = findByMail(mail);
+        pendingUser pendingUser = userPendingRepository.findUserByMail(mail);  
         registerResponseDTO result = new registerResponseDTO();
-        if (user == null) {
+        if (pendingUser == null) {
             result.setStatus(false);
             result.setMessage("Email not found");
             return result;
         }
-        if (!user.isStatus())
+        if (!pendingUser.isStatus())
         {
-            System.out.println(code);
-            System.out.println(user.getCode());
-            if (code.equals(user.getCode()))
+            if (code.equals(pendingUser.getCode()))
             {
-                User user1 = new User();
-                user1.setPassword(user.getPassword());
-                user1.setMembershipLevel(User.MembershipLevel.Silver);
-                user1.setName(user.getName());
-                user1.setMail(user.getMail());
-                user1.setPhone(user.getPhone());
-                userRepository.save(user1);
+                // Tạo user mới
+                User newUser = new User();
+                newUser.setPassword(pendingUser.getPassword());
+                newUser.setMembershipLevel(User.MembershipLevel.Silver);
+                newUser.setName(pendingUser.getName());
+                newUser.setMail(pendingUser.getMail());
+                newUser.setPhone(pendingUser.getPhone());
+                userRepository.save(newUser);
+
+                // Tặng mã giảm giá 30%
+                try {
+                    DiscountCode discount = discountCodeRepository.findByCode("OFFC5Y2R")
+                        .orElseThrow(() -> new RuntimeException("Discount code OFFC5Y2R not found"));
+
+                    DiscountCodesNumberCode userDiscount = new DiscountCodesNumberCode();
+                    userDiscount.setCodeId(discount.getCodeId());
+                    userDiscount.setUserId(newUser.getID());
+                    // Tạo giá trị duy nhất cho number_code (ví dụ: timestamp)
+                    userDiscount.setNumberCode(1);
+                    userDiscount.setDiscountCode(discount); // Set relationship
+                    userDiscount.setUser(newUser);         // Set relationship
+                    discountCodesNumberCodeRepository.save(userDiscount);
+                    
+                    System.out.println("Successfully assigned discount code OFFC5Y2R to user: " + newUser.getID());
+                } catch (Exception e) {
+                    System.err.println("Error assigning discount code: " + e.getMessage());
+                    // Log lỗi hoặc xử lý thêm nếu cần
+                }
+
+                // Cập nhật pending user
+                pendingUser.setStatus(true);
+                pendingUser.setCode(null);
+                userPendingRepository.save(pendingUser);
+
                 result.setMessage("Successfully register!");
                 result.setStatus(true);
-                user.setStatus(true);
-                user.setCode(null);
-                userPendingRepository.save(user);
                 return result;
             }else{
                 result.setMessage("Wrong code!");
@@ -146,7 +178,6 @@ public class UserService {
             result.setStatus(false);
             return result;
         }
-
     }
 
     // log in
@@ -354,4 +385,21 @@ public class UserService {
         return false;
     }
     
+    // Phương thức lấy danh sách mã giảm giá của người dùng
+    public List<UserDiscountCodeDTO> getUserDiscountCodes(Integer userId) {
+        // Kiểm tra người dùng tồn tại
+        userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        
+        List<DiscountCodesNumberCode> userDiscounts = discountCodesNumberCodeRepository.findByUserId(userId);
+        
+        return userDiscounts.stream()
+                .map(userDiscount -> new UserDiscountCodeDTO(
+                        userDiscount.getDiscountCode().getCode(),
+                        userDiscount.getDiscountCode().getDiscountPercentage(),
+                        userDiscount.getDiscountCode().getExpirationDate(),
+                        userDiscount.getNumberCode()
+                ))
+                .collect(Collectors.toList());
+    }
 }

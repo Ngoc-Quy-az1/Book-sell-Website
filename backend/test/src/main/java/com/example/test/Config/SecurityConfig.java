@@ -9,6 +9,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -64,11 +66,13 @@ public class SecurityConfig {
                 // User endpoints - Cần đăng nhập
                 .requestMatchers(
                     "/api/users/profile/**",           // Thông tin cá nhân
-                    "/api/users/update-profile/**",    // Cập nhật thông tin
-                    "/api/users/change-password/**",   // Đổi mật khẩu
-                    "/api/users/orders/**",            // Lịch sử đơn hàng
-                    "/api/cart/**",                    // Giỏ hàng
-                    "/api/orders/**"                   // Đặt hàng
+                    "/api/users/update/**",
+                    "/api/users/update/balance/**",
+                    "/api/users/logout/**",
+                    "/api/users/review/**",
+                    "/api/cart/**",
+                    "/api/chat/admin/**",
+                    "/api/users/{userId}/discount-codes"
                 ).authenticated()
 
                 // Admin endpoints - Cần role ADMIN

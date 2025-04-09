@@ -4,9 +4,13 @@ import com.example.test.Entity.Notification;
 import com.example.test.Entity.PurchaseHistory;
 import com.example.test.Entity.PurchaseStatus;
 import com.example.test.Entity.User;
+import com.example.test.Entity.DiscountCode;
+import com.example.test.Entity.DiscountCodesNumberCode;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
 import com.example.test.Repository.UserRepo.NotificationRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
+import com.example.test.Repository.DiscountCodeRepository;
+import com.example.test.Repository.DiscountCodesNumberCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +18,8 @@ import jakarta.mail.*;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.internet.MimeBodyPart;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -24,6 +30,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class PaymentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
@@ -39,6 +47,12 @@ public class PaymentService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+    
+    @Autowired
+    private DiscountCodeRepository discountCodeRepository;
+
+    @Autowired
+    private DiscountCodesNumberCodeRepository discountCodesNumberCodeRepository;
     
     private static final double XU_TO_VND_RATE = 1000.0; // 1 xu = 1000 VND
 
@@ -72,9 +86,10 @@ public class PaymentService {
     @Transactional
     public Map<String, Object> processNewBankTransfer(List<Integer> orderIds, Integer userId) {
         try {
-            // Tính tổng tiền của tất cả đơn hàng
             BigDecimal totalAmount = BigDecimal.ZERO;
             List<PurchaseHistory> orders = new ArrayList<>();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
             
             for (Integer orderId : orderIds) {
                 PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
@@ -92,13 +107,11 @@ public class PaymentService {
                 orders.add(order);
             }
 
-            // Đọc email và kiểm tra thanh toán
             Map<String, String> transactionDetails = readRecentEmails();
             if (transactionDetails == null || !transactionDetails.containsKey("amount")) {
                 return createResponse(false, "Không tìm thấy email chuyển khoản mới");
             }
 
-            // Kiểm tra số tiền
             String amountStr = transactionDetails.get("amount");
             BigDecimal transactionAmount = new BigDecimal(amountStr);
             
@@ -106,14 +119,16 @@ public class PaymentService {
                 return createResponse(false, "Số tiền chuyển khoản (" + amountStr + " VND) không đủ để thanh toán tổng đơn hàng (" + totalAmount + " VND)");
             }
 
-            // Cập nhật trạng thái tất cả đơn hàng
             for (PurchaseHistory order : orders) {
                 order.setStatus(PurchaseStatus.Completed);
                 purchaseHistoryRepository.save(order);
+                // Gán mã giảm giá sau khi thanh toán thành công
+                assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
             }
+            
             Notification notification = new Notification();
-            notification.setUser(userRepository.findUserByID(userId));
-            notification.setMessage("Thanh toán thành công đơn hàng mã" + orderIds + " lúc " + new Date());
+            notification.setUser(user);
+            notification.setMessage("Thanh toán thành công đơn hàng mã " + orderIds + " bằng chuyển khoản lúc " + new Date());
             notification.setCreatedAt(new Date());
             notification.setRead(false);
             notificationRepository.save(notification);
@@ -127,7 +142,7 @@ public class PaymentService {
             return result;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Lỗi xử lý thanh toán qua chuyển khoản: {}", e.getMessage(), e);
             return createResponse(false, "Lỗi xử lý thanh toán: " + e.getMessage());
         }
     }
@@ -138,10 +153,11 @@ public class PaymentService {
     @Transactional
     public Map<String, Object> processBalancePayment(List<Integer> orderIds, Integer userId) {
         try {
-            // Tính tổng tiền của tất cả đơn hàng
             BigDecimal totalAmount = BigDecimal.ZERO;
             List<PurchaseHistory> orders = new ArrayList<>();
-            
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
             for (Integer orderId : orderIds) {
                 PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
@@ -158,31 +174,25 @@ public class PaymentService {
                 orders.add(order);
             }
 
-            // Lấy thông tin người dùng
-            User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-
-            // Tính số xu cần thiết
             double requiredXu = totalAmount.doubleValue() / XU_TO_VND_RATE;
 
-            // Kiểm tra số dư
             if (user.getBalance() < requiredXu) {
                 throw new RuntimeException("Số dư xu không đủ. Cần " + requiredXu + " xu, hiện có " + user.getBalance() + " xu");
             }
 
-            // Trừ xu
             user.setBalance(user.getBalance() - requiredXu);
             userRepository.save(user);
 
-            // Cập nhật trạng thái tất cả đơn hàng
             for (PurchaseHistory order : orders) {
                 order.setStatus(PurchaseStatus.Completed);
                 purchaseHistoryRepository.save(order);
+                // Gán mã giảm giá sau khi thanh toán thành công
+                assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
             }
 
             Notification notification = new Notification();
-            notification.setUser(userRepository.findUserByID(userId));
-            notification.setMessage("Thanh toán thành công đơn hàng mã" + orderIds + " lúc " + new Date());
+            notification.setUser(user);
+            notification.setMessage("Thanh toán thành công đơn hàng mã " + orderIds + " bằng xu lúc " + new Date());
             notification.setCreatedAt(new Date());
             notification.setRead(false);
             notificationRepository.save(notification);
@@ -196,7 +206,7 @@ public class PaymentService {
             return result;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Lỗi xử lý thanh toán bằng xu: {}", e.getMessage(), e);
             return createResponse(false, e.getMessage());
         }
     }
@@ -306,5 +316,60 @@ public class PaymentService {
         response.put("success", success);
         response.put("message", message);
         return response;
+    }
+
+    private void assignDiscountCodeBasedOnAmount(User user, BigDecimal orderAmount) {
+        String discountCodeToAssign = null;
+        double amount = orderAmount.doubleValue();
+
+        if (amount >= 20000000) {
+            discountCodeToAssign = "REDUC6TW"; // 100%
+        } else if (amount >= 15000000) {
+            discountCodeToAssign = "GIFT3RXY"; // 90%
+        } else if (amount >= 10000000) {
+            discountCodeToAssign = "SAVE2NML"; // 80%
+        } else if (amount >= 7000000) {
+            discountCodeToAssign = "VCHR8KJD"; // 70%
+        } else if (amount >= 5000000) {
+            discountCodeToAssign = "COUPN4BZ"; // 60%
+        } else if (amount >= 3000000) {
+            discountCodeToAssign = "PROMO1WL"; // 50%
+        } else if (amount >= 2000000) {
+            discountCodeToAssign = "ZDISCNT8"; // 40%
+        } else if (amount >= 1000000) {
+            discountCodeToAssign = "OFFC5Y2R"; // 30%
+        } else if (amount >= 500000) {
+            discountCodeToAssign = "DEAL7TQK"; // 20%
+        } else if (amount >= 200000) {
+            discountCodeToAssign = "SALE9X3G"; // 10%
+        }
+
+        if (discountCodeToAssign != null) {
+            try {
+                final String finalDiscountCode = discountCodeToAssign; // Biến final
+                DiscountCode discount = discountCodeRepository.findByCode(finalDiscountCode)
+                    .orElseThrow(() -> new RuntimeException("Discount code " + finalDiscountCode + " not found"));
+
+                DiscountCodesNumberCode userDiscount = new DiscountCodesNumberCode();
+                userDiscount.setCodeId(discount.getCodeId());
+                userDiscount.setUserId(user.getID());
+                userDiscount.setNumberCode((int) (System.currentTimeMillis() % Integer.MAX_VALUE)); 
+                userDiscount.setDiscountCode(discount); 
+                userDiscount.setUser(user);
+                discountCodesNumberCodeRepository.save(userDiscount);
+                
+                logger.info("Successfully assigned discount code {} to user: {}", finalDiscountCode, user.getID());
+
+                Notification notification = new Notification();
+                notification.setUser(user);
+                notification.setMessage("Chúc mừng! Bạn đã nhận được mã giảm giá " + discount.getDiscountPercentage() + "% (" + discount.getCode() + ") cho đơn hàng tiếp theo.");
+                notification.setCreatedAt(new Date());
+                notification.setRead(false);
+                notificationRepository.save(notification);
+
+            } catch (Exception e) {
+                logger.error("Error assigning discount code {} to user {}: {}", discountCodeToAssign, user.getID(), e.getMessage(), e);
+            }
+        }
     }
 } 
