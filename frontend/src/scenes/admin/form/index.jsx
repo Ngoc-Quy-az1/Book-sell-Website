@@ -3,46 +3,18 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Admin/Header";
-import Notice from "../notice";
-import { useState } from "react";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [notice, setNotice] = useState(false);
-  const [error, setError] = useState(false);
-  
-  //Báo lỗi
-  const [message, setMessage] = useState("");
-  const showNotice = () => {
-    setNotice(!notice);
-    setTimeout(() => {setNotice()},3000)
-  }
+
   const handleFormSubmit = (values) => {
-    values.full_name = values.firstName + ' ' + values.lastName;
-    console.log(JSON.stringify(values));
-    createUser(values);
+    console.log(values);
   };
 
-  //Đẩy DL lên Database 
-  const createUser = (form) =>{
-    fetch("http://localhost:8090/api/admin/createUsers",{
-      method:"POST",      
-      headers: {      
-        'Content-Type': 'application/json'
-        },
-      body:JSON.stringify(form)
-    }) .then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {setMessage(data); setError(true)}// this will be a string
-      else {setMessage("Account Successfully Created"); setError(false)}
-      showNotice();
-    });
-  }
   return (
     <Box m="20px">
       <Header title="CREATE USER" subtitle="Create a New User Profile" />
-      <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
+
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
@@ -90,19 +62,7 @@ const Form = () => {
                 error={!!touched.lastName && !!errors.lastName}
                 helperText={touched.lastName && errors.lastName}
                 sx={{ gridColumn: "span 2" }}
-              />              <TextField
-              fullWidth
-              variant="filled"
-              type="text"
-              label="User Name"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.name}
-              name="name"
-              error={!!touched.name && !!errors.name}
-              helperText={touched.name && errors.name}
-              sx={{ gridColumn: "span 4" }}
-            />
+              />
               <TextField
                 fullWidth
                 variant="filled"
@@ -110,49 +70,49 @@ const Form = () => {
                 label="Email"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.mail}
-                name="mail"
-                error={!!touched.mail && !!errors.mail}
-                helperText={touched.mail && errors.mail}
+                value={values.email}
+                name="email"
+                error={!!touched.email && !!errors.email}
+                helperText={touched.email && errors.email}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Password"
+                label="Contact Number"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.password}
-                name="password"
-                error={!!touched.password && !!errors.password}
-                helperText={touched.password && errors.password}
+                value={values.contact}
+                name="contact"
+                error={!!touched.contact && !!errors.contact}
+                helperText={touched.contact && errors.contact}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Phone Number"
+                label="Address 1"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.phone}
-                name="phone"
-                error={!!touched.phone && !!errors.phone}
-                helperText={touched.phone && errors.phone}
+                value={values.address1}
+                name="address1"
+                error={!!touched.address1 && !!errors.address1}
+                helperText={touched.address1 && errors.address1}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Address"
+                label="Address 2"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.address}
-                name="address"
-                error={!!touched.address && !!errors.address}
-                helperText={touched.address && errors.address}
+                value={values.address2}
+                name="address2"
+                error={!!touched.address2 && !!errors.address2}
+                helperText={touched.address2 && errors.address2}
                 sx={{ gridColumn: "span 4" }}
               />
             </Box>
@@ -167,33 +127,28 @@ const Form = () => {
     </Box>
   );
 };
-//Ràng buộc 
+
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
 
 const checkoutSchema = yup.object().shape({
   firstName: yup.string().required("required"),
   lastName: yup.string().required("required"),
-  name: yup.string().required("required"),
-  mail: yup.string().email("invalid mail").required("required"),
-  phone: yup
+  email: yup.string().email("invalid email").required("required"),
+  contact: yup
     .string()
     .matches(phoneRegExp, "Phone number is not valid")
     .required("required"),
-  address: yup.string().required("required"),
-  password: yup.string().required("required"),
+  address1: yup.string().required("required"),
+  address2: yup.string().required("required"),
 });
 const initialValues = {
   firstName: "",
   lastName: "",
-  name: "",
-  full_name: "",
-  mail: "",
-  phone: "",
-  address: "",
-  password: "",
-  membership_level: "Silver",
-  id: "10"
+  email: "",
+  contact: "",
+  address1: "",
+  address2: "",
 };
 
 export default Form;

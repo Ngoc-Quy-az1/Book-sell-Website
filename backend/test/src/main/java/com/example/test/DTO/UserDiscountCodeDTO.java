@@ -1,35 +1,22 @@
-package com.example.test.Entity;
+package com.example.test.DTO;
 
-import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
-@Entity
-@Table(name = "discount_codes")
-public class DiscountCode {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "code_id")
-    private int codeId;
-
-    @Column(name = "code", length = 50, nullable = false, unique = true)
+public class UserDiscountCodeDTO {
     private String code;
-
-    @Column(name = "discount_percentage", nullable = false)
     private BigDecimal discountPercentage;
-
-    @Column(name = "expiration_date", nullable = false)
     private LocalDate expirationDate;
+    private int numberCode; // Có thể thêm trường này nếu cần hiển thị
 
-    public int getCodeId() {
-        return codeId;
+    public UserDiscountCodeDTO(String code, BigDecimal discountPercentage, LocalDate expirationDate, int numberCode) {
+        this.code = code;
+        this.discountPercentage = discountPercentage;
+        this.expirationDate = expirationDate;
+        this.numberCode = numberCode;
     }
 
-    public void setCodeId(int codeId) {
-        this.codeId = codeId;
-    }
-
+    // Getters and Setters
     public String getCode() {
         return code;
     }
@@ -53,4 +40,12 @@ public class DiscountCode {
     public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate;
     }
-}
+
+    public int getNumberCode() {
+        return numberCode;
+    }
+
+    public void setNumberCode(int numberCode) {
+        this.numberCode = numberCode;
+    }
+} 
