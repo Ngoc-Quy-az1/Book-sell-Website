@@ -2,6 +2,7 @@ package com.example.test.Service;
 
 import com.example.test.Entity.User;
 import com.example.test.Repository.UserRepo.UserRepository;
+import com.example.test.Repository.chatRepo.GroupJoinRequestRepository;
 import com.example.test.Repository.OrdersRepo.OrderRepository;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
 import jakarta.persistence.EntityManager;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import com.example.test.Entity.User.MembershipLevel;
+import com.example.test.Entity.chatEntity.GroupJoinRequest;
 
 @Service
 public class AdminService {
@@ -39,6 +41,9 @@ public class AdminService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private GroupJoinRequestRepository groupJoinRequestRepository;
 
     // Định nghĩa ngưỡng chi tiêu cho từng cấp độ hội viên
     private static final Map<String, BigDecimal> MEMBERSHIP_THRESHOLDS = new HashMap<>() {{
@@ -243,5 +248,10 @@ public class AdminService {
         }
         
         return null; 
+    }
+
+    // Lấy danh sách yêu cầu tham gia nhóm chat
+    public List<GroupJoinRequest> getGroupJoinRequests() {
+        return groupJoinRequestRepository.findAll();
     }
 }

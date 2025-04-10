@@ -1,6 +1,7 @@
 package com.example.test.controller.CoreController;
 
 import com.example.test.Entity.User;
+import com.example.test.Entity.chatEntity.GroupJoinRequest;
 import com.example.test.Service.AdminService;
 import com.example.test.Service.JwtService;
 
@@ -344,5 +345,16 @@ public class AdminController {
         }
         
         return ResponseEntity.ok(response);
+    }
+
+    //Api lấy danh sách yêu cầu tham gia nhóm chat
+    // http://localhost:8090/api/admin/chat-requests
+    @GetMapping("/chat-requests")
+    public ResponseEntity<?> getChatRequests(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
+        List<GroupJoinRequest> chatRequests = adminService.getGroupJoinRequests();
+        return ResponseEntity.ok(chatRequests);
     }
 }

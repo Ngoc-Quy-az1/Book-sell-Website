@@ -54,7 +54,7 @@ public class userController {
 //          "mail": "121341@gmail.com",
 //          "password" : "12345"
 //    }
-    @GetMapping("/register")
+    @PostMapping("/register")
     public boolean register(@RequestBody registerDTO user)
     {
         if (!userService.isExistUser(user)){
@@ -86,7 +86,7 @@ public class userController {
     //     "phone":"12091112212",
     //     "password":"12345"
     // }
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseLogInDTO login(@RequestBody logInDTO infor)
     {
         return userService.logIn(infor);

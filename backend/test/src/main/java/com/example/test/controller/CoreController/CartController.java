@@ -40,10 +40,6 @@ public class CartController {
      *   "isPurchased": false
      * }
      * 
-     * Error Response (400 Bad Request):
-     * {
-     *   "error": "Lỗi khi thêm vào giỏ hàng: [chi tiết lỗi]"
-     * }
      */
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody Map<String, Object> request) {
