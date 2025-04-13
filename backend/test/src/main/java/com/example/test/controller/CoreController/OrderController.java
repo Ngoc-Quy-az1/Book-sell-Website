@@ -21,47 +21,90 @@ public class OrderController {
     private CartService cartService;
 
     /**
-     * Tạo đơn hàng mới
-     * Method: POST
-     * URL: http://localhost:8090/api/order/create
+     * Tạo đơn hàng mới, có thể áp dụng mã giảm giá.
      * 
-     * Request Body:
+     * **URL:** `http://localhost:8090/api/order/create`
+     * 
+     * **Headers:**
+     *   - `Content-Type`: `application/json`
+     *   - `Authorization`: `Bearer {your_jwt_token}`
+     * 
+     * **Request Body (Không có mã giảm giá):**
+     * ```json
      * {
-     *   "userId": 14,      // ID của người dùng
-     *   "bookIds": [15]    // Mảng chứa ID của các sách muốn mua
+     *   "userId": 14,
+     *   "bookIds": [15, 16]
      * }
+     * ```
      * 
-     * Success Response (200 OK):
+     * **Request Body (Có mã giảm giá):**
+     * ```json
      * {
-     *   "orderId": 8,          // ID của đơn hàng vừa tạo
-     *   "userId": 14,          // ID của người mua
-     *   "totalAmount": 12920000.00,  // Tổng tiền đơn hàng
-     *   "membershipUpgraded": true,  // Đánh dấu có nâng cấp membership
+     *   "userId": 14,
+     *   "bookIds": [15, 16],
+     *   "discountCode": "OFFC5Y2R" 
+     * }
+     * ```
+     * 
+     * **Success Response (200 OK - Không có giảm giá, không nâng cấp):**
+     * ```json
+     * {
+     *   "orderId": 9,
+     *   "userId": 14,
+     *   "originalAmount": 500000.00,
+     *   "discountAmount": 0.00,
+     *   "finalAmount": 500000.00,
+     *   "appliedDiscountCode": null,
+     *   "membershipUpgraded": false,
+     *   "membershipMessage": null,
+     *   "newMembershipLevel": null
+     * }
+     * ```
+     * 
+     * **Success Response (200 OK - Có giảm giá, có nâng cấp):**
+     * ```json
+     * {
+     *   "orderId": 10,
+     *   "userId": 14,
+     *   "originalAmount": 12000000.00,
+     *   "discountAmount": 3600000.00,
+     *   "finalAmount": 8400000.00,
+     *   "appliedDiscountCode": "OFFC5Y2R",
+     *   "membershipUpgraded": true,
      *   "membershipMessage": "Chúc mừng! Bạn đã được nâng cấp lên thành viên Platinum",
      *   "newMembershipLevel": "Platinum"
      * }
+     * ```
      * 
-     * Error Response (400 Bad Request):
+     * **Error Response (400 Bad Request):**
+     * ```json
      * {
-     *   "error": "Lỗi khi tạo đơn hàng: [chi tiết lỗi]"
+     *   "error": "Lỗi khi tạo đơn hàng: Mã giảm giá 'INVALIDCODE' không hợp lệ hoặc không thuộc về bạn."
      * }
+     * ```
+     * hoặc
+     * ```json
+     * {
+     *   "error": "Lỗi khi tạo đơn hàng: Không tìm thấy sản phẩm trong giỏ hàng với bookId: 99"
+     * }
+     * ```
      * 
-     * Lưu ý:
-     * 1. Sản phẩm phải có trong giỏ hàng trước khi đặt
-     * 2. Số lượng sách sẽ được lấy từ giỏ hàng
-     * 3. Tổng tiền được tính dựa trên giá đã giảm của sách
-     * 4. Membership được tự động nâng cấp nếu đủ điều kiện:
-     *    - Silver -> Gold: Tổng chi tiêu đạt 5,000,000 VND
-     *    - Gold -> Platinum: Tổng chi tiêu đạt 10,000,000 VND
+     * **Lưu ý:**
+     * 1. Sản phẩm phải có trong giỏ hàng trước khi đặt.
+     * 2. Mã giảm giá phải hợp lệ, còn hạn và thuộc về người dùng.
+     * 3. `total_amount` trong DB sẽ lưu `finalAmount` (sau khi giảm giá).
+     * 4. Membership được nâng cấp dựa trên `finalAmount`.
      */
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequest request) {
         try {
             OrderResponse response = orderService.createOrder(request);
-            cartService.removeFromCart(request.getUserId(), request.getBookIds());
+            // Xóa khỏi giỏ hàng sau khi đặt thành công
+            cartService.removeFromCart(request.getUserId(), request.getBookIds()); 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // Trả về lỗi dưới dạng text đơn giản
+            return ResponseEntity.badRequest().body("Lỗi khi tạo đơn hàng: " + e.getMessage()); 
         }
     }
 } 
