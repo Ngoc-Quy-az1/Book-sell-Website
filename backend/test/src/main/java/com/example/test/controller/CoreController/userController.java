@@ -111,4 +111,41 @@ public class userController {
         return userService.getAllReviews(bookId);
     }
 
+
+ //Quên mật khẩu
+    // http://localhost:8090/api/users/forgotpassword
+    // {
+    //     "infor":"quy160104@gmail.com", 
+    //     "password": "123456"
+    // }
+
+    @PostMapping("/forgotpassword")
+    public String forgetPass(@RequestBody Map<String, String> body) {
+        String password = body.get("password");
+        String infor = body.get("infor");
+        if(userService.forgetPass(infor, password)){
+            return "ok";
+        }else{
+            return "Không tìm thấy tài khoản nào với email này";
+        }
+    }
+    //Xác nhận code để đổi mật khẩu
+    // http://localhost:8090/api/users/confirmcode
+    // {
+    //      "infor": "quy160104@gmail.com"
+    //      "password": "123456",
+    //     "code": "123456"
+    // }
+
+    @PostMapping("/confirmcode")
+    public String confirmCode(@RequestBody Map<String, String> body) {
+        String infor = body.get("infor");
+        String password = body.get("password");
+        String code = body.get("code");
+        if(userService.confirmCode(infor,password,code)){
+            return "ok";
+        }else{
+            return "Mã xác nhận không đúng";
+        }
+    }
 }

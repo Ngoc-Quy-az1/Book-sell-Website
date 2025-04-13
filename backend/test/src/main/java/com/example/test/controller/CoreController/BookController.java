@@ -292,4 +292,11 @@ public class BookController {
         Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
         return ResponseEntity.ok(responsePage);
     }
+      //Api lấy ra các thể loại sách đang có 
+    // http://localhost:8090/api/books/AllTypeCategories
+    @GetMapping("/AllTypeCategories")
+    public ResponseEntity<List<String>> getTypeCategories() {
+        List<String> categories = bookService.getAllCategories();
+        return ResponseEntity.ok(categories);
+    } 
 }

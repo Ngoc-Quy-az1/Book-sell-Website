@@ -6,7 +6,13 @@ import { mockBarData as data } from "../../data/mockData";
 const BarChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
+  const testData = [
+    {
+      country: "AD",
+      "hot dog": 137,
+      "hot dogColor": "hsl(229, 70%, 50%)",
+      burger: 96,
+    }]
   return (
     <ResponsiveBar
       data={data}

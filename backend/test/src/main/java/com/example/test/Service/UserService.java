@@ -57,6 +57,7 @@ public class UserService {
     @Autowired
     private EntityManager entityManager;
 
+    private final Map<String, String> resetCodeMap = new java.util.concurrent.ConcurrentHashMap<>();
     public String generateRandomNumber() {
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -259,4 +260,58 @@ public class UserService {
             return reviewDTOs;
         }
     
+
+  //Quên mật khẩu
+  public boolean forgetPass(String tmp, String password) {
+    User optionalUser = null;
+
+    if (tmp.contains("@")) {
+        optionalUser = userRepository.findUserByMail(tmp);
+    } else {
+        optionalUser = userRepository.findUserByPhone(tmp);
+    }
+
+    if (optionalUser == null || optionalUser.getMail() == null) {
+        return false;
+    }
+
+    String email = optionalUser.getMail();
+    String code = generateRandomNumber();
+
+    resetCodeMap.put(email, code); // lưu code với key là email
+
+    mailService.sendMail(email, "Verify your email", code + " is your code to reset password. Do not share it with anyone.");
+
+    return true;
+}
+
+
+
+
+//Xác nhận code để đổi mật khẩu
+public boolean confirmCode(String infor, String password, String code) {
+    User optionalUser = null;
+
+    if (infor.contains("@")) {
+        optionalUser = userRepository.findUserByMail(infor);
+    } else {
+        optionalUser = userRepository.findUserByPhone(infor);
+    }
+
+    if (optionalUser == null || optionalUser.getMail() == null) {
+        return false;
+    }
+
+    String email = optionalUser.getMail(); // dùng lại email làm key map
+    String storedCode = resetCodeMap.get(email);
+
+    if (storedCode != null && storedCode.equals(code)) {
+        optionalUser.setPassword(passwordEncoder.encode(password));
+        userRepository.save(optionalUser);
+        resetCodeMap.remove(email);
+        return true;
+    }
+
+    return false;
+}
 }

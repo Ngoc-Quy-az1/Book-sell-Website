@@ -13,6 +13,8 @@ import Pie from "./scenes/admin/pie";
 import FAQ from "./scenes/admin/faq";
 import Geography from "./scenes/admin/geography";
 import Calendar from "./scenes/admin/calendar/calendar";
+import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
+import AdminBookCategoryList from "./scenes/admin/BookCategoryList/BookCategory.jsx";
 
 // Import css files
 import "slick-carousel/slick/slick.css";
@@ -32,7 +34,8 @@ const router = createBrowserRouter([{
     {path:'bar', element:<Bar />},
     {path:'pie', element:<Pie />},
     {path:'line', element:<Line />},
-    {path:'faq', element:<FAQ />},
+    {path:'booklist', element:<AdminBookCategoryList />},
+    {path:'faq', element: <FAQ/>},
     {path:'calendar', element:<Calendar />},
     {path:'geography', element:<Geography />}
   ]

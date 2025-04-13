@@ -40,20 +40,20 @@ const App = () => {
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
 
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
-      {/* <BookCategoryList/> */}
-      <Cart/>
-      {/* <Hero handleOrderPopup={handleOrderPopup} />
+      {/* <BookCategoryList/> */} 
+      {/* <Cart/> */}
+       <Hero handleOrderPopup={handleOrderPopup} />
       <Services handleOrderPopup={handleOrderPopup} />
-      <Banner /> */}
+      <Banner />
       {/* <CoverBanner /> */}
       {/* <AppStore /> */}
       {/* <PdfReader /> */}
       {/* <Books /> */}
       {/* <Testimonial /> */}
       <Footer />
-      {/* <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
+      <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
 
-      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} /> */}
+      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
 
     </div>
   );

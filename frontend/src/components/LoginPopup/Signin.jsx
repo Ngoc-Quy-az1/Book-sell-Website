@@ -7,7 +7,7 @@ const Signin = ( {handleSignIn, handleVerify, handleMail, handleNotice } ) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = (values) => {
-    handleMail(values.mail);
+    handleMail(values);
     createUser(values);
   };
 
@@ -137,5 +137,6 @@ const initialValues = {
   mail: "",
   phone: "",
   password: "",
+  code:""
 };
 export default Signin;
