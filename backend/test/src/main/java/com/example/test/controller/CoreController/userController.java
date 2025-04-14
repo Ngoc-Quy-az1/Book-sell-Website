@@ -100,7 +100,7 @@ public class userController {
     
     @PutMapping("/update/{userId}")
     public User updateUser(@PathVariable Integer userId, @RequestBody MoreRegisterDTO moreRegisterDTO) {
-        
+
         return userService.updateUserInfo(userId, moreRegisterDTO);
     }
 
@@ -122,7 +122,7 @@ public class userController {
     //Quên mật khẩu
     // http://localhost:8090/api/users/forgotpassword
     // {
-    //     "infor":"quy160104@gmail.com", 
+    //     "infor":"quy160104@gmail.com",
     //     "password": "123456"
     // }
 
@@ -169,6 +169,7 @@ public class userController {
     //     "rating": "5",
     //     "comment": "I like this book"
     //   }
+      
     @PostMapping("/review/{userId}/{bookId}")
     public boolean review(@PathVariable Integer userId, @PathVariable Integer bookId, @RequestBody Map<String, String> body) {
         return userService.review(userId, bookId, body);
@@ -207,6 +208,19 @@ public class userController {
             }
             // Các lỗi khác
             return ResponseEntity.badRequest().body(null); // Hoặc trả về lỗi cụ thể hơn
+        }
+    }
+
+    //thêm api trả về các trường cần thiết của trang user-detail như full_name, username, email, address, phone, balance, points, membership_level
+    // http://localhost:8090/api/users/user-detail/{userId}
+
+    @GetMapping("/user-detail/{userId}")
+    public ResponseEntity<User> getUserDetail(@PathVariable Integer userId) {
+        User user = userService.getUserDetails(userId);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }

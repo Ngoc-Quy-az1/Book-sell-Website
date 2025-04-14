@@ -24,12 +24,14 @@ import com.example.test.Repository.DiscountCodesNumberCodeRepository;
 import com.example.test.DTO.UserDiscountCodeDTO;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +122,7 @@ public class UserService {
     // verify
     public registerResponseDTO verify(String mail, String code)
     {
-        pendingUser pendingUser = userPendingRepository.findUserByMail(mail);  
+        pendingUser pendingUser = userPendingRepository.findUserByMail(mail);
         registerResponseDTO result = new registerResponseDTO();
         if (pendingUser == null) {
             result.setStatus(false);
@@ -153,7 +155,7 @@ public class UserService {
                     userDiscount.setDiscountCode(discount); // Set relationship
                     userDiscount.setUser(newUser);         // Set relationship
                     discountCodesNumberCodeRepository.save(userDiscount);
-                    
+
                     System.out.println("Successfully assigned discount code OFFC5Y2R to user: " + newUser.getID());
                 } catch (Exception e) {
                     System.err.println("Error assigning discount code: " + e.getMessage());
@@ -183,14 +185,14 @@ public class UserService {
     // log in
     public ResponseLogInDTO logIn(logInDTO infor) {
         ResponseLogInDTO result = new ResponseLogInDTO();
-    
+
         // Kiểm tra đầu vào
         if (infor == null || (infor.getPhone() == null && infor.getMail() == null)) {
             result.setMessage("Phone or email is required!");
             result.setStatus(false);
             return result;
         }
-    
+
         // Tìm user theo phone hoặc mail
         User user = null;
         if (infor.getPhone() != null) {
@@ -199,27 +201,27 @@ public class UserService {
         if (user == null && infor.getMail() != null) {
             user = userRepository.findUserByMail(infor.getMail());
         }
-    
+
         // Kiểm tra tài khoản tồn tại
         if (user == null) {
             result.setMessage("This account doesn't exist!");
             result.setStatus(false);
             return result;
         }
-    
+
         // Kiểm tra mật khẩu
         if (passwordEncoder.matches(infor.getPassword(), user.getPassword())) {
             result.setUser_id(user.getID());
             result.setMessage("Successfully log in!");
             result.setStatus(true);
             user.setIs_login(true);
-    
+
             // Tạo JWT token sau khi đăng nhập thành công
-            String token = jwtService.generateToken(userDetailsService.loadUserByUsername(user.getMail())); 
-    
+            String token = jwtService.generateToken(userDetailsService.loadUserByUsername(user.getMail()));
+
             // Thêm token vào kết quả trả về
             result.setToken(token);  // Trả token về trong response
-    
+
             // Lưu lại trạng thái login của user
             userRepository.save(user);  // Cập nhật trạng thái is_login trong database
 
@@ -230,15 +232,15 @@ public class UserService {
             notification.setCreatedAt(new Date());
             notification.setRead(false);
             notificationRepository.save(notification);
-            
+
         } else {
             result.setMessage("Wrong password!");
             result.setStatus(false);
         }
-    
+
         return result;
     }
-    
+
     // update infor
     public boolean updateUserDetails(int userId, MoreRegisterDTO moreRegisterDTO) {
         Optional<User> optionalUser = userRepository.findById(userId);
@@ -257,6 +259,7 @@ public class UserService {
                 User user = optionalUser.get();
                 user.setFull_name(moreRegisterDTO.getFull_name());
                 user.setAddress(moreRegisterDTO.getAddress());
+                user.setPhone(moreRegisterDTO.getPhone());
                 return userRepository.save(user);
             } else {
                 throw new RuntimeException("User not found!");
@@ -314,12 +317,21 @@ public class UserService {
         return true;
     }
 
-    // get reviews
+    //thêm api trả về các trường cần thiết của trang user-detail như full_name, username, email, address, phone, balance, points, membership_level
+    public User getUserDetails(int userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else {
+            throw new RuntimeException("User not found!");
+        }
+    }
+
         public List<ReviewDTO> getAllReviews(int bookId) {
             List<ReviewDTO> reviewDTOs = reviewRepository.findReviewsByBookId(bookId);
             return reviewDTOs;
         }
-    
+
     public User findUserByMail(String email) {
         return userRepository.findUserByMail(email);
     }
@@ -327,47 +339,47 @@ public class UserService {
     //Quên mật khẩu
     public boolean forgetPass(String tmp, String password) {
         User optionalUser = null;
-    
+
         if (tmp.contains("@")) {
             optionalUser = userRepository.findUserByMail(tmp);
         } else {
             optionalUser = userRepository.findUserByPhone(tmp);
         }
-    
+
         if (optionalUser == null || optionalUser.getMail() == null) {
             return false;
         }
-    
+
         String email = optionalUser.getMail();
         String code = generateRandomNumber();
-    
+
         resetCodeMap.put(email, code); // lưu code với key là email
-    
+
         mailService.sendMail(email, "Verify your email", code + " is your code to reset password. Do not share it with anyone.");
-        
+
         return true;
     }
-    
-    
-    
+
+
+
 
     //Xác nhận code để đổi mật khẩu
     public boolean confirmCode(String infor, String password, String code) {
         User optionalUser = null;
-    
+
         if (infor.contains("@")) {
             optionalUser = userRepository.findUserByMail(infor);
         } else {
             optionalUser = userRepository.findUserByPhone(infor);
         }
-    
+
         if (optionalUser == null || optionalUser.getMail() == null) {
             return false;
         }
-    
+
         String email = optionalUser.getMail(); // dùng lại email làm key map
         String storedCode = resetCodeMap.get(email);
-    
+
         if (storedCode != null && storedCode.equals(code)) {
             optionalUser.setPassword(passwordEncoder.encode(password));
             userRepository.save(optionalUser);
@@ -381,18 +393,18 @@ public class UserService {
             notificationRepository.save(notification);
             return true;
         }
-    
+
         return false;
     }
-    
+
     // Phương thức lấy danh sách mã giảm giá của người dùng
     public List<UserDiscountCodeDTO> getUserDiscountCodes(Integer userId) {
         // Kiểm tra người dùng tồn tại
         userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        
+
         List<DiscountCodesNumberCode> userDiscounts = discountCodesNumberCodeRepository.findByUserId(userId);
-        
+
         return userDiscounts.stream()
                 .map(userDiscount -> new UserDiscountCodeDTO(
                         userDiscount.getDiscountCode().getCode(),
