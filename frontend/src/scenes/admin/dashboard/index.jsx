@@ -129,12 +129,12 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title={countSales}
-            subtitle="Sales Obtained"
-            progress="0.50"
-            increase="+21%"
+            title={countUsers}
+            subtitle="Clients"
+            progress="0.30"
+            increase="+5%"
             icon={
-              <RequestQuoteIcon
+              <PersonIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
               />
             }
@@ -148,12 +148,12 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title={countUsers}
-            subtitle="Clients"
-            progress="0.30"
-            increase="+5%"
+            title={countSales}
+            subtitle="Sales Obtained"
+            progress="0.50"
+            increase="+21%"
             icon={
-              <PersonIcon
+              <RequestQuoteIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
               />
             }
