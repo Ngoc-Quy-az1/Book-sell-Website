@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef} from "react";
 import Signin from "./Signin";
 import Login from "./Login";
-import { motion } from "framer-motion";
 import Verify from "./Verify";
 import Notice from "../Notice";
 import ForgotPassword from "./ForgotPassword";
@@ -29,12 +28,24 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
   }
   const loginPopupRef = useRef();
 
-  {window.addEventListener("click", (e) => {
-    if (e.target === loginPopupRef.current) {
-      setShowSignIn(false);
-      setShowVerify(false);
-      handleLoginPopup(false);
-    }
+  //Báo lỗi
+  const [notice, setNotice] = useState(false);
+  const [error, setError] = useState(false);
+  const [message, setMessage] = useState("");
+  const showNotice = () => {
+    setNotice(!notice);
+    setTimeout(() => {setNotice()},3000)
+  }
+  const handleNotice = (message, error) => {
+    setMessage(message); 
+    setError(error);
+    showNotice();
+}
+window.addEventListener("click", (e) => {
+  if (e.target === loginPopupRef.current) {
+    setForgotPassword(false);
+    handleLoginPopup(false);
+  }
   });
 
 
@@ -46,6 +57,7 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
 // }
   return (
     <>
+    <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
       {loginPopup && (
         <div
           ref={loginPopupRef}

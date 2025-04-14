@@ -7,5 +7,4 @@ import java.util.List;
 public class CreateOrderRequest {
     private Integer userId;
     private List<Integer> bookIds;
-    private String discountCode;
 } 

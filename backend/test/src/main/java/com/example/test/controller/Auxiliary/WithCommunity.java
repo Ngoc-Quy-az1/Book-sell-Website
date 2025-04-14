@@ -22,53 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller xử lý các tương tác với cộng đồng người dùng
- * 
- * Test API bằng Postman:
- * 1. Gửi tin nhắn vào nhóm:
- *    POST http://localhost:8090/api/chat/community/send
- *    Headers: 
- *      - Content-Type: application/json
- *      - Authorization: Bearer {your_jwt_token}
- *    Body:
- *    {
- *      "senderId": 1,
- *      "groupId": 1,
- *      "message": "Xin chào mọi người!"
- *    }
- * 
- * 2. Xem lịch sử tin nhắn nhóm:
- *    POST http://localhost:8090/api/chat/community/history
- *    Headers:
- *      - Content-Type: application/json
- *      - Authorization: Bearer {your_jwt_token}
- *    Body:
- *    {
- *      "groupId": 1
- *    }
- * 
- * 3. Gửi yêu cầu tham gia nhóm:
- *    POST http://localhost:8090/api/chat/community/group/{groupId}/joinRequest
- *    Headers:
- *      - Content-Type: application/json
- *      - Authorization: Bearer {your_jwt_token}
- *    Body:
- *    {
- *      "userId": 1
- *    }
- * 
- * 4. Phê duyệt yêu cầu tham gia:
- *    POST http://localhost:8090/api/chat/community/group/{groupId}/joinRequest/{requestId}/approve
- *    Headers:
- *      - Content-Type: application/json
- *      - Authorization: Bearer {your_jwt_token}
- *    Body:
- *    {
- *      "adminId": 1,
- *      "status": "APPROVED"  // hoặc "REJECTED"
- *    }
- */
 @RestController
 @RequestMapping("/api/chat/community")
 public class WithCommunity {
@@ -88,15 +41,8 @@ public class WithCommunity {
     @Autowired
     private GroupJoinRequestRepository groupJoinRequestRepository;
 
-    /**
-     * Gửi tin nhắn vào nhóm chat
-     * @param request GroupChatRequestDTO chứa:
-     *               - senderId: ID người gửi
-     *               - groupId: ID nhóm chat
-     *               - message: Nội dung tin nhắn
-     * @return SupportMessage Tin nhắn đã được gửi
-     * @throws RuntimeException Nếu người gửi hoặc nhóm không tồn tại
-     */
+    // 📩 Gửi tin nhắn vào group. Dữ liệu cần sẽ là 
+
     @PostMapping("/send")
     public ResponseEntity<SupportMessage> sendGroupMessage(@RequestBody GroupChatRequestDTO request) {
         // Kiểm tra xem người gửi có tồn tại không
@@ -106,11 +52,6 @@ public class WithCommunity {
         // Kiểm tra xem nhóm có tồn tại không
         ChatGroup group = chatGroupRepository.findById(request.getGroupId())
             .orElseThrow(() -> new RuntimeException("Group with ID " + request.getGroupId() + " not found"));
-
-        // Kiểm tra xem người gửi có phải là thành viên của nhóm không
-        if (!groupMembersRepository.existsById_GroupIdAndId_UserId(group.getGroupId(), sender.getID())) {
-            return ResponseEntity.status(403).body(null);
-        }
 
         // Gửi tin nhắn nhóm
         SupportMessage result = chatService.sendGroupMessage(sender, group, request.getMessage());

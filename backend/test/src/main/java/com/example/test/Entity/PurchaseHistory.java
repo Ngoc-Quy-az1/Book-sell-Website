@@ -2,15 +2,16 @@ package com.example.test.Entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-@Entity
 @Data
+@NoArgsConstructor
+@Entity
 @Table(name = "purchase_history")
 public class PurchaseHistory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Integer orderId;
 
@@ -20,15 +21,10 @@ public class PurchaseHistory {
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private PurchaseStatus status = PurchaseStatus.Pending;
+    private PurchaseStatus status;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = new Timestamp(System.currentTimeMillis());
-    }
 }

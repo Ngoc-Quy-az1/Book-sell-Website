@@ -1,13 +1,15 @@
 package com.example.test.Service;
 
-import com.example.test.Config.CustomUserDetails;
 import com.example.test.Entity.User;
 import com.example.test.Repository.UserRepo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -22,7 +24,10 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
 
-        // Trả về CustomUserDetails chứa thông tin User đầy đủ
-        return new CustomUserDetails(user);
+        return new org.springframework.security.core.userdetails.User(
+                user.getMail(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority(user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER"))
+        );
     }
 } 

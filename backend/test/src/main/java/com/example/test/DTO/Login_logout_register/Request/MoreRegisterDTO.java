@@ -7,8 +7,6 @@ public class MoreRegisterDTO {
 
     private String address;
 
-    private String phone;
-
     public String getFull_name() {
         return full_name;
     }
@@ -23,13 +21,5 @@ public class MoreRegisterDTO {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 }

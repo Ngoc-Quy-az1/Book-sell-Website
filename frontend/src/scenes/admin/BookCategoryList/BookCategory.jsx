@@ -7,13 +7,15 @@ import { tokens } from "../../../theme";
 
 const AdminBookCategoryList = () => {
   const countries = ["Việt Nam", "Trung Quốc", "Nhật Bản", "Pháp", "Đức", "Hàn Quốc", "Italy", "Mỹ"];
-  const categories = ["Nuôi dạy con "];
+  const categories = ["Nuôi dạy con ", "D"
+  ];
   const sortMethod = ["Default", "Newest", "Lowest Cost", "Highest Cost"]
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [userPopup, setUserPopup] = React.useState(false);
     const [sortRule, setSortRule] = useState("Lowest Cost");
     const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
+    const [selectedCategory, setSelectedCategory] = useState("Nuôi dạy con ");
     const [bookList, setBookList] = useState([]);
     const [selectedBook, setSelectedBook] = useState();
     useEffect( () => {
@@ -50,9 +52,17 @@ const AdminBookCategoryList = () => {
     console.log(book);
     handleUserPopup();
   }
-  const handleChange = (key) => {
-    console.log("check",key);
-    setConditions((prev) => ({ ...prev, [key]: !prev[key] }));
+  const handleChange = (event) => {
+    setChecked(event.target.checked);
+    console.log(event.target)
+  }
+  const handleSelectedCategory = (key) => {
+    console.log(key);
+    setSelectedCategory(categories.map((category, index) =>
+    index === key
+    ? {...category, checked: !category.checked}
+    : category 
+    ))
   }
   const sort = (a,b) => {
     if (sortRule==0) return a.title>b.title ? 1 : -1;
@@ -61,7 +71,7 @@ const AdminBookCategoryList = () => {
     if (sortRule==3) return a.price_discounted<b.price_discounted ? 1 : -1;
   }
   const BookList = () => {
-    return bookList.toSorted(sort)
+    return bookList.filter((book) => book.category==selectedCategory).toSorted(sort)
     .map((book) => (
       <div id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
         <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
@@ -77,10 +87,7 @@ const AdminBookCategoryList = () => {
       <div className="w-1/4 pr-5 border-r">
         <h2 className="font-bold text-lg mb-2 text-green-600">Thể loại</h2>
         {categories.map((category) => (
-          <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" onChange={(key) => handleChange(key)}/>
-            <span>{category}</span>
-          </div>
+            <input type="radio" key={category} className="flex items-center mb-2"  onChange={handleChange}/>
         ))}
       </div>
 

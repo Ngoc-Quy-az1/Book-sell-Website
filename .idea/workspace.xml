@@ -1,24 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
   <component name="ChangeListManager">
     <list default="true" id="8031be70-935c-46e0-988c-2ff35a8962c5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Config/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Config/JwtAuthenticationFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/DTO/Login_logout_register/Respose/ResponseLogInDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/DTO/Login_logout_register/Respose/ResponseLogInDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/AdminService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/AdminService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/JwtService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/Auxiliary/WithCommunity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/Auxiliary/WithCommunity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/AdminController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/userController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/userController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/README.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,11 +22,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.TestApplication.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "NgocQuyyy",
+    "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/DELL/OneDrive/Desktop/Book-sell-Website"
+    "last_opened_file_path": "C:/Users/DELL/Downloads/demo (1)"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -55,16 +38,5 @@
       <updated>1742455528105</updated>
     </task>
     <servers />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/AdminController.java</url>
-          <line>47</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

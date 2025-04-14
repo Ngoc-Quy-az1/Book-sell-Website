@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router,Routes, Route, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Topbar from "./scenes/admin/global/Topbar";
 import Sidebar from "./scenes/admin/global/Sidebar";
 import { CssBaseline, ThemeProvider } from "@mui/material";

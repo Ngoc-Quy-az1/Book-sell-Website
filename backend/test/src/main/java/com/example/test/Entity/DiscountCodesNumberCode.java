@@ -1,54 +1,34 @@
 package com.example.test.Entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "discount_codesNumbeCode")
-@IdClass(DiscountCodesNumberCodeId.class)
 public class DiscountCodesNumberCode {
 
     @Id
-    @Column(name = "code_id")
-    private int codeId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-    @Id
-    @Column(name = "number_code")
-    private int numberCode;
-
-    @Id
-    @Column(name = "user_id")
-    private int userId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code_id", insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name = "code_id", nullable = false)
     private DiscountCode discountCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @Column(name = "number_code", nullable = false)
+    private int numberCode;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public int getCodeId() {
-        return codeId;
+    public int getId() {
+        return id;
     }
 
-    public void setCodeId(int codeId) {
-        this.codeId = codeId;
-    }
-
-    public int getNumberCode() {
-        return numberCode;
-    }
-
-    public void setNumberCode(int numberCode) {
-        this.numberCode = numberCode;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public DiscountCode getDiscountCode() {
@@ -57,6 +37,14 @@ public class DiscountCodesNumberCode {
 
     public void setDiscountCode(DiscountCode discountCode) {
         this.discountCode = discountCode;
+    }
+
+    public int getNumberCode() {
+        return numberCode;
+    }
+
+    public void setNumberCode(int numberCode) {
+        this.numberCode = numberCode;
     }
 
     public User getUser() {

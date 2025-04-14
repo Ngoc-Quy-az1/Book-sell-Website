@@ -2,11 +2,7 @@ package com.example.test.Service;
 
 import com.example.test.Entity.Book;
 import com.example.test.Entity.Cart;
-import com.example.test.Entity.Notification;
-import com.example.test.Repository.BookRepo.BookRepository;
 import com.example.test.Repository.CartRepo.CartRepository;
-import com.example.test.Repository.UserRepo.NotificationRepository;
-import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Repository.WishListRepo.WishlistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -25,15 +20,6 @@ public class CartService {
 
     @Autowired
     private WishlistRepository wishlistRepository;
-
-    @Autowired
-    private NotificationRepository notificationRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private BookRepository bookRepository;
 
     @Transactional
     public Cart addToCart(Integer userId, Integer bookId, Integer quantity) {
@@ -55,14 +41,6 @@ public class CartService {
         newCart.setIsPurchased(false);
         newCart.setIsLove(isInWishlist ? 1 : 0);
         newCart.setCreatedAt(Timestamp.from(Instant.now()));
-
-        //Tạo thông báo thêm sách thành công 
-        Notification notification = new Notification();
-        notification.setUser(userRepository.findUserByID(userId));
-        notification.setMessage("Bạn đã thêm sách"+" "+ bookRepository.findTitleByBookId(bookId)+" lúc  "+ new Date());
-        notification.setCreatedAt(new Date());
-        notification.setRead(false);
-        notificationRepository.save(notification);
         return cartRepository.save(newCart);
     }
 
