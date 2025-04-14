@@ -1,14 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
-import UserDetail from "./components/UserDetail/UserDetail.jsx";
 import "./index.css";
-import { createBrowserRouter, Router, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Admin from "./admin.jsx";
 import Dashboard from "./scenes/admin/dashboard";
-import Team from "./scenes/admin/team";
-import Invoices from "./scenes/admin/invoices";
-import Contacts from "./scenes/admin/contacts";
+import ManageUsers from "./scenes/admin/manageUsers/index.jsx";
 import Bar from "./scenes/admin/bar";
 import Form from "./scenes/admin/form";
 import Line from "./scenes/admin/line";
@@ -27,23 +24,12 @@ const router = createBrowserRouter([{
   path: '/',
   element: <App/>,
 },
-{
-  path: "/user-detail",
-  element: (
-    <>
-      <App />
-      <UserDetail />
-    </>
-  ),
-},
 {path:'/admin', 
   element:<Admin />,
   children:[{
     index:true, element: <Dashboard/>
   },
-    {path:'team', element:<Team />},
-    {path:'contacts', element:<Contacts />},
-    {path:'invoices', element:<Invoices />},
+    {path:'manageUsers', element:<ManageUsers />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},
     {path:'pie', element:<Pie />},
@@ -51,11 +37,13 @@ const router = createBrowserRouter([{
     {path:'booklist', element:<AdminBookCategoryList />},
     {path:'faq', element: <FAQ/>},
     {path:'calendar', element:<Calendar />},
-    {path:'geography', element:<Geography />}]
+    {path:'geography', element:<Geography />}
+  ]
 }
 ]);
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <RouterProvider router={router}/>
+
   </React.StrictMode>
 );

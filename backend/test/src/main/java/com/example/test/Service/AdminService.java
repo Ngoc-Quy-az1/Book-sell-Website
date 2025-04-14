@@ -18,8 +18,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 import com.example.test.Entity.User.MembershipLevel;
 
 @Service
@@ -90,46 +92,13 @@ public class AdminService {
     // Cập nhật thông tin người dùng
     public User update(Integer id, User userDetails) {
         User user = findById(id);
-        
-        // Chỉ cập nhật các trường không null
-        if (userDetails.getName() != null) {
-            user.setName(userDetails.getName());
-        }
-        if (userDetails.getMail() != null) {
-            // Kiểm tra email mới không trùng với email của user khác
-            User existingUser = userRepository.findUserByMail(userDetails.getMail());
-            if (existingUser != null && existingUser.getID() != user.getID()) {
-                throw new RuntimeException("Email đã tồn tại");
-            }
-            user.setMail(userDetails.getMail());
-        }
-        if (userDetails.getPhone() != null) {
-            // Kiểm tra số điện thoại mới không trùng với số điện thoại của user khác
-            User existingUser = userRepository.findUserByPhone(userDetails.getPhone());
-            if (existingUser != null && existingUser.getID() != user.getID()) {
-                throw new RuntimeException("Số điện thoại đã tồn tại");
-            }
-            user.setPhone(userDetails.getPhone());
-        }
-        if (userDetails.getFull_name() != null) {
-            user.setFull_name(userDetails.getFull_name());
-        }
-        if (userDetails.getAddress() != null) {
-            user.setAddress(userDetails.getAddress());
-        }
-        if (userDetails.getPoints() != 0) {
-            user.setPoints(userDetails.getPoints());
-        }
-        if (userDetails.getBalance() != 0.0) {
-            user.setBalance(userDetails.getBalance());
-        }
-        if (userDetails.getMembershipLevel() != null) {
-            user.setMembershipLevel(userDetails.getMembershipLevel());
-        }
-        if (userDetails.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
-        }
-        
+        user.setName(userDetails.getName());
+        user.setMail(userDetails.getMail());
+        user.setFull_name(userDetails.getFull_name());
+        user.setAddress(userDetails.getAddress());
+        user.setPoints(userDetails.getPoints());
+        user.setBalance(userDetails.getBalance());
+        user.setMembershipLevel(userDetails.getMembershipLevel());
         return userRepository.save(user);
     }
 
@@ -239,9 +208,9 @@ public class AdminService {
         if (newLevel != null && newLevel.ordinal() > user.getMembershipLevel().ordinal()) {
             user.setMembershipLevel(newLevel);
             userRepository.save(user);
-            return newLevel; 
+            return newLevel; // Trả về cấp độ mới nếu có nâng cấp
         }
         
-        return null; 
+        return null; // Trả về null nếu không có nâng cấp
     }
 }

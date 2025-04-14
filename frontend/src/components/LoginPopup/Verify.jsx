@@ -40,15 +40,14 @@ const Verify = ( {handleSignIn, handleVerify, mail, handleNotice, forgotPassword
   }
 
   return (
-    <>
       <div className={"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[400px]"}>
         <h1 className="text-3xl text-shadow font-bold text-center mb-4">
           Enter OTP sent to Email
         </h1>
         <div className="flex justify-center ">
           <OTPInput
-            value={otp}
-            onChange={setOtp}
+            value={code}
+            onChange={setCode}
             numInputs={6}
             inputStyle={{
               
@@ -62,7 +61,7 @@ const Verify = ( {handleSignIn, handleVerify, mail, handleNotice, forgotPassword
         </div>
         <div className="flex justify-center py-5">
           <button className="primary-btn"
-          onClick={handleVerify}
+          onClick={check}
           >Confirm</button>
         </div>
         <p className="text-center  text-sm my-3"></p>
@@ -73,7 +72,6 @@ const Verify = ( {handleSignIn, handleVerify, mail, handleNotice, forgotPassword
           Already have an Account? Log in
         </p>
       </div>
-    </>
   );
 };
 

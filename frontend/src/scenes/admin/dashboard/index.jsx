@@ -12,6 +12,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import BarChart from "../../../components/Admin/BarChart";
 import StatBox from "../../../components/Admin/StatBox";
 import ProgressCircle from "../../../components/Admin/ProgressCircle";
+import { useState,useEffect } from "react";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -128,7 +129,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
+            title={countSales}
             subtitle="Sales Obtained"
             progress="0.50"
             increase="+21%"
@@ -147,8 +148,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
+            title={countUsers}
+            subtitle="Clients"
             progress="0.30"
             increase="+5%"
             icon={
@@ -166,8 +167,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
+            title={totalRevenue}
+            subtitle="Total Revenue"
             progress="0.80"
             increase="+43%"
             icon={

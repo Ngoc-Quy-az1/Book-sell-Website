@@ -10,7 +10,6 @@ public class DiscountCode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "code_id")
     private int codeId;
 
     @Column(name = "code", length = 50, nullable = false, unique = true)

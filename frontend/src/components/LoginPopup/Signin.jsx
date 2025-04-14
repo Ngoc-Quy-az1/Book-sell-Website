@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { FaEye, FaEyeSlash, FaLinkedinIn } from "react-icons/fa";
-const Signin = ( {handleSignIn,handleVerify} ) => {
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Formik } from "formik";
+import {  TextField } from "@mui/material";
+import * as yup from "yup";
+const Signin = ( {handleSignIn, handleVerify, handleMail, handleNotice } ) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = (values) => {
@@ -31,41 +33,65 @@ const Signin = ( {handleSignIn,handleVerify} ) => {
   }
 
   return (
-    <>
       <div className={"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[400px]"}>
         <h1 className="text-3xl text-shadow font-bold text-center mb-4">
           Create Your Account
         </h1>
-        <form className="flex flex-col gap-3">
-          <div>
-            <label for="username" className="input-label">
-              Username
-            </label>
-            <input id="username" type="text" className="input" />
-          </div>
-          <div>
-            <label for="email" className="input-label">
-              Email
-            </label>
-            <input id="email" type="email" className="input" />
-          </div>
-          <div>
-            <label for="phone" className="input-label">
-              Phone
-            </label>
-            <input id="phone" type="phone" className="input" />
-          </div>
-          <div>
-            <label for="password" className="input-label">
-              Password
-            </label>
+      <Formik
+        onSubmit={handleFormSubmit}
+        initialValues={initialValues}
+        validationSchema={checkoutSchema}
+      >
+      {({
+        values,
+        errors,
+        touched,
+        handleBlur,
+        handleChange,
+        handleSubmit,
+      }) => (
+        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+            <TextField id="name" 
+              type="text" 
+              className="input" 
+              onBlur={handleBlur}
+              label="Username"
+              onChange={handleChange}
+              value={values.name}
+              name="name"
+              error={!!touched.name && !!errors.name}
+              helperText={touched.name && errors.name}/>
+            <TextField id="mail" 
+              type="text" 
+              className="input" 
+              onBlur={handleBlur}
+              label="Email"
+              onChange={handleChange}
+              value={values.mail}
+              name="mail"
+              error={!!touched.mail && !!errors.mail}
+              helperText={touched.mail && errors.mail}/>
+            <TextField id="phone" 
+              type="text" 
+              className="input" 
+              onBlur={handleBlur}
+              label="Phone Number"
+              onChange={handleChange}
+              value={values.phone}
+              name="phone"
+              error={!!touched.phone && !!errors.phone}
+              helperText={touched.phone && errors.phone}/>
             <div className="relative">
-              <input
-                className="input pr-8"
-                id="password"
-                type={showPassword ? "text" : "password"}
-              />
-
+            <TextField id="password" 
+              type={showPassword ? "text" : "password"} 
+              className="input"
+              onBlur={handleBlur}
+              label="Password"
+              onChange={handleChange}
+              value={values.password}
+              name="password"
+              error={!!touched.password && !!errors.password}
+              helperText={touched.password && errors.password}/>
               {showPassword ? (
                 <FaEye
                   className=" absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer "
@@ -78,30 +104,21 @@ const Signin = ( {handleSignIn,handleVerify} ) => {
                 />
               )}
             </div>
-          </div>
-        </form>
         <div className="flex justify-center py-5">
           <button className="primary-btn"
-          onClick={handleVerify}
+          type="submit"
           >Create Account</button>
         </div>
-        <p className="text-center  text-sm my-3">or login with</p>
-        <div className="flex gap-6 justify-center">
-          <div className="bg-white w-9 h-9 rounded-full flex items-center justify-center shadow-custom-inset hover:scale-110 transition-all duration-300">
-            <FcGoogle className="text-3xl" />
-          </div>
-          <div className="bg-blue-600 w-9 h-9 rounded-full flex items-center justify-center shadow-custom-inset hover:scale-110 transition-all duration-300">
-            <FaLinkedinIn className="text-2xl text-white" />
-          </div>
-        </div>
+        </form>
+      )}
+      </Formik>
         <p
           className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
           onClick={handleSignIn}
         >
           Already have an Account? Log in
         </p>
-      </div>
-    </>
+    </div>
   );
 };
 const phoneRegExp =/^\d{5,15}$/;
