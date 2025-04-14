@@ -32,7 +32,7 @@ public class WithAdminController {
      * 
      * Request Body:
      * {
-     *   "senderId": 1,           // ID của người gửi
+     *   "senderId": 2,           // ID của người gửi
      *   "message": "Xin chào"    // Nội dung tin nhắn
      * }
      * 
