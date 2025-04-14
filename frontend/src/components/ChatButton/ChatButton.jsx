@@ -2,54 +2,109 @@ import React, { useState, useEffect } from "react";
 import { FaExpand, FaCompress, FaComments } from "react-icons/fa";
 import axios from "axios";
 
+// ✅ Biến tạm lưu token để dùng luôn
+const TEMP_TOKEN =
+  "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoibWFobmR1Z24yQGdtYWlsLmNvbSIsImlhdCI6MTc0NDU2MDU4NSwiZXhwIjoxNzQ0NjQ2OTg1fQ.K5_YceY43fmYPuCwjAyjhgKcC5qH_hf38CFR9pfWVvA";
+
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [chatMode, setChatMode] = useState("admin");
+  const [chatMode, setChatMode] = useState("admin"); // admin, group1, group2
   const [messages, setMessages] = useState([]);
-  const [userId, setUserId] = useState(2);
+  const [userId, setUserId] = useState(2); // 👈 userId để gửi vào body API
+  const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
 
-  const toggleChat = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleChat = () => setIsOpen(!isOpen);
+  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
-
-  const switchToAdminChat = () => {
-    setChatMode("admin");
-  };
-
-  const switchToGroupChat = () => {
-    setChatMode("group");
-  };
-
-  // Gọi API để lấy tin nhắn
+  // ✅ Gọi API lấy lịch sử tin nhắn
   useEffect(() => {
-    if (chatMode === "admin") {
-      axios
-        .post("http://localhost:8090/api/chat/admin/history", {
-          userId: userId, // Gửi userId nếu cần
-        })
-        .then((response) => {
-          const filteredMessages = response.data.filter(
-            (msg) =>
-              msg.chatType === "PRIVATE" &&
-              (msg.sender.id === userId || msg.receiver.id === userId)
+    const fetchMessages = async () => {
+      try {
+        let response;
+        if (chatMode === "admin") {
+          response = await axios.post(
+            "http://localhost:8090/api/chat/admin/history",
+            { userId: userId },
+            {
+              headers: {
+                Authorization: `Bearer ${TEMP_TOKEN}`,
+              },
+            }
           );
-          setMessages(filteredMessages);
-        })
-        .catch((error) => {
-          console.error("Error fetching chat history:", error);
-          alert("Không thể tải lịch sử chat. Vui lòng kiểm tra lại API hoặc thử lại sau.");
-        });
-    }
+        } else if (chatMode === "group1" || chatMode === "group2") {
+          const groupId = chatMode === "group1" ? 1 : 2;
+          response = await axios.post(
+            "http://localhost:8090/api/chat/community/history",
+            { groupId: groupId },
+            {
+              headers: {
+                Authorization: `Bearer ${TEMP_TOKEN}`,
+              },
+            }
+          );
+        }
+
+        const filteredMessages = response.data.filter(
+          (msg) =>
+            msg.chatType === (chatMode === "admin" ? "PRIVATE" : "GROUP") &&
+            (msg.sender.id === userId || msg.receiver?.id === userId || msg.groupId)
+        );
+        setMessages(filteredMessages);
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+        alert("Không thể tải lịch sử chat. Vui lòng thử lại sau.");
+      }
+    };
+
+    fetchMessages();
   }, [chatMode, userId]);
+
+  // ✅ Gửi tin nhắn
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) {
+      alert("Vui lòng nhập nội dung tin nhắn!");
+      return;
+    }
+
+    const apiUrl =
+      chatMode === "admin"
+        ? "http://localhost:8090/api/chat/admin/send"
+        : "http://localhost:8090/api/chat/community/send";
+
+    const requestBody =
+      chatMode === "admin"
+        ? { senderId: userId, message: newMessage }
+        : { senderId: userId, message: newMessage, groupId: chatMode === "group1" ? 1 : 2 };
+
+    axios
+      .post(apiUrl, requestBody, {
+        headers: {
+          Authorization: `Bearer ${TEMP_TOKEN}`,
+        },
+      })
+      .then((response) => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            messageId: response.data.messageId,
+            sender: { id: userId, name: "Bạn" },
+            message: newMessage,
+            createdAt: new Date().toISOString(),
+            groupId: chatMode === "group1" ? 1 : 2,
+          },
+        ]);
+        setNewMessage("");
+      })
+      .catch((error) => {
+        console.error("Lỗi khi gửi tin nhắn:", error);
+        alert("Không thể gửi tin nhắn. Vui lòng thử lại sau.");
+      });
+  };
 
   return (
     <div>
-      {/* Nút bấm nổi */}
+      {/* Nút mở chat */}
       <button
         onClick={toggleChat}
         className="fixed bottom-5 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center justify-center"
@@ -57,11 +112,11 @@ const ChatButton = () => {
         <FaComments size={20} />
       </button>
 
-      {/* Popup chat */}
+      {/* Giao diện khung chat */}
       {isOpen && (
         <div
           className={`fixed ${isFullscreen
-              ? "top-16 left-0 w-full h-[calc(100%-4rem)]"
+              ? "top-16 left-0 w-full h-[calc(80%)]"
               : "bottom-16 right-5 w-80"
             } bg-white p-4 rounded-lg shadow-lg border transition-all flex flex-col`}
         >
@@ -69,7 +124,7 @@ const ChatButton = () => {
           <div className="flex justify-between items-center mb-4">
             <div className="flex gap-2">
               <button
-                onClick={switchToAdminChat}
+                onClick={() => setChatMode("admin")}
                 className={`px-3 py-1 rounded ${chatMode === "admin"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-black"
@@ -78,72 +133,76 @@ const ChatButton = () => {
                 Chat với Admin
               </button>
               <button
-                onClick={switchToGroupChat}
-                className={`px-3 py-1 rounded ${chatMode === "group"
+                onClick={() => setChatMode("group1")}
+                className={`px-3 py-1 rounded ${chatMode === "group1"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-black"
                   }`}
               >
-                Chat nhóm
+                Nhóm Chat 1
+              </button>
+              <button
+                onClick={() => setChatMode("group2")}
+                className={`px-3 py-1 rounded ${chatMode === "group2"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-black"
+                  }`}
+              >
+                Nhóm Chat 2
               </button>
             </div>
             <button
               onClick={toggleFullscreen}
-              className="text-blue-500 hover:text-blue-700"
+              className="text-blue-500 hover:text-blue-700 p-2" // Thêm padding cho icon
             >
               {isFullscreen ? <FaCompress size={20} /> : <FaExpand size={20} />}
             </button>
           </div>
 
-          {/* Nội dung chat */}
-          <div className="flex-1 overflow-y-auto border p-2 rounded mb-4">
-            {chatMode === "admin" ? (
-              <>
-                {messages.map((msg) => (
-                  <div
-                    key={msg.messageId}
-                    className={`mb-2 ${msg.sender.id === userId ? "text-right" : "text-left"
-                      }`}
-                  >
-                    <div
-                      className={`${msg.sender.id === userId
-                          ? "bg-blue-500 text-white ml-auto"
-                          : "bg-gray-200 text-black"
-                        } p-2 rounded-lg text-sm inline-block`}
-                    >
-                      {msg.message}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {msg.sender.id === userId
-                        ? "Bạn"
-                        : msg.sender.name}{" "}
-                      - {new Date(msg.createdAt).toLocaleTimeString()}
-                    </div>
-                  </div>
-                ))}
-              </>
-            ) : (
-              <>
-                <div className="mb-2">
-                  <div className="bg-gray-200 p-2 rounded-lg text-sm inline-block text-black text-left">
-                    Đây là tin nhắn trong nhóm.
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Người dùng A - 10:05 AM
-                  </div>
+          {/* Tin nhắn */}
+          <div className="flex-1 overflow-y-auto border p-3 rounded mb-4 max-h-[60vh] space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+            {messages.map((msg) => (
+              <div
+                key={msg.messageId}
+                className={`mb-2 ${msg.sender.id === userId ? "text-right" : "text-left"
+                  }`}
+              >
+                <div
+                  className={`${msg.sender.id === userId
+                      ? "bg-blue-500 text-white ml-auto"
+                      : "bg-gray-200 text-black"
+                    } p-2 rounded-lg text-sm inline-block`}
+                >
+                  {msg.message}
                 </div>
-              </>
-            )}
+                <div className="text-xs text-gray-500 mt-1">
+                  {msg.sender?.id === userId ? "Bạn" : msg.sender?.name || "Unknown"} -{" "}
+                  {msg.createdAt
+                    ? (() => {
+                      const date = new Date(msg.createdAt);
+                      const formattedDate = date.toLocaleDateString();
+                      const formattedTime = date.toLocaleTimeString();
+                      return `${formattedDate} ${formattedTime}`;
+                    })()
+                    : "Invalid Date"}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Input gửi tin nhắn */}
+          {/* Nhập tin nhắn */}
           <div className="flex items-center">
             <input
               type="text"
               className="flex-1 border rounded p-2 mr-2 text-black"
               placeholder="Nhập tin nhắn..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
             />
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <button
+              onClick={handleSendMessage}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
               Gửi
             </button>
           </div>
