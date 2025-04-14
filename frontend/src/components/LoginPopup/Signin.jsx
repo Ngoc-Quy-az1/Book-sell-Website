@@ -3,6 +3,33 @@ import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash, FaLinkedinIn } from "react-icons/fa";
 const Signin = ( {handleSignIn,handleVerify} ) => {
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleFormSubmit = (values) => {
+    handleMail(values);
+    createUser(values);
+  };
+
+  //Đẩy DL lên Database 
+  const createUser = (form) =>{
+    fetch("http://localhost:8090/api/users/register",{
+      method:"POST",      
+      headers: {      
+        'Content-Type': 'application/json'
+        },
+      body:JSON.stringify(form)
+    }) .then((response) => {
+      if (!response.ok) return response.text();
+      return response.json();
+    }).then((data) => {
+      if (data) {
+        handleVerify();
+      }
+      else {
+        handleNotice("User Already Exist", true)
+      }
+    });
+  }
+
   return (
     <>
       <div className={"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md bg-white dark:bg-gray-900 rounded-md duration-200 w-[400px]"}>
@@ -77,5 +104,22 @@ const Signin = ( {handleSignIn,handleVerify} ) => {
     </>
   );
 };
+const phoneRegExp =/^\d{5,15}$/;
 
+const checkoutSchema = yup.object().shape({
+  name: yup.string().required("required"),
+  mail: yup.string().email("invalid mail").required("required"),
+  phone: yup
+  .string()
+  .matches(phoneRegExp, "Phone number is not valid")
+  .required("required"),
+  password: yup.string().required("required"),
+});
+const initialValues = {
+  name: "",
+  mail: "",
+  phone: "",
+  password: "",
+  code:""
+};
 export default Signin;

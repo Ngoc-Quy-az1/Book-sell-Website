@@ -1,14 +1,14 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
 import { mockTransactions } from "../../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import PaidIcon from '@mui/icons-material/Paid';
 import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
+import PersonIcon from "@mui/icons-material/Person";
 import Header from "../../../components/Admin/Header";
 import LineChart from "../../../components/Admin/LineChart";
-import GeographyChart from "../../../components/Admin/GeographyChart";
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import BarChart from "../../../components/Admin/BarChart";
 import StatBox from "../../../components/Admin/StatBox";
 import ProgressCircle from "../../../components/Admin/ProgressCircle";
@@ -17,32 +17,86 @@ const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const [countUsers, getCountUsers] = useState();
+  useEffect(() => {
+    handleCountUser();
+  },[])
+  const handleCountUser = () =>{
+    
+    fetch("http://localhost:8090/api/admin/users/count",{
+      method:"GET"
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getCountUsers(Response);
+    })
+  }  
+  const [countBooks, getCountBooks] = useState();
+  useEffect(() => {
+    handleCountBook();
+  })
+  const handleCountBook = () =>{
+    
+    fetch("http://localhost:8090/api/books/all",{
+      method:"GET"
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getCountBooks(Response.length);
+    })
+  }  
+  
+
+  const [countSales, getCountSales] = useState();
+  useEffect(() => {
+    handleCountSales();
+  },[])
+  const handleCountSales = () =>{
+    
+    fetch("http://localhost:8090/api/admin/orders/count",{
+      method:"GET"
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getCountSales(Response);
+    })
+  }  
+  
+  const [totalRevenue, getTotalRevenue] = useState();
+  useEffect(() => {
+    handleTotalRevenue();
+  },[])
+  const handleTotalRevenue = () =>{
+    
+    fetch("http://localhost:8090/api/admin/revenue/total",{
+      method:"GET"
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getTotalRevenue(Response);
+    })
+  }  
   return (
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
 
-        <Box>
-          <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
-        </Box>
+
       </Box>
 
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(12,minmax(30px,1fr))"
+        gridTemplateColumns="repeat(15,minmax(40px,1fr))"
         gridAutoRows="140px"
         gap="20px"
       >
@@ -55,13 +109,13 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
+            title={countBooks}
+            subtitle="Books"
             progress="0.75"
             increase="+14%"
             icon={
-              <EmailIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              <MenuBookIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
               />
             }
           />
@@ -79,8 +133,8 @@ const Dashboard = () => {
             progress="0.50"
             increase="+21%"
             icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              <RequestQuoteIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
               />
             }
           />
@@ -98,8 +152,8 @@ const Dashboard = () => {
             progress="0.30"
             increase="+5%"
             icon={
-              <PersonAddIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              <PersonIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
               />
             }
           />
@@ -117,8 +171,27 @@ const Dashboard = () => {
             progress="0.80"
             increase="+43%"
             icon={
-              <TrafficIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              <PaidIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title=""
+            subtitle=""
+            progress="0.75"
+            increase="+14%"
+            icon={
+              <EmailIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
               />
             }
           />
@@ -126,7 +199,7 @@ const Dashboard = () => {
 
         {/* ROW 2 */}
         <Box
-          gridColumn="span 8"
+          gridColumn="span 15"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >
@@ -150,23 +223,16 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $59,342.32
+                {(totalRevenue*1000).toLocaleString()}đ
               </Typography>
-            </Box>
-            <Box>
-              <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
-              </IconButton>
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} />
+          <LineChart isDashboard={true} />
           </Box>
         </Box>
         <Box
-          gridColumn="span 4"
+          gridColumn="span 5"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           overflow="auto"
@@ -218,7 +284,7 @@ const Dashboard = () => {
 
         {/* ROW 3 */}
         <Box
-          gridColumn="span 4"
+          gridColumn="span 5"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           p="30px"
@@ -244,7 +310,7 @@ const Dashboard = () => {
           </Box>
         </Box>
         <Box
-          gridColumn="span 4"
+          gridColumn="span 5"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >
@@ -256,24 +322,6 @@ const Dashboard = () => {
             Sales Quantity
           </Typography>
           <Box height="250px" mt="-20px">
-            <BarChart isDashboard={true} />
-          </Box>
-        </Box>
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          padding="30px"
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ marginBottom: "15px" }}
-          >
-            Geography Based Traffic
-          </Typography>
-          <Box height="200px">
-            <GeographyChart isDashboard={true} />
           </Box>
         </Box>
       </Box>

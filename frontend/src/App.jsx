@@ -54,7 +54,7 @@ const App = () => {
       {/* <Footer /> */}
       {/* <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
 
-      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} /> */}
+      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />*/}
 
     </div>
   );
