@@ -1,6 +1,7 @@
 package com.example.test.Service;
 
 
+import com.example.test.DTO.DiscountCodeDTO.UserDiscountCodeDTO;
 import com.example.test.DTO.Login_logout_register.Request.MoreRegisterDTO;
 import com.example.test.DTO.Login_logout_register.Request.logInDTO;
 import com.example.test.DTO.Login_logout_register.Request.registerDTO;
@@ -8,6 +9,7 @@ import com.example.test.DTO.Login_logout_register.Respose.ResponseLogInDTO;
 import com.example.test.DTO.Login_logout_register.Respose.registerResponseDTO;
 import com.example.test.DTO.ReviewDTO.Response.ReviewDTO;
 import com.example.test.Entity.Book;
+import com.example.test.Entity.DeletedToken;
 import com.example.test.Entity.Notification;
 import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
@@ -19,9 +21,9 @@ import com.example.test.Repository.UserRepo.UserPendingRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Repository.UserRepo.reviewRepository;
 import com.example.test.Repository.BookRepo.BookRepository;
+import com.example.test.Repository.DeletedTokenRepository;
 import com.example.test.Repository.DiscountCodeRepository;
 import com.example.test.Repository.DiscountCodesNumberCodeRepository;
-import com.example.test.DTO.UserDiscountCodeDTO;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -79,6 +81,9 @@ public class UserService {
 
     @Autowired
     private DiscountCodesNumberCodeRepository discountCodesNumberCodeRepository;
+
+    @Autowired
+    private DeletedTokenRepository deletedTokenRepository;
 
     private final Map<String, String> resetCodeMap = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -279,12 +284,15 @@ public class UserService {
         }
 
     // log out
-    public boolean logOut(int userId) {
+    public boolean logOut(int userId, String token) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setIs_login(false);
             userRepository.save(user);
+            // Lưu token vào bảng deleted_tokens
+            DeletedToken deletedToken = new DeletedToken(token);
+            deletedTokenRepository.save(deletedToken);
             return true;
         }
         return false;

@@ -1,4 +1,4 @@
-package com.example.test.DTO;
+package com.example.test.DTO.DiscountCodeDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

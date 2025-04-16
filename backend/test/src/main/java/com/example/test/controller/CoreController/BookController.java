@@ -237,7 +237,7 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
     }
 
     /**
-     * Xóa sách khỏi danh sách yêu thích
+     * Xóa sách khỏi danh sách yêu thích    
      * Method: DELETE
      * URL: http://localhost:8090/api/books/wishlist/{userId}/{bookId}
      * 

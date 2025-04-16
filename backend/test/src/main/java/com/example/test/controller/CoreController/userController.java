@@ -1,5 +1,7 @@
 package com.example.test.controller.CoreController;
 
+import com.example.test.DTO.DiscountCodeDTO.UserDiscountCodeDTO;
+import com.example.test.DTO.Login_logout_register.Request.LogOutDTO;
 import com.example.test.DTO.Login_logout_register.Request.MoreRegisterDTO;
 import com.example.test.DTO.Login_logout_register.Request.logInDTO;
 import com.example.test.DTO.Login_logout_register.Request.registerDTO;
@@ -14,7 +16,6 @@ import com.example.test.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.example.test.DTO.UserDiscountCodeDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -114,9 +115,15 @@ public class userController {
 
     //logout
     // http://localhost:8090/api/users/logout/6
+
+// {
+// "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdXkxNjAxMDQxQGdtYWlsLmNvbSIsImlhdCI6MTY5MjA2NTY0MCwiZXhwIjoxNjkyMDY5MjQwfQ.4v3a7bq8gk1j4f3c1e7d8f8e8f8e8f8e8f8e8f8e8f8e"
+// }
+
     @GetMapping("/logout/{userId}")
-    public boolean logout(@PathVariable Integer userId) {
-        return userService.logOut(userId);
+    public boolean logout(@PathVariable Integer userId, @RequestBody LogOutDTO logOutDTO) {
+        String token = logOutDTO.getToken();
+        return userService.logOut(userId, token);
     }
 
     //Quên mật khẩu

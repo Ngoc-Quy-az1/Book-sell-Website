@@ -65,14 +65,15 @@ public class SecurityConfig {
 
                 //Cần đăng nhập
                 .requestMatchers(
-                    "/api/users/profile/**",           // Thông tin cá nhân
+                    "/api/users/profile/**",                       
                     "/api/users/update/**",
                     "/api/users/update/balance/**",
                     "/api/users/logout/**",
                     "/api/users/review/**",
                     "/api/cart/**",
                     "/api/chat/admin/**",
-                    "/api/users/{userId}/discount-codes"
+                    "/api/users/{userId}/discount-codes",
+                    "/api/users/logout/{userId}"
                 ).authenticated()
 
                 // Admin endpoints - Cần role ADMIN
