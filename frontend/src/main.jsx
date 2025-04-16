@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, BrowserRouter  } from "react-router-dom";
 import Admin from "./admin.jsx";
 import Dashboard from "./scenes/admin/dashboard";
 import ManageUsers from "./scenes/admin/manageUsers/index.jsx";
@@ -17,16 +17,25 @@ import Calendar from "./scenes/admin/calendar/calendar";
 // Import css files
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
+import Cart from "./components/Cart/cart.jsx";
+import BookDetail from "./components/BookDetail/BookDetail.jsx";
+
 
 const router = createBrowserRouter([{
   path: '/',
-  element: <App/>,
+  element: <BookDetail/>,
+  children: [
+    {path:'book-category-list', element: <BookCategoryList/>},
+    {path:'cart', element: <Cart/>},
+  ]
 },
 {path:'/admin', 
   element:<Admin />,
-  children:[{
-    index:true, element: <Dashboard/>
-  },
+  children:[
+    {
+      index: true, element: <Dashboard/>
+    },
     {path:'manageUsers', element:<ManageUsers />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},

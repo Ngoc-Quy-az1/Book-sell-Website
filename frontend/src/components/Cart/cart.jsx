@@ -2,6 +2,8 @@ import React from "react";
 import Book1 from "../BookCategoryList/ExampleImage/book1.jpg";
 import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
 import Book3 from "../BookCategoryList/ExampleImage/book3.png";
+import Navbar from "../Navbar/Navbar";
+import Footer from "../Footer/Footer";
 
 export default function Cart() {
   const cartlist = [{
@@ -19,6 +21,7 @@ export default function Cart() {
   }];
   return (
     <div className="min-h-screen bg-white p-6">
+      <Navbar/>
       <h1 className="text-3xl font-bold text-green-600 mb-6 pl-8">Giỏ hàng của bạn</h1>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4 pl-8">
@@ -80,6 +83,7 @@ export default function Cart() {
         </div>
 
       </div>
+      <Footer/>
     </div>
   );
 } 

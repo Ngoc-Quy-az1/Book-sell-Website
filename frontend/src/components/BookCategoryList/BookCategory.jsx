@@ -18,6 +18,23 @@ const BookCategoryList = () => {
       console.error('Error fetching data:', error);
     });
   }
+  const onPageChange = async (page)=> {
+    await axios
+    .get(
+      'http://localhost:8090/api/books/GetAllPaginated',
+      {
+        params: {
+          page: page,
+        }
+      }
+    )
+    .then((response) => {
+        setBooklist(response.data.content);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
   return (
     <div className="flex p-5 pl-40 pr-40">
       {/* Sidebar */}
@@ -53,6 +70,24 @@ const BookCategoryList = () => {
             </div>
           ))}
         </div>
+
+        <div className="flex justify-center mt-6 space-x-2 text-gray-600">
+            <button disabled={1 === 1} onClick={() => {}} className="px-2">
+              &#x2039;
+            </button>
+            {[1, 2,].map((page, index) => (
+              <button
+                key={index}
+                onClick = { ()=>{}}
+                className={`px-3 py-1 rounded-full border ${1 === page ? 'text-green-600 border-green-600' : ''}`}
+              >
+                {page}
+              </button>
+            ))}
+            <button disabled={3 === 3} onClick={() =>{}} className="px-2">
+              &#x203A;
+            </button>
+          </div>
       </div>
     </div>
   );

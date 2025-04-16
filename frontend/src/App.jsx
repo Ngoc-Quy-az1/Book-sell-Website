@@ -43,19 +43,18 @@ const App = () => {
 
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       {/* <BookCategoryList/> */}
-      <Cart/>
-      {/* <Hero handleOrderPopup={handleOrderPopup} />
+      {/* <Cart/> */}
+      <Hero handleOrderPopup={handleOrderPopup} />
       <Services handleOrderPopup={handleOrderPopup} />
-      <Banner /> */}
-      {/* <CoverBanner /> */}
-      {/* <AppStore /> */}
-      {/* <PdfReader /> */}
-      {/* <Books /> */}
-      {/* <Testimonial /> */}
-      <Footer />
-      {/* <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
+      <Banner />
 
-      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} /> */}
+      <AppStore />
+      <Books />
+      <Testimonial />
+      <Footer />
+      <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
+
+      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
 
     </div>
   );
