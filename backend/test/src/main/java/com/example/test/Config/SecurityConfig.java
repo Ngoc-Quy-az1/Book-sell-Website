@@ -65,7 +65,7 @@ public class SecurityConfig {
                     "/api/payment/check-status/**"
                 ).permitAll()
 
-                // User endpoints - Cần đăng nhập
+                //Cần đăng nhập
                 .requestMatchers(
                     "/api/users/profile/**",           // Thông tin cá nhân
                     "/api/users/update/**",

@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat/community")
-public class WithCommunity {
+public class WithCommunityController {
 
     @Autowired
     private ChatService chatService;

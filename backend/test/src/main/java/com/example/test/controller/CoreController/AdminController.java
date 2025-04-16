@@ -1,6 +1,7 @@
 package com.example.test.controller.CoreController;
 
 import com.example.test.Entity.User;
+import com.example.test.Entity.chatEntity.GroupJoinRequest;
 import com.example.test.Service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -265,7 +266,14 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    public AdminController() {
-        System.out.println("AdminController Loaded!");
+    //Api lấy danh sách yêu cầu tham gia nhóm chat
+    // http://localhost:8090/api/admin/chat-requests
+    @GetMapping("/chat-requests")
+    public ResponseEntity<?> getChatRequests(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
+        List<GroupJoinRequest> chatRequests = adminService.getGroupJoinRequests();
+        return ResponseEntity.ok(chatRequests);
     }
 }
