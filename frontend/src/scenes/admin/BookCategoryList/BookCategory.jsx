@@ -7,13 +7,15 @@ import { tokens } from "../../../theme";
 
 const AdminBookCategoryList = () => {
   const countries = ["Việt Nam", "Trung Quốc", "Nhật Bản", "Pháp", "Đức", "Hàn Quốc", "Italy", "Mỹ"];
-  const categories = ["Nuôi dạy con ", "D"
-  ];
   const sortMethod = ["Default", "Newest", "Lowest Cost", "Highest Cost"]
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [userPopup, setUserPopup] = React.useState(false);
     const [sortRule, setSortRule] = useState("Lowest Cost");
+    const [categories, setCategories] = useState([]);
+    useEffect( () => {
+      getBookCategory();
+    })
     const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
     const [selectedCategory, setSelectedCategory] = useState("Nuôi dạy con ");
     const [bookList, setBookList] = useState([]);
@@ -22,7 +24,7 @@ const AdminBookCategoryList = () => {
       getBookPage();
     }, []);
     const getBookPage = async ()=>{
-      await axios.get('http://localhost:8090/api/books/GetAllPaginated')
+      await fetch('http://localhost:8090/api/books/all')
       .then((response) => {
           setBookList(response.data.content);
       })
@@ -39,6 +41,16 @@ const AdminBookCategoryList = () => {
         console.error('Error fetching data:', error);
       });
     }
+    const getBookCategory = async ()=>{
+      await fetch('http://localhost:8090/api/books/AllTypeCategories')
+      .then((response) => {
+          setCategories(response.data.content);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+    }
+    
     const handleUserPopup = (link) => {
       setUserPopup(!userPopup);
   
@@ -87,7 +99,10 @@ const AdminBookCategoryList = () => {
       <div className="w-1/4 pr-5 border-r">
         <h2 className="font-bold text-lg mb-2 text-green-600">Thể loại</h2>
         {categories.map((category) => (
-            <input type="radio" key={category} className="flex items-center mb-2"  onChange={handleChange}/>
+          <div key={category} className="flex items-center mb-2">
+            <input type="radio" className="mr-2" onChange={handleChange}/>
+            <span>{category}</span>
+          </div>
         ))}
       </div>
 

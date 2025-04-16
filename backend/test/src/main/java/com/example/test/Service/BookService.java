@@ -78,6 +78,8 @@ public Book updateBook(int id, UpdateBookDTO bookDTO) {
     public Page<Book> getAllBooksPaginated(int page, int size) {
         return bookRepository.findAll(PageRequest.of(page, size));
     }
+
+    //Lấy thê thể loại sách 
     public List<String> getAllCategories() {
         return bookRepository.findDistinctCategories();
     }

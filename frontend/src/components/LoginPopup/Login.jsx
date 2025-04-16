@@ -5,25 +5,29 @@ import { MdOutlineVpnKey } from "react-icons/md";
 import { Formik } from "formik";
 import { TextField } from "@mui/material";
 import * as yup from "yup";
+import {useCookie} from  "../../../data/cookie.js"
+
 const Login = ({ handleSignIn, handleNotice, handleForgotPassword }) => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const [username, setUsername, deleteUsername] = useCookie("username");
   const handleFormSubmit = (values) => {
     if (phoneRegExp.test(values.input)) values.phone = values.input;
     else values.mail = values.input;
     handleLogin(values);
   };
-
   //Đẩy DL lên Database 
   const handleLogin = (form) =>{
     fetch("http://localhost:8090/api/users/login",{
       method:"POST",      
       headers: {      
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
         },
       body: JSON.stringify(form)
     }) .then((response) => {
-      if (!response.ok) return response.text();
+      if (!response.ok) {
+        setUsername()
+        return response.text();
+      }
       return response.json();
     }).then((data) => {
       console.log(data);
