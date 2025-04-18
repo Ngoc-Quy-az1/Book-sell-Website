@@ -1,18 +1,28 @@
 import { useTheme } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { tokens } from "../../theme";
-import { mockBarData as data } from "../../data/mockData";
+import { useState, useEffect } from "react";
+import Cookies from "js.cookie"
 
 const BarChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const testData = [
-    {
-      country: "AD",
-      "hot dog": 137,
-      "hot dogColor": "hsl(229, 70%, 50%)",
-      burger: 96,
-    }]
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    getData()
+  }, [])
+  const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
+  const getData = () => {
+    return fetch("http://localhost:8090/api/admin/revenue/by-category",{
+      headers:config
+    }) 
+    .then((response) => {
+      return response.json();
+    }).then((data) => {    
+      setData(data.slice(0,5));
+    });
+  }
+  console.log(data);
   return (
     <ResponsiveBar
       data={data}
@@ -45,8 +55,8 @@ const BarChart = ({ isDashboard = false }) => {
           },
         },
       }}
-      keys={["hot dog", "burger", "sandwich", "kebab", "fries", "donut"]}
-      indexBy="country"
+      keys={["totalRevenue"]}
+      indexBy="category"
       margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
       padding={0.3}
       valueScale={{ type: "linear" }}

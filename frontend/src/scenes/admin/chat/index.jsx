@@ -1,25 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { FaExpand, FaCompress, FaComments } from "react-icons/fa";
+import { Box, InputBase, useTheme } from "@mui/material";
+import { useState, useEffect } from "react";
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { tokens } from "../../../theme";
 import axios from "axios";
 import Cookies from "js.cookie"
-
-// ✅ Biến tạm lưu token để dùng luôn
-const TEMP_TOKEN =
-  "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoibWFobmR1Z24yQGdtYWlsLmNvbSIsImlhdCI6MTc0NDU2MDU4NSwiZXhwIjoxNzQ0NjQ2OTg1fQ.K5_YceY43fmYPuCwjAyjhgKcC5qH_hf38CFR9pfWVvA";
-
-const ChatButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [chatMode, setChatMode] = useState("admin"); // admin, group1, group2
-  const [messages, setMessages] = useState([]);
-  const [userId, setUserId] = useState(2); // 👈 userId để gửi vào body API
+const userId = 2;
+const Item = ({ title, to, icon, selected, setSelected }) => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  return (
+    <MenuItem
+      active={selected === title}
+      style={{
+        color: colors.grey[100],
+      }}
+      onClick={() => setSelected(title)}
+      icon={icon}
+    >
+      <Typography>{title}</Typography>
+      <Link to={"/admin"+to} />
+    </MenuItem>
+  );
+};
+const Chat = () => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const [chatMode, setChatMode] = useState("group1"); 
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
-  const userToken = localStorage.getItem("token")
-  const toggleChat = () => setIsOpen(!isOpen);
-  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
   const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-
-  // ✅ Gọi API lấy lịch sử tin nhắn
+  const [messages, setMessages] = useState([]);
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -57,8 +68,6 @@ const ChatButton = () => {
 
     fetchMessages();
   }, [chatMode, userId]);
-
-  // ✅ Gửi tin nhắn
   const handleSendMessage = () => {
     if (!newMessage.trim()) {
       alert("Vui lòng nhập nội dung tin nhắn!");
@@ -77,9 +86,7 @@ const ChatButton = () => {
 
     axios
       .post(apiUrl, requestBody, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
+        headers: config,
       })
       .then((response) => {
         setMessages((prevMessages) => [
@@ -99,66 +106,55 @@ const ChatButton = () => {
         alert("Không thể gửi tin nhắn. Vui lòng thử lại sau.");
       });
   };
-
   return (
-    <div>
-      {/* Nút mở chat */}
-      <button
-        onClick={toggleChat}
-        className="fixed bottom-5 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center justify-center"
+    <Box m="20px" className=" overflow-y-auto flex-1 border p-3 rounded mb-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+      <Box 
+      display="grid"
+      gridTemplateColumns="repeat(10,minmax(40px,1fr))"
+      gridAutoRows="40px"
+      gap="10px"
       >
-        <FaComments size={20} />
-      </button>
-
-      {/* Giao diện khung chat */}
-      {isOpen && (
-        <div
-          className={`fixed ${isFullscreen
-              ? "top-16 left-0 w-full h-[calc(80%)]"
-              : "bottom-16 right-5 w-80"
-            } bg-white p-4 rounded-lg shadow-lg border transition-all flex flex-col`}
+        <button>
+        <Box 
+        height = "40px"
+        borderRadius="5px"
+        gridColumn="span 1"
+        backgroundColor={colors.greenAccent[600]}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        onClick={() => setChatMode("group1")}
         >
-          {/* Header */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setChatMode("admin")}
-                className={`px-3 py-1 rounded ${chatMode === "admin"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-black"
-                  }`}
-              >
-                Chat với Admin
-              </button>
-              <button
-                onClick={() => setChatMode("group1")}
-                className={`px-3 py-1 rounded ${chatMode === "group1"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-black"
-                  }`}
-              >
-                Nhóm Chat 1
-              </button>
-              <button
-                onClick={() => setChatMode("group2")}
-                className={`px-3 py-1 rounded ${chatMode === "group2"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-black"
-                  }`}
-              >
-                Nhóm Chat 2
-              </button>
-            </div>
-            <button
-              onClick={toggleFullscreen}
-              className="text-blue-500 hover:text-blue-700 p-2" // Thêm padding cho icon
-            >
-              {isFullscreen ? <FaCompress size={20} /> : <FaExpand size={20} />}
-            </button>
-          </div>
-
-          {/* Tin nhắn */}
-          <div className="flex-1 overflow-y-auto border p-3 rounded mb-4 max-h-[60vh] space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+          Group chat 1
+        </Box>
+        </button>
+        <button>
+        <Box 
+        height = "40px"
+        borderRadius="5px"
+        gridColumn="span 1"
+        backgroundColor={colors.greenAccent[600]}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        onClick={() => setChatMode("group2")}
+        >
+          Group chat 2
+        </Box>
+        </button>
+      <Box
+        height = "40px"
+        borderRadius="30px"
+        width="40px"
+        display="flex"
+        alignItems="center"
+        justifyContent="center">
+        <AddBoxIcon 
+        onClick={() => console.log("Click")}/>
+        </Box>
+      </Box>
+      
+      <div className="h-[60vh] flex-1 overflow-y-auto border p-3 rounded mb-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
             {messages.map((msg) => (
               <div
                 key={msg.messageId}
@@ -187,27 +183,24 @@ const ChatButton = () => {
               </div>
             ))}
           </div>
-
-          {/* Nhập tin nhắn */}
           <div className="flex items-center">
-            <input
-              type="text"
-              className="flex-1 border rounded p-2 mr-2 text-black"
-              placeholder="Nhập tin nhắn..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-            />
-            <button
+                  <Box
+        display="flex"
+        width="100%"
+        backgroundColor={colors.primary[400]}
+        borderRadius="3px"
+      >
+        <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Enter text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
+      </Box>
+            <button 
               onClick={handleSendMessage}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-blue-500 text-white px-4 py-2 ml-1 rounded hover:bg-blue-600"
             >
               Gửi
             </button>
           </div>
-        </div>
-      )}
-    </div>
+      </Box>
   );
 };
 
-export default ChatButton;
+export default Chat;

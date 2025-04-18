@@ -1,7 +1,8 @@
 import { useState,useEffect } from "react";
 import axios from 'axios';
 import Navbar from "../Navbar/Navbar";
-
+import Cookies from "js.cookie"
+const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 const BookCategoryList = () => {
   const [selectedCountries, setSelectedCountries] = useState([]);
   const countries = ["Việt Nam", "Trung Quốc", "Nhật Bản", "Pháp", "Đức", "Hàn Quốc", "Italy", "Mỹ"];
@@ -10,7 +11,7 @@ const BookCategoryList = () => {
     getBookPage();
   }, []);
   const getBookPage = async ()=>{
-    await axios.get('http://localhost:8090/api/books/GetAllPaginated')
+    await axios.get('http://localhost:8090/api/books/GetAllPaginated', {headers : config})
     .then((response) => {
         setBooklist(response.data.content);
     })

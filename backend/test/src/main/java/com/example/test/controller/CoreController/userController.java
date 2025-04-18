@@ -120,7 +120,7 @@ public class userController {
 // "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdXkxNjAxMDQxQGdtYWlsLmNvbSIsImlhdCI6MTY5MjA2NTY0MCwiZXhwIjoxNjkyMDY5MjQwfQ.4v3a7bq8gk1j4f3c1e7d8f8e8f8e8f8e8f8e8f8e8f8e"
 // }
 
-    @GetMapping("/logout/{userId}")
+    @PostMapping("/logout/{userId}")
     public boolean logout(@PathVariable Integer userId, @RequestBody LogOutDTO logOutDTO) {
         String token = logOutDTO.getToken();
         return userService.logOut(userId, token);

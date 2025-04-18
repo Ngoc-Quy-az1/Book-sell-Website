@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import Cookies from "js.cookie"
 const TEMP_TOKEN =
   "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoibWFobmR1Z24yQGdtYWlsLmNvbSIsImlhdCI6MTc0NDU2MDU4NSwiZXhwIjoxNzQ0NjQ2OTg1fQ.K5_YceY43fmYPuCwjAyjhgKcC5qH_hf38CFR9pfWVvA";
 
@@ -29,7 +29,7 @@ const UserDetail = () => {
     axios
       .get(`http://localhost:8090/api/users/user-detail/${userId}`, {
         headers: {
-          Authorization: `Bearer ${TEMP_TOKEN}`,
+          Authorization: `Bearer ${Cookies.get('authToken')}`,
         },
       })
       .then((response) => {
@@ -58,7 +58,7 @@ const UserDetail = () => {
     axios
       .put(`http://localhost:8090/api/users/update/${userId}`, updatedData, {
         headers: {
-          Authorization: `Bearer ${TEMP_TOKEN}`,
+          Authorization: `Bearer ${Cookies.get('authToken')}`,
         },
       })
       .then((response) => {

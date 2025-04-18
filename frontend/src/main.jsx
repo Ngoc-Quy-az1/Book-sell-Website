@@ -10,11 +10,13 @@ import Bar from "./scenes/admin/bar";
 import Form from "./scenes/admin/form";
 import Line from "./scenes/admin/line";
 import Pie from "./scenes/admin/pie";
-import FAQ from "./scenes/admin/faq";
+import Chat from "./scenes/admin/chat";
+import Cart from "./components/Cart/cart.jsx";
 import Geography from "./scenes/admin/geography";
 import Calendar from "./scenes/admin/calendar/calendar";
 import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
 import AdminBookCategoryList from "./scenes/admin/BookCategoryList/BookCategory.jsx";
+import Books from "./components/BooksSlider/Books.jsx";
 
 // Import css files
 import "slick-carousel/slick/slick.css";
@@ -23,6 +25,11 @@ import "slick-carousel/slick/slick-theme.css";
 const router = createBrowserRouter([{
   path: '/',
   element: <App/>,
+  children:[
+    {index:true, element: <Books/>},
+    {path:'books', element:<BookCategoryList/>},
+    {path:'cart', element: <Cart/>}
+  ]
 },
 {path:'/admin', 
   element:<Admin />,
@@ -35,7 +42,7 @@ const router = createBrowserRouter([{
     {path:'pie', element:<Pie />},
     {path:'line', element:<Line />},
     {path:'booklist', element:<AdminBookCategoryList />},
-    {path:'faq', element: <FAQ/>},
+    {path:'chat', element: <Chat/>},
     {path:'calendar', element:<Calendar />},
     {path:'geography', element:<Geography />}
   ]
@@ -44,6 +51,5 @@ const router = createBrowserRouter([{
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <RouterProvider router={router}/>
-
-  </React.StrictMode>
+    </React.StrictMode>
 );
