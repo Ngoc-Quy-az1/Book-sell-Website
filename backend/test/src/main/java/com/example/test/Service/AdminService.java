@@ -2,6 +2,7 @@ package com.example.test.Service;
 
 import com.example.test.Entity.User;
 import com.example.test.Repository.UserRepo.UserRepository;
+import com.example.test.Repository.chatRepo.GroupJoinRequestRepository;
 import com.example.test.Repository.OrdersRepo.OrderRepository;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
 import jakarta.persistence.EntityManager;
@@ -18,11 +19,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.DayOfWeek;
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
 import com.example.test.Entity.User.MembershipLevel;
+import com.example.test.Entity.chatEntity.GroupJoinRequest;
 
 @Service
 public class AdminService {
@@ -41,6 +41,9 @@ public class AdminService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private GroupJoinRequestRepository groupJoinRequestRepository;
 
     // Định nghĩa ngưỡng chi tiêu cho từng cấp độ hội viên
     private static final Map<String, BigDecimal> MEMBERSHIP_THRESHOLDS = new HashMap<>() {{
@@ -92,13 +95,46 @@ public class AdminService {
     // Cập nhật thông tin người dùng
     public User update(Integer id, User userDetails) {
         User user = findById(id);
-        user.setName(userDetails.getName());
-        user.setMail(userDetails.getMail());
-        user.setFull_name(userDetails.getFull_name());
-        user.setAddress(userDetails.getAddress());
-        user.setPoints(userDetails.getPoints());
-        user.setBalance(userDetails.getBalance());
-        user.setMembershipLevel(userDetails.getMembershipLevel());
+        
+        // Chỉ cập nhật các trường không null
+        if (userDetails.getName() != null) {
+            user.setName(userDetails.getName());
+        }
+        if (userDetails.getMail() != null) {
+            // Kiểm tra email mới không trùng với email của user khác
+            User existingUser = userRepository.findUserByMail(userDetails.getMail());
+            if (existingUser != null && existingUser.getID() != user.getID()) {
+                throw new RuntimeException("Email đã tồn tại");
+            }
+            user.setMail(userDetails.getMail());
+        }
+        if (userDetails.getPhone() != null) {
+            // Kiểm tra số điện thoại mới không trùng với số điện thoại của user khác
+            User existingUser = userRepository.findUserByPhone(userDetails.getPhone());
+            if (existingUser != null && existingUser.getID() != user.getID()) {
+                throw new RuntimeException("Số điện thoại đã tồn tại");
+            }
+            user.setPhone(userDetails.getPhone());
+        }
+        if (userDetails.getFull_name() != null) {
+            user.setFull_name(userDetails.getFull_name());
+        }
+        if (userDetails.getAddress() != null) {
+            user.setAddress(userDetails.getAddress());
+        }
+        if (userDetails.getPoints() != 0) {
+            user.setPoints(userDetails.getPoints());
+        }
+        if (userDetails.getBalance() != 0.0) {
+            user.setBalance(userDetails.getBalance());
+        }
+        if (userDetails.getMembershipLevel() != null) {
+            user.setMembershipLevel(userDetails.getMembershipLevel());
+        }
+        if (userDetails.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+        }
+        
         return userRepository.save(user);
     }
 
@@ -208,9 +244,14 @@ public class AdminService {
         if (newLevel != null && newLevel.ordinal() > user.getMembershipLevel().ordinal()) {
             user.setMembershipLevel(newLevel);
             userRepository.save(user);
-            return newLevel; // Trả về cấp độ mới nếu có nâng cấp
+            return newLevel; 
         }
         
-        return null; // Trả về null nếu không có nâng cấp
+        return null; 
+    }
+
+    // Lấy danh sách yêu cầu tham gia nhóm chat
+    public List<GroupJoinRequest> getGroupJoinRequests() {
+        return groupJoinRequestRepository.findAll();
     }
 }

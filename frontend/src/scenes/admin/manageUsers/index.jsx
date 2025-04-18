@@ -13,6 +13,8 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
+import Cookies from "js.cookie"
+const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
 // Function chính
 const ManageUsers = () => {
@@ -35,7 +37,8 @@ const ManageUsers = () => {
   },[])
   const getUser = () =>{
     fetch("http://localhost:8090/api/admin/users",{
-      method:"GET"
+      method:"GET",
+      headers: config
     })
     .then(Response => {
       return Response.json();
@@ -48,7 +51,9 @@ const ManageUsers = () => {
   //Xóa người dùng
   const handleDeleteUsers = (selectedRows) => {
     selectedRows.forEach(UserId => {
-    fetch("http://localhost:8090/api/admin/deleteUsers/" + UserId,{method:"DELETE"
+    fetch("http://localhost:8090/api/admin/deleteUsers/" + UserId,{
+      method:"DELETE",
+      headers: config
     })});
   }
 
@@ -58,7 +63,8 @@ const ManageUsers = () => {
     
     fetch("http://localhost:8090/api/admin/updateUsers/" + user.id,{method:"PUT",
       headers: {      
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${Cookies.get('authToken')}`
       },
       body:JSON.stringify(user)
     }).then((response) => {

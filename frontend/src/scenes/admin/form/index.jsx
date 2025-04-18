@@ -5,6 +5,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Notice from "../Notice/index";
 import Header from "../../../components/Admin/Header";
 import { useState } from "react";
+import Cookies from "js.cookie"
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -26,7 +27,8 @@ const Form = () => {
     fetch("http://localhost:8090/api/admin/createUsers",{
       method:"POST",      
       headers: {      
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('authToken')}`
         },
       body:JSON.stringify(form)
     }) .then((response) => {

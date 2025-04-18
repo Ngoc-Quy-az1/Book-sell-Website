@@ -53,10 +53,8 @@ public class SecurityConfig {
                     "/api/order/**" ,                  // API đặt hàng
                     "/api/chat/community/**",       
                     "api/users/forgotpassword",        // API quên mật khẩu
-                    "api/users/confirmcode"  ,          // API xác thực mã quên mật khẩu
-                    "/api/books/AllTypeCategories",
-                    "/swagger-ui/**",
-                    "v3/**"
+                    "api/users/confirmcode"  , 
+                    "/api/books/AllTypeCategories"        // API xác thực mã quên mật khẩu
                 ).permitAll()
 
                 // Payment endpoints - Không cần đăng nhập
@@ -65,16 +63,17 @@ public class SecurityConfig {
                     "/api/payment/check-status/**"
                 ).permitAll()
 
-                // User endpoints - Cần đăng nhập
+                //Cần đăng nhập
                 .requestMatchers(
-                    "/api/users/profile/**",           // Thông tin cá nhân
+                    "/api/users/profile/**",                       
                     "/api/users/update/**",
                     "/api/users/update/balance/**",
                     "/api/users/logout/**",
                     "/api/users/review/**",
                     "/api/cart/**",
                     "/api/chat/admin/**",
-                    "/api/users/{userId}/discount-codes"
+                    "/api/users/{userId}/discount-codes",
+                    "/api/users/logout/{userId}"
                 ).authenticated()
 
                 // Admin endpoints - Cần role ADMIN
@@ -96,7 +95,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:5173", "http://localhost:8090"));
+        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization",

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaExpand, FaCompress, FaComments } from "react-icons/fa";
 import axios from "axios";
+import Cookies from "js.cookie"
 
 // ✅ Biến tạm lưu token để dùng luôn
 const TEMP_TOKEN =
@@ -13,9 +14,10 @@ const ChatButton = () => {
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(2); // 👈 userId để gửi vào body API
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
-
+  const userToken = localStorage.getItem("token")
   const toggleChat = () => setIsOpen(!isOpen);
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
+  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
   // ✅ Gọi API lấy lịch sử tin nhắn
   useEffect(() => {
@@ -27,9 +29,7 @@ const ChatButton = () => {
             "http://localhost:8090/api/chat/admin/history",
             { userId: userId },
             {
-              headers: {
-                Authorization: `Bearer ${TEMP_TOKEN}`,
-              },
+              headers: config,
             }
           );
         } else if (chatMode === "group1" || chatMode === "group2") {
@@ -38,9 +38,7 @@ const ChatButton = () => {
             "http://localhost:8090/api/chat/community/history",
             { groupId: groupId },
             {
-              headers: {
-                Authorization: `Bearer ${TEMP_TOKEN}`,
-              },
+              headers: config,
             }
           );
         }
@@ -80,7 +78,7 @@ const ChatButton = () => {
     axios
       .post(apiUrl, requestBody, {
         headers: {
-          Authorization: `Bearer ${TEMP_TOKEN}`,
+          Authorization: `Bearer ${userToken}`,
         },
       })
       .then((response) => {

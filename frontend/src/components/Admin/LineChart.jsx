@@ -3,13 +3,20 @@ import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import { useEffect, useState } from "react";
 import { mockLineData } from "./mockData";
+import Cookies from "js.cookie"
 
 const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState([]);
+  useEffect(() => {
+    getData()
+  }, [])
+  const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
   const getData = () => {
-    return fetch("http://localhost:8090/api/admin/revenue/by-category") 
+    return fetch("http://localhost:8090/api/admin/revenue/by-category",{
+      headers:config
+    }) 
     .then((response) => {
       return response.json();
     }).then((data) => {    
@@ -20,7 +27,6 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
       }]);
     });
   }
-    getData();
   const [totalRevenue, getTotalRevenue] = useState();
   useEffect(() => {
     handleTotalRevenue();
@@ -28,7 +34,8 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   const handleTotalRevenue = () =>{
     
     fetch("http://localhost:8090/api/admin/revenue/total",{
-      method:"GET"
+      method:"GET",
+      headers:config
     })
     .then(Response => {
       return Response.json();
@@ -39,7 +46,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   }  
   return (  
     <ResponsiveLine
-      data={mockLineData()}
+      data={data}
       theme={{
         axis: {
           domain: {

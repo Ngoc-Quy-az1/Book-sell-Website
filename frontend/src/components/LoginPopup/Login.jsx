@@ -1,33 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { MdOutlineVpnKey } from "react-icons/md";
 import { Formik } from "formik";
 import { TextField } from "@mui/material";
 import * as yup from "yup";
+import { redirect } from "react-router-dom";
+import Cookies from "js.cookie"
+
 const Login = ({ handleSignIn, handleNotice, handleForgotPassword }) => {
   const [showPassword, setShowPassword] = useState(false);
-
   const handleFormSubmit = (values) => {
     if (phoneRegExp.test(values.input)) values.phone = values.input;
     else values.mail = values.input;
     handleLogin(values);
   };
-
   //Đẩy DL lên Database 
   const handleLogin = (form) =>{
     fetch("http://localhost:8090/api/users/login",{
       method:"POST",      
       headers: {      
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
         },
       body: JSON.stringify(form)
     }) .then((response) => {
-      if (!response.ok) return response.text();
+      if (!response.ok) {
+        return response.text();
+      }
       return response.json();
     }).then((data) => {
-      console.log(data);
+      console.log(data.token);
+      Cookies.set('authToken', data.token);
+      Cookies.set('userid', data.userId)
       handleNotice(data.message, !data.status);
+      location.reload();
     });
   }
 
