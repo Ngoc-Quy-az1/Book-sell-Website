@@ -3,6 +3,7 @@ package com.example.test.Service;
 import com.example.test.Entity.*;
 import com.example.test.Entity.chatEntity.ChatGroup;
 import com.example.test.Entity.chatEntity.SupportMessage;
+import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Repository.chatRepo.ChatGroupRepository;
 import com.example.test.Repository.chatRepo.SupportMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class ChatService {
 
     @Autowired
     private ChatGroupRepository chatGroupRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public SupportMessage sendPrivateMessage(User sender, User receiver, String message) {
         SupportMessage supportMessage = new SupportMessage();
@@ -54,5 +58,10 @@ public class ChatService {
     public ChatGroup findGroupById(Integer groupId) {
         return chatGroupRepository.findById(groupId)
             .orElseThrow(() -> new RuntimeException("Group not found with id: " + groupId));
+    }
+
+    //hàm lấy số lượng tin nhắn được gưỉ tới 1 người dùng
+    public int getCountOfMessages(int userId){
+        return supportMessageRepository.countByReceiver(userRepository.findUserByID(userId));
     }
 }
