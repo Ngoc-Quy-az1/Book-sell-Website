@@ -20,7 +20,7 @@ public class OpenApiConfig {
                 .info(new Info().title("Book Sell Website API")
                         .description("Book Sell Website API documentation")
                         .version("1.0.0"))
-                .servers(List.of(new Server().url("http://localhost:8090/api").description("Development Server")))
+                .servers(List.of(new Server().url("http://localhost:8090").description("Development Server")))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)
