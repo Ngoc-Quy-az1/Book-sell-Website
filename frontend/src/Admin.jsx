@@ -4,8 +4,6 @@ import Topbar from "./scenes/admin/global/Topbar";
 import Sidebar from "./scenes/admin/global/Sidebar";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
-import ChatButton from "./components/ChatButton/ChatButton"
-import Cookies from 'js.cookie'
 
 const Admin = () => {
   const [theme, colorMode] = useMode();
@@ -17,11 +15,10 @@ const Admin = () => {
         <CssBaseline />
         <div className="app">
         <Sidebar isSidebar={isSidebar}/>
-          <main className="content">
-            <Topbar setIsSidebar={setIsSidebar} />
-            <Outlet/>
+          <main className="content" style={{position:'relative',zIndex:'0'}}>
+              <Topbar setIsSidebar={setIsSidebar} />
+              <Outlet/>
           </main>
-          <ChatButton/>
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>

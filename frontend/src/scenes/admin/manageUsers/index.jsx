@@ -256,6 +256,7 @@ const ManageUsers = () => {
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",
+            zIndex: -1
           },
           "& .MuiDataGrid-cell": {
             borderBottom: "none",

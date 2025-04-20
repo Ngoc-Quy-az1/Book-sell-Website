@@ -23,7 +23,7 @@ const AdminBookCategoryList = () => {
     useEffect( () => {
       getBookPage();
     }, []);
-    const [selectedBook, setSelectedBook] = useState({id:1});
+    const [selectedBook, setSelectedBook] = useState();
     useEffect (() => {
       getDetail()
     },[])
@@ -40,7 +40,7 @@ const AdminBookCategoryList = () => {
       });
     }
     const getDetail = async ()=>{
-      await fetch("http://localhost:8090/api/books/"+selectedBook.id, {headers : config})
+      if (selectedBook!=null) await fetch("http://localhost:8090/api/books/"+selectedBook.id, {headers : config})
       .then((response) => {
         return response.json();
       })
@@ -91,16 +91,16 @@ const AdminBookCategoryList = () => {
   const BookList = () => {
     return bookList.filter((book) => selectedCategory.includes(book.category) || selectedCategory.length == 0).toSorted(sort)
     .map((book) => (
-      <div id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
+      <button id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
         <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
         <h3 className="font-bold text-sm mb-1">{book.title}</h3>
         <div className="text-green-600 font-semibold">{book.price_discounted.toLocaleString()}.000đ</div>
         <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}.000đ</div>
-      </div>
+      </button>
     ))
   }
   return (
-    <div className="flex p-5 pl-40 pr-40">
+    <div className="flex p-5 pl-10">
       {/* Sidebar */}
       <div className="w-1/4 pr-5 border-r">
         <h2 className="font-bold text-lg mb-2 text-green-600">Thể loại</h2>
@@ -124,7 +124,7 @@ const AdminBookCategoryList = () => {
         </div>
         
         {/* Book List */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className={`grid grid-cols-4 gap-4`}>
           <BookList/>
         </div>
       </div>

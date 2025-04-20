@@ -48,13 +48,6 @@ window.addEventListener("click", (e) => {
   }
   });
 
-
-// const PopupScreen = () => {
-//   if (showVerify) return <Verify handleSignIn={handleSignIn} handleVerify={handleVerify} mail={email} handleNotice={handleNotice}/>
-//   if (showSignIn) return <Signin handleSignIn={handleSignIn} handleVerify={handleVerify} handleMail={handleEmail} handleNotice={handleNotice}/>
-//   if (forgotPassword) return <ForgotPassword handleForgotPassword={handleForgotPassword}/>
-//   return <Login handleSignIn={handleSignIn} handleNotice={handleNotice} handleForgotPassword={handleForgotPassword}/>
-// }
   return (
     <>
     <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>

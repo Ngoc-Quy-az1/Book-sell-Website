@@ -47,6 +47,12 @@ const Form = () => {
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
         validationSchema={checkoutSchema}
+        sx={{
+          "& .TextField":{
+            position: 'relative',
+            zIndex: 0
+          }
+        }}
       >
         {({
           values,
@@ -76,7 +82,10 @@ const Form = () => {
                 name="firstName"
                 error={!!touched.firstName && !!errors.firstName}
                 helperText={touched.firstName && errors.firstName}
-                sx={{ gridColumn: "span 2" }}
+                sx={{ gridColumn: "span 2" ,
+                  position: 'relative',
+                  zIndex: 0
+                }}
               />
               <TextField
                 fullWidth
@@ -90,7 +99,8 @@ const Form = () => {
                 error={!!touched.lastName && !!errors.lastName}
                 helperText={touched.lastName && errors.lastName}
                 sx={{ gridColumn: "span 2" }}
-              />              <TextField
+              />              
+              <TextField
               fullWidth
               variant="filled"
               type="text"

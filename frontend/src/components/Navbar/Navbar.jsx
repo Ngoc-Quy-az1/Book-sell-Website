@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Logo from "../../assets/website/logo.png";
 import { FaCartShopping } from "react-icons/fa6";
 import DarkMode from "./DarkMode";
@@ -34,22 +34,40 @@ const DropdownLinks = [
   },
 ];
 
-
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   const handleSignOut = () =>{
-    fetch("http://localhost:8090/api/users/logout",{
+    fetch("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),{
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('authToken')}`
         },
       body: JSON.stringify({"token": `${Cookies.get('authToken')}`})
     }) .then((response) => {
       return response.json();
     }).then((data) => {
       console.log(data);
+      Cookies.remove('authToken');
+      location.reload();
     });
-    Cookies.remove('authToken');
-    location.reload();
+  }
+  const [userName, setUserName] = useState();
+  const UserIcon = () => {
+    fetch("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
+  {
+    headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  })
+    .then((response) => {
+      return response.json();
+    }).then((data) => {
+      setUserName(data.name[0]);
+    });
+    return <button
+    onClick={() => handleSignOut() }
+    className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3 w-30"
+  >
+    {userName}
+    </button>
   }
   return (
     <>
@@ -112,12 +130,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                 <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
               </button>
               {(Cookies.get('authToken')) ?
-                <button
-                  onClick={() => handleSignOut() }
-                  className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
-                >
-                  Sign Out
-                </button>
+                <UserIcon/>
                 :
                 <button
                   onClick={() => handleLoginPopup() }
