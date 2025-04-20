@@ -17,7 +17,7 @@ import Calendar from "./scenes/admin/calendar/calendar";
 // Import css files
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
+import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
 import Cart from "./components/Cart/cart.jsx";
 import BookDetail from "./components/BookDetail/BookDetail.jsx";
 import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
@@ -25,7 +25,7 @@ import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
 
 const router = createBrowserRouter([{
   path: '/',
-  element: <PlaceOrder/>,
+  element: <BookCategoryList/>,
   children: [
     {path:'book-category-list', element: <BookCategoryList/>},
     {path:'cart', element: <Cart/>},

@@ -13,7 +13,7 @@ import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 
 import Books from "./components/BooksSlider/Books.jsx";
-import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
+import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
 import Cart from "./components/Cart/cart.jsx";
 
 const App = () => {
