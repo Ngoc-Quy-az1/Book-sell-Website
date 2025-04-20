@@ -1,6 +1,8 @@
 import React from "react";
+import { useState, useEffect,useRef } from "react";;
 import Logo from "../../assets/website/logo.png";
 import { FaCartShopping } from "react-icons/fa6";
+import {Bell, BellDot} from "lucide-react";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
 
@@ -31,10 +33,56 @@ const DropdownLinks = [
     link: "/#",
   },
 ];
+const notiList = [
+  {
+    id:"1",
+    name: "Nguyen Quang",
+    content: "Plese read this notification",
+  },
+  {
+    id:"2",
+    name: "Nguyen Quang",
+    content: "Plese read this notification",
+  },
+  {
+    id:"3",
+    name: "Nguyen Quang",
+    content: "Plese read this notification",
+  },
+  {
+    id:"4",
+    name: "Nguyen Quang",
+    content: "Plese read this notification",
+  },
+  {
+    id:"5",
+    name: "Nguyen Quang",
+    content: "Plese read this notification",
+  },
+  {
+    id:"6",
+    name: "Nguyen Quang",
+    content: "Plese read this notification",
+  },
+];
 
 
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
-
+  const [haveNoti, setHaveNoti] = useState(true);
+  const [showNoti, setShowNoti] = useState(true);
+  const dropdownRef = useRef(null);
+  //const handleShowNoti = () => setShowNoti(!showNoti);
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+  //       setShowNoti(false);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
   return (
     <>
       <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200">
@@ -95,7 +143,27 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                 Order
                 <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
               </button>
-
+              <div className="flex justify-end relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowNoti(!showNoti)}
+              >
+                {haveNoti?<BellDot color="#3e9392" size={28} />:<Bell color="#3e9392" size={28} />}
+              </button>
+              {showNoti && (
+                <div className="absolute right-0 mt-10 w-96 bg-white border border-gray-200 rounded shadow-lg z-10 max-h-80 overflow-y-auto">
+                  {/* Dropdown items */}
+                  {notiList.map((noti) => (
+                    <div
+                      key={noti.id}
+                      className="flex flex-col px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <p>{noti.name}</p>
+                      <div>{noti.content}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              </div>
               <button
                 onClick={() => handleLoginPopup() }
                 className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
