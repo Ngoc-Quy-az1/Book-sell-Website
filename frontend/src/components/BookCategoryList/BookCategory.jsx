@@ -1,6 +1,6 @@
+import Navbar from "../Navbar/Navbar";
 import { useState,useEffect } from "react";
 import axios from 'axios';
-import Navbar from "../Navbar/Navbar";
 
 const BookCategoryList = () => {
   const [selectedCountries, setSelectedCountries] = useState([]);
@@ -65,8 +65,8 @@ const BookCategoryList = () => {
             <div key={book.title} className="border p-3 rounded-lg shadow-sm">
               <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
               <h3 className="font-bold text-sm mb-1">{book.title}</h3>
-              <div className="text-green-600 font-semibold">{book.price_discounted.toLocaleString()}000đ</div>
-              <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}000đ</div>
+              <div className="text-green-600 font-semibold">{book.price_discounted.toLocaleString()}đ</div>
+              <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}đ</div>
             </div>
           ))}
         </div>

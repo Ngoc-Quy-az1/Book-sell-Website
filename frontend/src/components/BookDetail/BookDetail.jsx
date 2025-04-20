@@ -132,7 +132,41 @@ const BookDetail = () => {
               <Pen size={16} className="mr-2" /> Viết đánh giá
             </button>
           </div>
+          
+
         </div>
+
+        {/* User Comments */}
+        <div className="max-w-5xl w-full mt-12">
+          <h2 className="text-xl font-semibold text-green-700 mb-4">Đánh giá từ người dùng</h2>
+          <div className="space-y-6">
+            <div className="border p-4 rounded-lg shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold">nguoi dung</span>
+                <span className="text-sm text-gray-500">2025-01-12 23:54</span>
+              </div>
+              {/* <div className="flex items-center text-yellow-500 mb-2">
+                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+              </div> */}
+              <p className="text-gray-700">
+                Gói hơi sợ xíu, truyện nhìn mới, giấy cứng trắng, ít bụi, bìa cứng đều, thank nhiều nha 🐥
+              </p>
+            </div>
+            <div className="border p-4 rounded-lg shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold">barrymarkham</span>
+                <span className="text-sm text-gray-500">2025-02-10 14:07</span>
+              </div>
+              {/* <div className="flex items-center text-yellow-500 mb-2">
+                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+              </div> */}
+              <p className="text-gray-700">
+                Mua combo chủ yếu để đọc chứ không sưu tầm pk + mua đợt sale nên mua được em nó với giá khá hợp lý. Đóng gói hàng rất kĩ, một lớp chống sốc lớn cộng thêm lớp xốp bong bóng nên hàng đến tay không bị dập.
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

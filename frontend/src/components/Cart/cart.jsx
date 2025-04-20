@@ -20,7 +20,7 @@ export default function Cart() {
     image: Book3,
   }];
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white pl-96">
       <Navbar/>
       <h1 className="text-3xl font-bold text-green-600 mb-6 pl-8">Giỏ hàng của bạn</h1>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
@@ -61,28 +61,12 @@ export default function Cart() {
           <div className="mt-6 text-right font-bold text-green-600 text-lg">
             Tổng tiền: {(602650).toLocaleString('vi-VN')}₫
           </div>
-          <button className="mt-4 ml-[830px] w-96 justify-self-end bg-green-600 text-white py-2 rounded hover:bg-green-700">
+          <button className="mt-4 ml-[650px] w-96 justify-self-end bg-green-600 text-white py-2 rounded hover:bg-green-700">
             Thanh toán
           </button>
         </div>
-
-        <div className="bg-gray-100 p-4 rounded">
-          <h2 className="text-lg font-semibold mb-2">Thời gian giao hàng</h2>
-          <div className="mb-2">
-            <input type="date" className="border p-2 w-full" />
-          </div>
-          <div className="mb-2">
-            <select className="border p-2 w-full">
-              <option>Chọn thời gian</option>
-              <option>8h00 - 12h00</option>
-              <option>14h00 - 18h00</option>
-              <option>19h00 - 21h00</option>
-            </select>
-          </div>
-
-        </div>
-
       </div>
+      
       <Footer/>
     </div>
   );

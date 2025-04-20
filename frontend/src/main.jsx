@@ -24,7 +24,7 @@ import BookDetail from "./components/BookDetail/BookDetail.jsx";
 
 const router = createBrowserRouter([{
   path: '/',
-  element: <BookDetail/>,
+  element: <App/>,
   children: [
     {path:'book-category-list', element: <BookCategoryList/>},
     {path:'cart', element: <Cart/>},
@@ -36,7 +36,7 @@ const router = createBrowserRouter([{
     {
       index: true, element: <Dashboard/>
     },
-    {path:'manageUsers', element:<ManageUsers />},
+    // {path:'manageUsers', element:<ManageUsers />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},
     {path:'pie', element:<Pie />},

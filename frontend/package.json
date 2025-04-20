@@ -25,6 +25,7 @@
     "@nivo/geo": "^0.88.0",
     "@nivo/line": "^0.88.0",
     "@nivo/pie": "^0.88.0",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "10_project_biryani-shop": "file:",
     "aos": "^2.3.4",
     "axios": "^1.8.4",
