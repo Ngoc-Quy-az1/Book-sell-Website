@@ -1,34 +1,23 @@
 import React from "react";
-import Img1 from "../../assets/books/book2.jpg";
-import Img2 from "../../assets/books/book1.jpg";
-import Img3 from "../../assets/books/book3.jpg";
 import { FaStar } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import axios from 'axios';
 
-const ServicesData = [
-  {
-    id: 1,
-    img: Img1,
-    title: "His Life",
-    description:
-      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    id: 2,
-    img: Img2,
-    title: "Who's there",
-    description:
-      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    id: 3,
-    img: Img3,
-    title: "Lost Boy",
-    description:
-      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-];
 
 const Services = ({ handleOrderPopup }) => {
+  const [booklist, setBooklist] = useState([]);
+  useEffect( () => {
+      getBookLink();
+    }, []);
+  const getBookLink = async ()=>{
+    await axios.get('http://localhost:8090/api/books/GetAllPaginated?page=3&size=3')
+    .then((response) => {
+        setBooklist(response.data.content);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
   return (
     <>
       <span id="services"></span>
@@ -40,19 +29,18 @@ const Services = ({ handleOrderPopup }) => {
             </p>
             <h1 className="text-3xl font-bold">Best Books</h1>
             <p className="text-xs text-gray-400">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-              Perspiciatis delectus architecto error nesciunt,
+              Our best book with rating from all customer!
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 md:gap-5 place-items-center">
-            {ServicesData.map((service) => (
+            {booklist.map((book) => (
               <div
                 data-aos="zoom-in"
                 className="rounded-2xl bg-white dark:bg-gray-800 hover:bg-primary dark:hover:bg-primary hover:text-white relative shadow-xl duration-high group max-w-[300px]"
               >
                 <div className="h-[100px]">
                   <img
-                    src={service.img}
+                    src={book.image}
                     alt=""
                     className="max-w-[100px] block mx-auto transform -translate-y-14
                   group-hover:scale-105  duration-300 shadow-md"
@@ -64,10 +52,11 @@ const Services = ({ handleOrderPopup }) => {
                     <FaStar className="text-yellow-500" />
                     <FaStar className="text-yellow-500" />
                     <FaStar className="text-yellow-500" />
+                    <FaStar className="text-yellow-500" />
                   </div>
-                  <h1 className="text-xl font-bold">{service.title}</h1>
+                  <h1 className="text-xl font-bold">{book.title}</h1>
                   <p className="text-gray-500 group-hover:text-white duration-high text-sm line-clamp-2">
-                    {service.description}
+                    {book.description}
                   </p>
                   <button
                     className="bg-primary hover:scale-105 duration-300 text-white py-1 px-4 rounded-full mt-4 group-hover:bg-white group-hover:text-primary"

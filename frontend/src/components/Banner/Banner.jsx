@@ -35,9 +35,7 @@ const Banner = () => {
                   Library at your fingertips
                 </h1>
                 <p className="text-sm text-gray-500 tracking-wide leading-5">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                  Eaque reiciendis inventore iste ratione ex alias quis magni at
-                  optio
+                  Great web site for all your need about book.
                   <br />
                 </p>
                 <div className="flex flex-col gap-4">
