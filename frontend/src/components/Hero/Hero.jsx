@@ -35,7 +35,6 @@ const Hero = ({ handleOrderPopup }) => {
   };
 
   return (
-    <>
       <div
         className="min-h-[550px] sm:min-h-[650px] bg-gray-100 flex justify-center items-center dark:bg-gray-950 dark:text-white duration-200"
         style={bgImage}
@@ -54,7 +53,7 @@ const Hero = ({ handleOrderPopup }) => {
                 className="text-5xl sm:text-6xl lg:text-7xl font-bold"
               >
                 {title}
-                <p class="bg-clip-text text-transparent bg-gradient-to-b from-primary text-right text-sm to-secondary">
+                <p className="bg-clip-text text-transparent bg-gradient-to-b from-primary text-right text-sm to-secondary">
                   by Anonymous
                 </p>{" "}
               </h1>
@@ -109,7 +108,6 @@ const Hero = ({ handleOrderPopup }) => {
           </div>
         </div>
       </div>
-    </>
   );
 };
 

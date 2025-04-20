@@ -6,13 +6,15 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import Notice from "../notice";
+import Notice from "../../../components/Notice";
 import {
   GridRowModes,
   DataGrid,
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
+import Cookies from "js.cookie"
+const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
 // Function chính
 const ManageUsers = () => {
@@ -35,7 +37,8 @@ const ManageUsers = () => {
   },[])
   const getUser = () =>{
     fetch("http://localhost:8090/api/admin/users",{
-      method:"GET"
+      method:"GET",
+      headers: config
     })
     .then(Response => {
       return Response.json();
@@ -48,17 +51,20 @@ const ManageUsers = () => {
   //Xóa người dùng
   const handleDeleteUsers = (selectedRows) => {
     selectedRows.forEach(UserId => {
-    fetch("http://localhost:8090/api/admin/deleteUsers/" + UserId,{method:"DELETE"
+    fetch("http://localhost:8090/api/admin/deleteUsers/" + UserId,{
+      method:"DELETE",
+      headers: config
     })});
   }
 
-  //Update nguoiwf dung
+  //Update người dùng
   const updateUsers = (user) => {
     let res = "";
     
     fetch("http://localhost:8090/api/admin/updateUsers/" + user.id,{method:"PUT",
       headers: {      
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${Cookies.get('authToken')}`
       },
       body:JSON.stringify(user)
     }).then((response) => {
@@ -66,7 +72,6 @@ const ManageUsers = () => {
     }).then((data) => {
       if (data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
       else {res="Account Successfully Updated"; setError(false)}
-      console.log(res);
       setMessage(res); 
       showNotice();
     });
@@ -251,6 +256,7 @@ const ManageUsers = () => {
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",
+            zIndex: -1
           },
           "& .MuiDataGrid-cell": {
             borderBottom: "none",

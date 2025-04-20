@@ -15,10 +15,10 @@ const Admin = () => {
         <CssBaseline />
         <div className="app">
         <Sidebar isSidebar={isSidebar}/>
-        <main className="content">
-          <Topbar setIsSidebar={setIsSidebar} />
-          <Outlet/>
-        </main>
+          <main className="content" style={{position:'relative',zIndex:'0'}}>
+              <Topbar setIsSidebar={setIsSidebar} />
+              <Outlet/>
+          </main>
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>

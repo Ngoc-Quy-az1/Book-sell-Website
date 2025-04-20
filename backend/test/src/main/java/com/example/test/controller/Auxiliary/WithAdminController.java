@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/chat/admin")
@@ -150,7 +151,30 @@ public class WithAdminController {
         User admin = userRepository.findAll().stream().filter(User::isAdmin).findFirst()
             .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        List<SupportMessage> history = chatService.getPrivateMessages(user, admin);
-        return ResponseEntity.ok(history);
+        // Lấy tin nhắn từ người dùng tới admin
+        List<SupportMessage> userToAdminMessages = chatService.getPrivateMessages(user, admin);
+        
+        // Lấy tin nhắn từ admin tới người dùng
+        List<SupportMessage> adminToUserMessages = chatService.getPrivateMessages(admin, user);
+        
+        // Kết hợp và sắp xếp theo thời gian
+        List<SupportMessage> allMessages = new ArrayList<>();
+        allMessages.addAll(userToAdminMessages);
+        allMessages.addAll(adminToUserMessages);
+        
+        // Sắp xếp theo thời gian tăng dần (cũ đến mới)
+        allMessages.sort((m1, m2) -> m1.getCreatedAt().compareTo(m2.getCreatedAt()));
+        
+        return ResponseEntity.ok(allMessages);
+    }
+
+    // Lấy số lượng tin nhắn được nhận tới của 1 người dùng 
+    // http://localhost:8090/api/chat/admin/count_messages/{userId}
+    
+    @GetMapping("/count_messages/{userId}")
+    public ResponseEntity<Integer> getCountOfMessages(@PathVariable int userId) {
+        int count = chatService.getCountOfMessages(userId);
+        return ResponseEntity.ok(count);
     }
 }
+    

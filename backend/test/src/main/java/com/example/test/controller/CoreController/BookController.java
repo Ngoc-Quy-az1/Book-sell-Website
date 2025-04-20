@@ -1,6 +1,7 @@
 package com.example.test.controller.CoreController;
 
 import com.example.test.DTO.book.request.BookGetAllRequest;
+import com.example.test.DTO.book.request.UpdateBookDTO;
 import com.example.test.DTO.book.response.BookResponse;
 import com.example.test.Entity.Book;
 import com.example.test.Service.BookService;
@@ -71,12 +72,21 @@ public class BookController {
      * - id: ID của sách cần cập nhật
      * 
      * Request Body: (Chỉ cần gửi các trường cần cập nhật)
-     * {
-     *   "title": "Updated Book Title",
-     *   "price_original": 199000,
-     *   "price_discounted": 149000,
-     *   ... // Các trường khác tương tự như khi thêm sách
-     * }
+        * {
+        *   "title": "Updated Book Title",   // Tên sách mới
+        *   "price_original": 199000,        // Giá gốc mới
+        *   "price_discounted": 149000,      // Giá đã giảm mới
+        *   "description": "Updated Description", // Mô tả sách mới
+        *   "author": "Updated Author",      // Tác giả mới
+        *   "translator": "Updated Translator", // Dịch giả mới (nếu có)
+        *   "publisher": "Updated Publisher", // Nhà xuất bản mới
+        *   "category": "Updated Category", // Thể loại mới
+        *   "stock": 50,                    // Số lượng tồn kho mới
+        *   "dimensions": "12x18x25 cm",     // Kích thước mới
+        *   "pages": 350,                    // Số trang mới
+        *   "created_at": "2022-02-01",      // Ngày tạo mới
+        *   "image": "https://example.com/updated-book-image.jpg" // URL hình ảnh mới
+        * }
      * 
      * Success Response (200 OK):
      * {
@@ -84,11 +94,12 @@ public class BookController {
      *   ... // Thông tin sách sau khi cập nhật
      * }
      */
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Book bookDetails) {
-        Book updatedBook = bookService.updateBook(id, bookDetails);
-        return ResponseEntity.ok(updatedBook);
-    }
+@PutMapping("/update/{id}")
+public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody UpdateBookDTO bookDTO) {
+    Book updatedBook = bookService.updateBook(id, bookDTO);
+    return ResponseEntity.ok(updatedBook);
+}
+
 
     /**
      * Xóa sách khỏi hệ thống
@@ -226,7 +237,7 @@ public class BookController {
     }
 
     /**
-     * Xóa sách khỏi danh sách yêu thích
+     * Xóa sách khỏi danh sách yêu thích    
      * Method: DELETE
      * URL: http://localhost:8090/api/books/wishlist/{userId}/{bookId}
      * 
@@ -291,5 +302,13 @@ public class BookController {
         }).collect(Collectors.toList());
         Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
         return ResponseEntity.ok(responsePage);
+    }
+
+    //Api lấy ra các thể loại sách đang có 
+    // http://localhost:8090/api/books/AllTypeCategories
+    @GetMapping("/AllTypeCategories")
+    public ResponseEntity<List<String>> getTypeCategories() {
+        List<String> categories = bookService.getAllCategories();
+        return ResponseEntity.ok(categories);
     }
 }

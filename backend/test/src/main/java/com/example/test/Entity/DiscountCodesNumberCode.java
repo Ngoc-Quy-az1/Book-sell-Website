@@ -1,42 +1,38 @@
 package com.example.test.Entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "discount_codesNumbeCode")
+@IdClass(DiscountCodesNumberCodeId.class)
 public class DiscountCodesNumberCode {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "code_id")
+    private int codeId;
 
-    @ManyToOne
-    @JoinColumn(name = "code_id", nullable = false)
-    private DiscountCode discountCode;
-
-    @Column(name = "number_code", nullable = false)
+    @Id
+    @Column(name = "number_code")
     private int numberCode;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @Id
+    @Column(name = "user_id")
+    private int userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "code_id", insertable = false, updatable = false)
+    private DiscountCode discountCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
-    public int getId() {
-        return id;
+    public int getCodeId() {
+        return codeId;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public DiscountCode getDiscountCode() {
-        return discountCode;
-    }
-
-    public void setDiscountCode(DiscountCode discountCode) {
-        this.discountCode = discountCode;
+    public void setCodeId(int codeId) {
+        this.codeId = codeId;
     }
 
     public int getNumberCode() {
@@ -45,6 +41,22 @@ public class DiscountCodesNumberCode {
 
     public void setNumberCode(int numberCode) {
         this.numberCode = numberCode;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public DiscountCode getDiscountCode() {
+        return discountCode;
+    }
+
+    public void setDiscountCode(DiscountCode discountCode) {
+        this.discountCode = discountCode;
     }
 
     public User getUser() {

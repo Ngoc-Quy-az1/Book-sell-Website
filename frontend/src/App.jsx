@@ -9,12 +9,11 @@ import Footer from "./components/Footer/Footer.jsx";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
-
 import LoginPopup from "./components/LoginPopup/LoginPopup";
-
-import Books from "./components/BooksSlider/Books.jsx";
-import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
-import Cart from "./components/Cart/cart.jsx";
+import { Outlet } from "react-router-dom";
+import ChatButton from "./components/ChatButton/ChatButton.jsx";
+import UserDetail from "./components/UserDetail/UserDetail";
+import Cookies from "js.cookie"
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -22,7 +21,6 @@ const App = () => {
   const handleOrderPopup = () => {
     setOrderPopup(!orderPopup);
   };
-
   const [loginPopup, setLoginPopup] = React.useState(false);
   const handleLoginPopup = () => {
     setLoginPopup(!loginPopup);
@@ -44,15 +42,22 @@ const App = () => {
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       {/* <BookCategoryList/> */}
       {/* <Cart/> */}
-      <Hero handleOrderPopup={handleOrderPopup} />
-      <Services handleOrderPopup={handleOrderPopup} />
-      <Banner />
-
-      <AppStore />
-      <Books />
-      <Testimonial />
+      { (Cookies.get('authToken'))?
+      <>
+        <ChatButton />
+        <Outlet/>
+      </>
+      :
+      <>
+        <Hero handleOrderPopup={handleOrderPopup} />
+        <Services handleOrderPopup={handleOrderPopup} />
+        <Banner />
+        <AppStore />
+        <Testimonial />
+      </>  
+      }
       <Footer />
-      <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
+       <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
 
       <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
 

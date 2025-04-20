@@ -1,5 +1,6 @@
 package com.example.test.Service;
 
+import com.example.test.DTO.book.request.UpdateBookDTO;
 import com.example.test.Entity.Book;
 import com.example.test.Repository.BookRepo.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,29 +23,31 @@ public class BookService {
     }
 
     // Cập nhật sách
-    public Book updateBook(int id, Book bookDetails) {
-        Optional<Book> book = bookRepository.findById(id);
+public Book updateBook(int id, UpdateBookDTO bookDTO) {
+    Optional<Book> optionalBook = bookRepository.findById(id);
+    if (optionalBook.isPresent()) {
+        Book book = optionalBook.get();
 
-        if (book.isPresent()) {
-            Book existingBook = book.get();
-            existingBook.setTitle(bookDetails.getTitle());
-            existingBook.setImage(bookDetails.getImage());
-            existingBook.setPrice_discounted(bookDetails.getPrice_discounted());
-            existingBook.setPrice_original(bookDetails.getPrice_original());
-            existingBook.setDescription(bookDetails.getDescription());
-            existingBook.setAuthor(bookDetails.getAuthor());
-            existingBook.setTranslator(bookDetails.getTranslator());
-            existingBook.setPublisher(bookDetails.getPublisher());
-            existingBook.setDimensions(bookDetails.getDimensions());
-            existingBook.setPages(bookDetails.getPages());
-            existingBook.setCreated_at(bookDetails.getCreated_at());
-            existingBook.setStock(bookDetails.getStock());
-            existingBook.setCategory(bookDetails.getCategory());
-            return bookRepository.save(existingBook);
-        } else {
-            throw new RuntimeException("Book not found with id: " + id);
-        }
+        if (bookDTO.getTitle() != null) book.setTitle(bookDTO.getTitle());
+        if (bookDTO.getPrice_discounted() != null) book.setPrice_discounted(bookDTO.getPrice_discounted());
+        if (bookDTO.getPrice_original() != null) book.setPrice_original(bookDTO.getPrice_original());
+        if (bookDTO.getPages() != null) book.setPages(bookDTO.getPages());
+        if (bookDTO.getStock() != null) book.setStock(bookDTO.getStock());
+        if (bookDTO.getImage() != null) book.setImage(bookDTO.getImage());
+        if (bookDTO.getDescription() != null) book.setDescription(bookDTO.getDescription());
+        if (bookDTO.getAuthor() != null) book.setAuthor(bookDTO.getAuthor());
+        if (bookDTO.getTranslator() != null) book.setTranslator(bookDTO.getTranslator());
+        if (bookDTO.getPublisher() != null) book.setPublisher(bookDTO.getPublisher());
+        if (bookDTO.getDimensions() != null) book.setDimensions(bookDTO.getDimensions());
+        if (bookDTO.getCategory() != null) book.setCategory(bookDTO.getCategory());
+        if (bookDTO.getCreated_at() != null) book.setCreated_at(bookDTO.getCreated_at());
+        
+
+        return bookRepository.save(book);
+    } else {
+        throw new RuntimeException("Book not found with id: " + id);
     }
+}
 
     // Xóa sách
     public void deleteBook(int id) {
@@ -74,5 +77,10 @@ public class BookService {
     //Lấy tất cả sách, phân trang mỗi trang 20 object
     public Page<Book> getAllBooksPaginated(int page, int size) {
         return bookRepository.findAll(PageRequest.of(page, size));
+    }
+
+    //Lấy thê thể loại sách 
+    public List<String> getAllCategories() {
+        return bookRepository.findDistinctCategories();
     }
 }

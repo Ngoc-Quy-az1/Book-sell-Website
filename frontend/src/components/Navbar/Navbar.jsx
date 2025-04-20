@@ -5,17 +5,19 @@ import { FaCartShopping } from "react-icons/fa6";
 import {Bell, BellDot} from "lucide-react";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
+import Cookies from "js.cookie"
+import { useNavigate } from "react-router-dom";
 
 const Menu = [
   {
     id: 1,
     name: "Home",
-    link: "/#",
+    link: "/",
   },
   {
     id: 2,
     name: "Best Seller",
-    link: "/#services",
+    link: "/services",
   },
 ];
 
@@ -68,6 +70,40 @@ const notiList = [
 
 
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
+  const handleSignOut = () =>{
+    fetch("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),{
+      method:"POST",      
+      headers: {      
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('authToken')}`
+        },
+      body: JSON.stringify({"token": `${Cookies.get('authToken')}`})
+    }) .then((response) => {
+      return response.json();
+    }).then((data) => {
+      console.log(data);
+      Cookies.remove('authToken');
+      location.reload();
+    });
+  }
+  const [userName, setUserName] = useState();
+  const UserIcon = () => {
+    fetch("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
+  {
+    headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  })
+    .then((response) => {
+      return response.json();
+    }).then((data) => {
+      setUserName(data.name[0]);
+    });
+    return <button
+    onClick={() => handleSignOut() }
+    className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3 w-30"
+  >
+    {userName}
+    </button>
+  }
   const [haveNoti, setHaveNoti] = useState(true);
   const [showNoti, setShowNoti] = useState(false);
   const dropdownRef = useRef(null);
@@ -89,7 +125,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
         <div className="container py-3 sm:py-0">
           <div className="flex justify-between items-center">
             <div>
-              <a href="#" className="font-bold text-2xl sm:text-3xl flex gap-2">
+              <a href="/" className="font-bold text-2xl sm:text-3xl flex gap-2">
                 <img src={Logo} alt="Logo" className="w-10" />
                 Books
               </a>
@@ -143,6 +179,16 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                 Order
                 <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
               </button>
+              {(Cookies.get('authToken')) ?
+                <UserIcon/>
+                :
+                <button
+                  onClick={() => handleLoginPopup() }
+                  className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
+                >
+                  Sign In
+                </button>
+              }
               <div className="flex justify-end relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowNoti(!showNoti)}

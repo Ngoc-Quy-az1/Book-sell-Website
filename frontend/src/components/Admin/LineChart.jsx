@@ -1,13 +1,50 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
-import { mockLineData as data } from "../../data/mockData";
+import { useEffect, useState } from "react";
+import { mockLineData } from "./mockData";
+import Cookies from "js.cookie"
 
 const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
-  return (
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    getData()
+  }, [])
+  const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
+  const getData = () => {
+    return fetch("http://localhost:8090/api/admin/revenue/by-category",{
+      headers:config
+    }) 
+    .then((response) => {
+      return response.json();
+    }).then((data) => {    
+      setData([{"id": "jaan",
+        "color": tokens("dark").greenAccent[500],
+        "data": data.map((data) => 
+        {return {x:data.category, y:data.totalRevenue}})
+      }]);
+    });
+  }
+  const [totalRevenue, getTotalRevenue] = useState();
+  useEffect(() => {
+    handleTotalRevenue();
+  },[])
+  const handleTotalRevenue = () =>{
+    
+    fetch("http://localhost:8090/api/admin/revenue/total",{
+      method:"GET",
+      headers:config
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getTotalRevenue(Response);
+    })
+  }  
+  return (  
     <ResponsiveLine
       data={data}
       theme={{

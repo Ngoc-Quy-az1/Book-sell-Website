@@ -3,6 +3,45 @@ import Book1 from "../../assets/books/book1.jpg";
 import Book2 from "../../assets/books/book2.jpg";
 import Book3 from "../../assets/books/book3.jpg";
 import { FaStar } from "react-icons/fa6";
+import { Link } from "react-router-dom";
+
+const booksData = [
+  {
+    id: 1,
+    img: Book1,
+    title: "Who's there",
+    rating: 5.0,
+    author: "Someone",
+  },
+  {
+    id: 2,
+    img: Book2,
+    title: "His Life",
+    rating: 4.5,
+    author: "John",
+  },
+  {
+    id: 3,
+    img: Book3,
+    title: "Lost boys",
+    rating: 4.7,
+    author: "Lost Girl",
+  },
+  {
+    id: 4,
+    img: Book2,
+    title: "His Life",
+    rating: 4.4,
+    author: "Someone",
+  },
+  {
+    id: 5,
+    img: Book1,
+    title: "Who's There",
+    rating: 4.5,
+    author: "Someone",
+  },
+];
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
@@ -44,6 +83,10 @@ import axios from 'axios';
 //   },
 // ];
 
+const change = () => {
+  console.log("R")
+  return (<Link to={"/books"}/>)
+}
 const Books = () => {
   const [booklist, setBooklist] = useState([]);
     useEffect( () => {
@@ -97,9 +140,11 @@ const Books = () => {
               ))}
             </div>
             <div className="flex justify-center">
-              <button className="text-center mt-10 cursor-pointer  bg-primary text-white py-1 px-5 rounded-md">
+              <Link to="/books">
+              <button className="text-center mt-10 cursor-pointer  bg-primary text-white py-1 px-5 rounded-md" onClick={change}>
                 View All Books
               </button>
+              </Link>
             </div>
           </div>
         </div>

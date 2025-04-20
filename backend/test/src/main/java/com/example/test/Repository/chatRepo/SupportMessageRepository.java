@@ -11,5 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
         List<SupportMessage> findByChatGroup(ChatGroup chatGroup);
         List<SupportMessage> findBySender(User sender);
         List<SupportMessage> findByReceiver(User receiver);
+        int countByReceiver(User receiver);
         
     }
