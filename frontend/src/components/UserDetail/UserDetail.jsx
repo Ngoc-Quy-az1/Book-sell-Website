@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js.cookie"
-const TEMP_TOKEN =
-  "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoibWFobmR1Z24yQGdtYWlsLmNvbSIsImlhdCI6MTc0NDU2MDU4NSwiZXhwIjoxNzQ0NjQ2OTg1fQ.K5_YceY43fmYPuCwjAyjhgKcC5qH_hf38CFR9pfWVvA";
 
 const getColorFromName = (name) => {
   const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
@@ -25,7 +23,7 @@ const UserDetail = () => {
   const [isEditing, setIsEditing] = useState(false); // Thêm state isEditing
 
   useEffect(() => {
-    const userId = 2;
+    const userId = Cookies.get('userId');
     axios
       .get(`http://localhost:8090/api/users/user-detail/${userId}`, {
         headers: {
@@ -48,7 +46,7 @@ const UserDetail = () => {
   const handleEditToggle = () => setIsEditing(!isEditing);
 
   const handleSave = () => {
-    const userId = 2;
+    const userId = Cookies.get('userId');
     const updatedData = {
       full_name: user.full_name,
       address: user.address,

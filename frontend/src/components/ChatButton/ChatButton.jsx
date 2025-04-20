@@ -3,16 +3,13 @@ import { FaExpand, FaCompress, FaComments } from "react-icons/fa";
 import axios from "axios";
 import Cookies from "js.cookie"
 
-// ✅ Biến tạm lưu token để dùng luôn
-const TEMP_TOKEN =
-  "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwic3ViIjoibWFobmR1Z24yQGdtYWlsLmNvbSIsImlhdCI6MTc0NDU2MDU4NSwiZXhwIjoxNzQ0NjQ2OTg1fQ.K5_YceY43fmYPuCwjAyjhgKcC5qH_hf38CFR9pfWVvA";
 
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [chatMode, setChatMode] = useState("admin"); // admin, group1, group2
   const [messages, setMessages] = useState([]);
-  const [userId, setUserId] = useState(2); // 👈 userId để gửi vào body API
+  const [userId, setUserId] = useState(Cookies.get('userId')); // 👈 userId để gửi vào body API
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
   const userToken = localStorage.getItem("token")
   const toggleChat = () => setIsOpen(!isOpen);
