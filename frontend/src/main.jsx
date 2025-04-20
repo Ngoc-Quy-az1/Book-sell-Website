@@ -24,7 +24,7 @@ import BookDetail from "./components/BookDetail/BookDetail.jsx";
 
 const router = createBrowserRouter([{
   path: '/',
-  element: <App/>,
+  element: <BookDetail/>,
   children: [
     {path:'book-category-list', element: <BookCategoryList/>},
     {path:'cart', element: <Cart/>},

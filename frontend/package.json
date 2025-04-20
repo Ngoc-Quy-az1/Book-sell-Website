@@ -17,6 +17,7 @@
     "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
+    "@headlessui/react": "^2.2.2",
     "@mui/icons-material": "^7.0.0",
     "@mui/material": "^7.0.0",
     "@mui/x-data-grid": "^7.28.1",

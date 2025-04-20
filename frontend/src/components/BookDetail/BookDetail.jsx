@@ -1,37 +1,110 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Minus, Plus, Pen } from "lucide-react";
+import { Dialog } from "@headlessui/react";
+import { Star } from "lucide-react";
 import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
 import Navbar from "../Navbar/Navbar";
+import axios from 'axios';
+
+
 
 const BookDetail = () => {
+  const [listComment, setListComment] = useState([
+    {
+      id:"1",
+      rating:2,
+      name: "Nguyen Quang",
+      content: "very good asefasefase asefasefasf",
+    },
+    {
+      id:"2",
+      rating:3,
+      name: "Nguyen Quang",
+      content: "comment",
+    },
+    {
+      id:"3",
+      rating:5,
+      name: "Nguyen Quang",
+      content: "hay",
+    },
+    
+  ]);
+  const [bookDetail, setBookDetail] = useState()
+  const [isOpen, setIsOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState("");
+  useEffect( () => {
+    getBookDetail();
+  }, []);
+  const getBookDetail = ()=>{
+    axios.get('http://localhost:8090/api/books/4')
+    .then((response) => {
+      setBookDetail(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
+  const handleSubmit = () => {
+    console.log("Rating:", rating);
+    console.log("Comment:", comment);
+    var newRatingComment = {
+      id:"4",
+      rating: rating,
+      name: "Nguyen quang",
+      content: comment,
+    }
+    setListComment([...listComment, newRatingComment])
+    setIsOpen(false);
+    setRating(0);
+    setComment("");
+  };
+  if (bookDetail == undefined) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="min-h-screen bg-white flex flex-col items-center">
       <Navbar/>
       <div className="max-w-5xl w-full flex flex-col md:flex-row gap-8">
         {/* Book Cover */}
         <div className="flex-shrink-0">
-          <img
-            src={Book2}
-            alt="Bach"
-            className="w-80 rounded shadow-lg"
-          />
+          {
+            <img
+              src={bookDetail.image}
+              alt="Bach"
+              className="w-80 rounded shadow-lg"
+            />
+          }
         </div>
 
         {/* Book Info */}
         <div className="flex-1 space-y-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            ĐÔI MẮT CỦA MONA
-          </h1>
+          { 
+            <h1 className="text-2xl font-bold text-gray-900">
+              {bookDetail.title}
+            </h1>
+          }
           <p className="text-gray-700">
-            Tác giả: <span className="font-semibold">THOMAS SCHLESSER</span>
+            Tác giả: { <span className="font-semibold">{bookDetail.author}</span>}
           </p>
 
-          <div className="text-2xl font-bold text-green-600">
-            287.300₫ <span className="text-base line-through text-gray-500 ml-2">338.000₫</span>
-            <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
-              -15%
-            </span>
-          </div>
+
+            <div className="text-2xl font-bold text-green-600">
+              {(parseFloat(bookDetail.price_discounted)).toLocaleString(undefined,
+                {'minimumFractionDigits':3}
+              )}₫ 
+              <span className="text-base line-through text-gray-500 ml-2">
+                {(parseFloat(bookDetail.price_original)).toLocaleString(undefined,
+              {'minimumFractionDigits':3}  
+              )}₫</span>
+              <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
+                {Math.round( (parseFloat(bookDetail.price_original) - parseFloat(bookDetail.price_discounted))*100
+                  /parseFloat(bookDetail.price_original) )} %
+              </span>
+            </div>
+          
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center border rounded px-2 py-1">
@@ -55,45 +128,42 @@ const BookDetail = () => {
       <div className="max-w-5xl w-full mt-12 flex flex-col md:flex-row gap-8">
         {/* Description */}
         <div className="flex-1">
-          <h2 className="text-xl font-semibold text-green-700 mb-4">Giới thiệu sách</h2>
-          <p className="mb-4">
-            <strong>Đôi mắt của Mona</strong> là tiểu thuyết đầu tay của Thomas Schlesser, và đã bán được bản quyền cho 25 quốc gia trên thế giới trước cả khi được xuất bản tại Pháp.
-          </p>
-          <p className="mb-4">
-            <strong>Năm mươi hai tuần:</strong> đó là khoảng thời gian còn lại để Mona khám phá toàn bộ vẻ đẹp của thế giới. Đó cũng là khoảng thời gian mà ông ngoại Mona, một người uyên bác và phóng khoáng, dành ra để giúp cô bé mở lòng với các tác phẩm nghệ thuật, trước khi cô bé có thể vĩnh viễn mất đi thị lực. Cùng nhau, hai ông cháu sẽ đi khắp các bảo tàng Louvre, Orsay và Beaubourg. Cùng nhau, hai ông cháu sẽ xúc động, băn khoăn, ngây ngất trước những bức tranh, những pho tượng, những tác phẩm sắp đặt...
-          </p>
-          <p>
-            Mượn ánh mắt của Botticelli, Vermeer, Goya, Courbet, Claudel, Kahlo, Basquiat hay van Gogh, Mona sẽ khám phá sức mạnh của nghệ thuật đồng thời học hỏi về nghi ngờ, u sầu, tranh đấu, yêu thương... một kho tàng cảm xúc phong phú của con người.
-          </p>
+          <h2 className="text-xl font-semibold text-green-700 mb-4">Description</h2>
+          {
+            <p className="mb-4">
+              {bookDetail.description}
+            </p>
+          }
+         
         </div>
 
         {/* Detailed Info */}
         <div className="w-full md:w-1/3">
-          <h2 className="text-xl font-semibold text-green-700 mb-4">Thông tin chi tiết</h2>
+          <h2 className="text-xl font-semibold text-green-700 mb-4">Detail</h2>
           <div className="border rounded-lg p-4 space-y-2 text-sm text-gray-700">
             <div className="flex justify-between">
-              <span>Tác giả</span>
-              <span className="font-semibold">THOMAS SCHLESSER</span>
+              <span>Author</span>
+              <span className="font-semibold">{bookDetail.author}</span>
             </div>
             <div className="flex justify-between">
-              <span>Dịch giả</span>
-              <span className="font-semibold">CHÂU ANH</span>
+              <span>Translator</span>
+              <span className="font-semibold">{bookDetail.translator}</span>
             </div>
             <div className="flex justify-between">
-              <span>Nhà xuất bản</span>
-              <span className="font-semibold">Phụ Nữ</span>
+              <span>Publisher</span>
+              <span className="font-semibold">{bookDetail.publisher}</span>
             </div>
             <div className="flex justify-between">
-              <span>Kích thước</span>
-              <span className="font-semibold">15.5x 24cm</span>
+              <span>Dimensions</span>
+              <span className="font-semibold">{bookDetail.dimensions}</span>
             </div>
             <div className="flex justify-between">
-              <span>Số trang</span>
-              <span className="font-semibold">484</span>
+              <span>Pages</span>
+              <span className="font-semibold">{bookDetail.pages}</span>
             </div>
             <div className="flex justify-between">
-              <span>Ngày phát hành</span>
-              <span className="font-semibold">2025</span>
+              <span>Publish year</span>
+              <span className="font-semibold">{bookDetail.created_at}</span>
             </div>
           </div>
         </div>
@@ -101,7 +171,7 @@ const BookDetail = () => {
 
       {/* Ratings Section */}
       <div className="max-w-5xl w-full mt-12 p-6 bg-gray-50 rounded-lg">
-        <h2 className="text-lg font-bold text-gray-800 mb-4">Đánh giá sản phẩm</h2>
+        <h2 className="text-lg font-bold text-gray-800 mb-4">User rating</h2>
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
             <div className="text-5xl font-bold">0<span className="text-2xl">/5</span></div>
@@ -112,7 +182,7 @@ const BookDetail = () => {
                 </svg>
               ))}
             </div>
-            <p className="text-sm text-gray-500 mt-1">(0 đánh giá)</p>
+            <p className="text-sm text-gray-500 mt-1">(0 rating)</p>
           </div>
 
           <div className="w-full md:w-2/3 space-y-2">
@@ -127,43 +197,85 @@ const BookDetail = () => {
             ))}
           </div>
 
+          {/* Add comment button  */}
           <div className="mt-6 md:mt-0">
-            <button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+            <button onClick={() => setIsOpen(true)} variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
               <Pen size={16} className="mr-2" /> Viết đánh giá
             </button>
           </div>
-          
+
+          {/* Comment dilog */}
+          <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
+            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+              <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
+                <Dialog.Title className="text-xl font-semibold mb-4">Your Feedback</Dialog.Title>
+
+                {/* Star Rating */}
+                <div className="flex space-x-2 mb-4">
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <Star
+                      key={num}
+                      onMouseEnter={() => setHoverRating(num)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      onClick={() => setRating(num)}
+                      className={`w-6 h-6 cursor-pointer transition-colors ${
+                        (hoverRating || rating) >= num ? "fill-yellow-400 stroke-yellow-400" : "stroke-gray-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Comment Textarea */}
+                <textarea
+                  rows={4}
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Write your comment..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+
+                {/* Buttons */}
+                <div className="mt-4 flex justify-end space-x-2">
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="px-4 py-2 text-gray-500 hover:underline"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </div>
+          </Dialog>
 
         </div>
 
         {/* User Comments */}
         <div className="max-w-5xl w-full mt-12">
-          <h2 className="text-xl font-semibold text-green-700 mb-4">Đánh giá từ người dùng</h2>
+          <h2 className="text-xl font-semibold text-green-700 mb-4">User feedback</h2>
           <div className="space-y-6">
-            <div className="border p-4 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold">nguoi dung</span>
-                <span className="text-sm text-gray-500">2025-01-12 23:54</span>
-              </div>
-              {/* <div className="flex items-center text-yellow-500 mb-2">
-                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
-              </div> */}
-              <p className="text-gray-700">
-                Gói hơi sợ xíu, truyện nhìn mới, giấy cứng trắng, ít bụi, bìa cứng đều, thank nhiều nha 🐥
-              </p>
-            </div>
-            <div className="border p-4 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold">barrymarkham</span>
-                <span className="text-sm text-gray-500">2025-02-10 14:07</span>
-              </div>
-              {/* <div className="flex items-center text-yellow-500 mb-2">
-                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
-              </div> */}
-              <p className="text-gray-700">
-                Mua combo chủ yếu để đọc chứ không sưu tầm pk + mua đợt sale nên mua được em nó với giá khá hợp lý. Đóng gói hàng rất kĩ, một lớp chống sốc lớn cộng thêm lớp xốp bong bóng nên hàng đến tay không bị dập.
-              </p>
-            </div>
+            {listComment.map((comment)=>
+               <div className="border p-4 rounded-lg shadow-sm">
+               <div className="flex items-center justify-between mb-2">
+                 <span className="font-semibold">{comment.name}</span>
+                 <span className="text-sm text-gray-500">2025-01-12 23:54</span>
+               </div>
+               <div className="flex items-center text-yellow-500 mb-2">
+                 {Array.from({length: comment.rating}).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+               </div>
+               <p className="text-gray-700">
+                 {comment.content}
+               </p>
+             </div>
+            )}
+            
+
           </div>
         </div>
 

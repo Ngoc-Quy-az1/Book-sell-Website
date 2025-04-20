@@ -69,7 +69,7 @@ const notiList = [
 
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   const [haveNoti, setHaveNoti] = useState(true);
-  const [showNoti, setShowNoti] = useState(true);
+  const [showNoti, setShowNoti] = useState(false);
   const dropdownRef = useRef(null);
   //const handleShowNoti = () => setShowNoti(!showNoti);
   // useEffect(() => {
