@@ -31,8 +31,9 @@ const BookDetail = () => {
     
   ]);
   const [bookDetail, setBookDetail] = useState()
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [rating, setRating] = useState(0);
+  const [buyQuantity, setBuyQuantity] = useState(1);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   useEffect( () => {
@@ -47,6 +48,10 @@ const BookDetail = () => {
       console.error('Error fetching data:', error);
     });
   }
+  const handleSetquantity=(value)=>{
+    if (value < 1) return;
+    setBuyQuantity(value);
+  }
   const handleSubmit = () => {
     console.log("Rating:", rating);
     console.log("Comment:", comment);
@@ -57,7 +62,7 @@ const BookDetail = () => {
       content: comment,
     }
     setListComment([...listComment, newRatingComment])
-    setIsOpen(false);
+    setIsOpenDialog(false);
     setRating(0);
     setComment("");
   };
@@ -87,7 +92,7 @@ const BookDetail = () => {
             </h1>
           }
           <p className="text-gray-700">
-            Tác giả: { <span className="font-semibold">{bookDetail.author}</span>}
+            Author: { <span className="font-semibold">{bookDetail.author}</span>}
           </p>
 
 
@@ -108,11 +113,11 @@ const BookDetail = () => {
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center border rounded px-2 py-1">
-              <button className="p-1">
+              <button className="p-1" onClick={()=>handleSetquantity(buyQuantity-1)}>
                 <Minus size={16} />
               </button>
-              <span className="mx-5">1</span>
-              <button className="p-1">
+              <span className="mx-5">{buyQuantity}</span>
+              <button className="p-1" onClick={()=>handleSetquantity(buyQuantity +1)}>
                 <Plus size={16} />
               </button>
             </div>
@@ -199,13 +204,13 @@ const BookDetail = () => {
 
           {/* Add comment button  */}
           <div className="mt-6 md:mt-0">
-            <button onClick={() => setIsOpen(true)} variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+            <button onClick={() => setIsOpenDialog(true)} variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
               <Pen size={16} className="mr-2" /> Viết đánh giá
             </button>
           </div>
 
           {/* Comment dilog */}
-          <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
+          <Dialog open={isOpenDialog} onClose={() => setIsOpenDialog(false)} className="relative z-50">
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
               <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
@@ -238,7 +243,7 @@ const BookDetail = () => {
                 {/* Buttons */}
                 <div className="mt-4 flex justify-end space-x-2">
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setIsOpenDialog(false)}
                     className="px-4 py-2 text-gray-500 hover:underline"
                   >
                     Cancel
