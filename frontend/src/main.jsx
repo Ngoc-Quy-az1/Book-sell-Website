@@ -11,15 +11,13 @@ import Form from "./scenes/admin/form";
 import Chat from "./scenes/admin/chat";
 import Cart from "./components/Cart/cart.jsx";
 import Calendar from "./scenes/admin/calendar/calendar";
-import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
+import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
 import AdminBookCategoryList from "./scenes/admin/BookCategoryList/BookCategory.jsx";
 import Books from "./components/BooksSlider/Books.jsx";
 
 // Import css files
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
-import Cart from "./components/Cart/cart.jsx";
 import BookDetail from "./components/BookDetail/BookDetail.jsx";
 import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
 
