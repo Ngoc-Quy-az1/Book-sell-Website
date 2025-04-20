@@ -5,6 +5,7 @@ import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Admin/Header";
 import { ColorModeContext,tokens } from "../../../theme";
+import Cookies from "js.cookie"
 
 const UpdateBook = ({ book, showNotice , setError, setMessage, handleUserPopup }) => {
   useEffect(() => {
@@ -29,7 +30,8 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleUserPopup }
     fetch("http://localhost:8090/api/books/update/"+form.id,{
       method:"PUT",      
       headers: {      
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('authToken')}`
         },
       body:JSON.stringify(form)
     }) .then((response) => {
@@ -43,6 +45,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleUserPopup }
   const deleteBook = (id) =>{
     fetch("http://localhost:8090/api/books/delete/"+id,{
       method:"DELETE",      
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     }) .then((response) => {
       if (!response.ok) return response.text();
     }).then((data) => {
@@ -172,13 +175,14 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleUserPopup }
               />
             </Box>
             <Box display="flex" justifyContent="center" mt="20px" margin="30px">
-              
+              <Box marginRight="30px">
               <Button type={updateInformation ? "submit" : "button" } color="secondary" variant="contained" onClick={handleUpdate}>
-                
               {updateInformation ? "Edit Details" : "Save"}</Button>
+              </Box>
+              <Box >
               <Button type="button" color="secondary" variant="contained" onClick={handleDelete}>
-                
               Remove Book</Button>
+              </Box>
             </Box>
           </form>
         )}

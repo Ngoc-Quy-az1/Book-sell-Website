@@ -3,6 +3,7 @@ import Book1 from "../../assets/books/book1.jpg";
 import Book2 from "../../assets/books/book2.jpg";
 import Book3 from "../../assets/books/book3.jpg";
 import { FaStar } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 const booksData = [
   {
@@ -42,6 +43,10 @@ const booksData = [
   },
 ];
 
+const change = () => {
+  console.log("R")
+  return (<Link to={"/books"}/>)
+}
 const Books = () => {
   return (
     <>
@@ -82,9 +87,11 @@ const Books = () => {
               ))}
             </div>
             <div className="flex justify-center">
-              <button className="text-center mt-10 cursor-pointer  bg-primary text-white py-1 px-5 rounded-md">
+              <Link to="/books">
+              <button className="text-center mt-10 cursor-pointer  bg-primary text-white py-1 px-5 rounded-md" onClick={change}>
                 View All Books
               </button>
+              </Link>
             </div>
           </div>
         </div>

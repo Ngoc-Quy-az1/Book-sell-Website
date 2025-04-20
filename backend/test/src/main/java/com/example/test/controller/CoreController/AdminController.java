@@ -1,6 +1,8 @@
 package com.example.test.controller.CoreController;
 
 import com.example.test.Entity.User;
+import com.example.test.Entity.chatEntity.GroupJoinRequest;
+import com.example.test.Repository.DeletedTokenRepository;
 import com.example.test.Service.AdminService;
 import com.example.test.Service.JwtService;
 
@@ -27,7 +29,18 @@ public class AdminController {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private DeletedTokenRepository deletedTokenRepository;
+
     private boolean isAdmin(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+    
+        // Bây giờ token đã sạch, mới dùng để check DB
+        if (deletedTokenRepository.existsByToken(token)) {
+            return false;
+        }
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
@@ -344,5 +357,16 @@ public class AdminController {
         }
         
         return ResponseEntity.ok(response);
+    }
+
+    //Api lấy danh sách yêu cầu tham gia nhóm chat
+    // http://localhost:8090/api/admin/chat-requests
+    @GetMapping("/chat-requests")
+    public ResponseEntity<?> getChatRequests(@RequestHeader("Authorization") String token) {
+        if (!isAdmin(token)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
+        List<GroupJoinRequest> chatRequests = adminService.getGroupJoinRequests();
+        return ResponseEntity.ok(chatRequests);
     }
 }

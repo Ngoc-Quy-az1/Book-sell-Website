@@ -12,11 +12,12 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import BarChart from "../../../components/Admin/BarChart";
 import StatBox from "../../../components/Admin/StatBox";
 import ProgressCircle from "../../../components/Admin/ProgressCircle";
-
+import { useState,useEffect } from "react";
+import Cookies from 'js.cookie'
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
+  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [countUsers, getCountUsers] = useState();
   useEffect(() => {
     handleCountUser();
@@ -24,7 +25,8 @@ const Dashboard = () => {
   const handleCountUser = () =>{
     
     fetch("http://localhost:8090/api/admin/users/count",{
-      method:"GET"
+      method:"GET",
+      headers:auth
     })
     .then(Response => {
       return Response.json();
@@ -40,7 +42,8 @@ const Dashboard = () => {
   const handleCountBook = () =>{
     
     fetch("http://localhost:8090/api/books/all",{
-      method:"GET"
+      method:"GET",
+      headers:auth
     })
     .then(Response => {
       return Response.json();
@@ -58,7 +61,8 @@ const Dashboard = () => {
   const handleCountSales = () =>{
     
     fetch("http://localhost:8090/api/admin/orders/count",{
-      method:"GET"
+      method:"GET",
+      headers:auth
     })
     .then(Response => {
       return Response.json();
@@ -75,13 +79,31 @@ const Dashboard = () => {
   const handleTotalRevenue = () =>{
     
     fetch("http://localhost:8090/api/admin/revenue/total",{
-      method:"GET"
+      method:"GET",
+      headers:auth
     })
     .then(Response => {
       return Response.json();
     }) 
     .then(Response => {
       getTotalRevenue(Response);
+    })
+  }  
+  const [message, getMessage] = useState();
+  useEffect(() => {
+    handleMessage();
+  },[])
+  const handleMessage = () =>{
+    
+    fetch("http://localhost:8090/api/admin/revenue/total",{
+      method:"GET",
+      headers:auth
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      getMessage(Response);
     })
   }  
   return (
@@ -128,7 +150,26 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
+            title={countUsers}
+            subtitle="Clients"
+            progress="0.30"
+            increase="+5%"
+            icon={
+              <PersonIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title={countSales}
             subtitle="Sales Obtained"
             progress="0.50"
             increase="+21%"
@@ -147,27 +188,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
-            progress="0.30"
-            increase="+5%"
-            icon={
-              <PersonIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
+            title={totalRevenue}
+            subtitle="Total Revenue"
             progress="0.80"
             increase="+43%"
             icon={
@@ -185,8 +207,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title=""
-            subtitle=""
+            title={message}
+            subtitle="total Messages"
             progress="0.75"
             increase="+14%"
             icon={
@@ -228,7 +250,7 @@ const Dashboard = () => {
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-          <LineChart isDashboard={true} />
+            <BarChart isDashboard={true}/>
           </Box>
         </Box>
         <Box

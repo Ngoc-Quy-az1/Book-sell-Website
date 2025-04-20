@@ -32,7 +32,7 @@ public class WithAdminController {
      * 
      * Request Body:
      * {
-     *   "senderId": 2,           // ID của người gửi
+     *   "senderId": 1,           // ID của người gửi
      *   "message": "Xin chào"    // Nội dung tin nhắn
      * }
      * 
@@ -167,4 +167,14 @@ public class WithAdminController {
         
         return ResponseEntity.ok(allMessages);
     }
+
+    // Lấy số lượng tin nhắn được nhận tới của 1 người dùng 
+    // http://localhost:8090/api/chat/admin/count_messages/{userId}
+    
+    @GetMapping("/count_messages/{userId}")
+    public ResponseEntity<Integer> getCountOfMessages(@PathVariable int userId) {
+        int count = chatService.getCountOfMessages(userId);
+        return ResponseEntity.ok(count);
+    }
 }
+    

@@ -3,40 +3,67 @@ import axios from 'axios';
 import UserPopup from "./UserPopup";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
-
+import Cookies from "js.cookie"
+const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+console.log(Cookies.get('authToken'))
 
 const AdminBookCategoryList = () => {
-  const countries = ["Việt Nam", "Trung Quốc", "Nhật Bản", "Pháp", "Đức", "Hàn Quốc", "Italy", "Mỹ"];
-  const categories = ["Nuôi dạy con "];
   const sortMethod = ["Default", "Newest", "Lowest Cost", "Highest Cost"]
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [userPopup, setUserPopup] = React.useState(false);
     const [sortRule, setSortRule] = useState("Lowest Cost");
+    const [categories, setCategories] = useState([]);
+    useEffect( () => {
+      getBookCategory();
+    }, [])
     const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
+    const [selectedCategory, setSelectedCategory] = useState([]);
     const [bookList, setBookList] = useState([]);
-    const [selectedBook, setSelectedBook] = useState();
     useEffect( () => {
       getBookPage();
     }, []);
+    const [selectedBook, setSelectedBook] = useState({id:1});
+    useEffect (() => {
+      getDetail()
+    },[])
     const getBookPage = async ()=>{
-      await axios.get('http://localhost:8090/api/books/GetAllPaginated')
+      await fetch('http://localhost:8090/api/books/all',{ headers: config})
       .then((response) => {
-          setBookList(response.data.content);
+        return response.json();
+      })
+      .then((response) => {
+        setBookList(response);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
     }
-    const getDetail = async (id)=>{
-      await axios.get("http://localhost:8090/api/books/"+id)
+    const getDetail = async ()=>{
+      await fetch("http://localhost:8090/api/books/"+selectedBook.id, {headers : config})
       .then((response) => {
-          setSelectedBook(response.data);
+        return response.json();
+      })
+      .then((response) => {
+        setSelectedBook(response);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
     }
+    const getBookCategory = async ()=>{
+      await fetch('http://localhost:8090/api/books/AllTypeCategories', {headers: config})
+      .then((response) => {
+        return response.json();
+      })
+      .then((response) => {
+        setCategories(response); 
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+    }
+    
     const handleUserPopup = (link) => {
       setUserPopup(!userPopup);
   
@@ -46,13 +73,14 @@ const AdminBookCategoryList = () => {
     setSelectedSortRule(rule);
   }
   const handleManage = (book) => {
-    getDetail(book.id);
-    console.log(book);
+    setSelectedBook(book);
     handleUserPopup();
   }
-  const handleChange = (key) => {
-    console.log("check",key);
-    setConditions((prev) => ({ ...prev, [key]: !prev[key] }));
+  const handleChange = (event) => {
+    const index = selectedCategory.indexOf(event.target.id);
+    (event.target.checked) ? setSelectedCategory([...selectedCategory, event.target.id])
+    : setSelectedCategory([...selectedCategory.slice(0,index),...selectedCategory.slice(index+1)])
+    console.log(selectedCategory);
   }
   const sort = (a,b) => {
     if (sortRule==0) return a.title>b.title ? 1 : -1;
@@ -61,7 +89,7 @@ const AdminBookCategoryList = () => {
     if (sortRule==3) return a.price_discounted<b.price_discounted ? 1 : -1;
   }
   const BookList = () => {
-    return bookList.toSorted(sort)
+    return bookList.filter((book) => selectedCategory.includes(book.category) || selectedCategory.length == 0).toSorted(sort)
     .map((book) => (
       <div id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
         <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
@@ -78,7 +106,7 @@ const AdminBookCategoryList = () => {
         <h2 className="font-bold text-lg mb-2 text-green-600">Thể loại</h2>
         {categories.map((category) => (
           <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" onChange={(key) => handleChange(key)}/>
+            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
             <span>{category}</span>
           </div>
         ))}

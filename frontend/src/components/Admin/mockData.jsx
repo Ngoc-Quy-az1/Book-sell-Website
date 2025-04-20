@@ -1,12 +1,14 @@
 import { tokens } from "../../theme";
 import { useEffect, useState } from "react";
+import Cookies from 'js.cookie'
 export const mockLineData = () => {
   const [data, setData] = useState([]);
   useEffect (() => {
     getData();
   },[]);
     const getData = () => {
-      return fetch("http://localhost:8090/api/admin/revenue/by-category") 
+      const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
+      return fetch("http://localhost:8090/api/admin/revenue/by-category",{headers:config}) 
       .then((response) => {
         return response.json();
       }).then((data) => {    
