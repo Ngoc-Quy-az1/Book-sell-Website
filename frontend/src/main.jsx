@@ -20,6 +20,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import BookDetail from "./components/BookDetail/BookDetail.jsx";
 import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
+import UserDetail from "./components/UserDetail/UserDetail.jsx";
 
 
 const router = createBrowserRouter([{
@@ -28,7 +29,8 @@ const router = createBrowserRouter([{
   children:[
     {index:true, element: <Books/>},
     {path:'books', element:<BookCategoryList/>},
-    {path:'cart', element: <Cart/>}
+    {path:'cart', element: <Cart/>},
+    {path:'user-detail/14', element:<UserDetail/>},
   ]
 },
 {path:'/admin', 
