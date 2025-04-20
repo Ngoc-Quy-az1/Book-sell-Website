@@ -69,7 +69,39 @@ const Testimonial = () => {
             <p className="text-sm bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
               What customers say
             </p>
-           
+            <h1 className="text-3xl font-bold">Testimonial</h1>
+            <p className="text-xs text-gray-400">
+              Here is what out belove customer say about this website.
+            </p>
+          </div>
+          <div
+            data-aos="zoom-in"
+            data-aos-duration="300"
+            className="grid grid-cols-1 max-w-[600px] mx-auto gap-6"
+          >
+            <Slider {...settings}>
+              {testimonialData.map((data) => {
+                return (
+                  <div className="my-6">
+                    <div
+                      key={data.id}
+                      className=" flex flex-col gap-4 shadow-lg py-8 px-6 mx-4 rounded-xl dark:bg-gray-800 bg-primary/10 relative"
+                    >
+                      <div>
+                        <img
+                          className="rounded-full w-20 h-20"
+                          src={data.img}
+                          alt=""
+                        />
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <p className="text-gray-500 text-sm">{data.text}</p>
+                          <h1 className="text-xl font-bold text-black/80 dark:text-light">
+                            {data.name}
+                          </h1>
+                        </div>
+                      </div>
 
                       <p className="text-black/20 text-9xl font-serif absolute top-0 right-0">
                         ,,
