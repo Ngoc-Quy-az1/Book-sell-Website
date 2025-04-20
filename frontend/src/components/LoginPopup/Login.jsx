@@ -29,9 +29,8 @@ const Login = ({ handleSignIn, handleNotice, handleForgotPassword }) => {
       }
       return response.json();
     }).then((data) => {
-      console.log(data.token);
       Cookies.set('authToken', data.token);
-      Cookies.set('userid', data.userId)
+      Cookies.set('userId', data.user_id);
       handleNotice(data.message, !data.status);
       location.reload();
     });

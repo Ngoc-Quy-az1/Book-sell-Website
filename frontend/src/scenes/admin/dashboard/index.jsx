@@ -1,6 +1,5 @@
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme, TextField } from "@mui/material";
 import { tokens } from "../../../theme";
-import { mockTransactions } from "../../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -13,7 +12,7 @@ import BarChart from "../../../components/Admin/BarChart";
 import StatBox from "../../../components/Admin/StatBox";
 import ProgressCircle from "../../../components/Admin/ProgressCircle";
 import { useState,useEffect } from "react";
-import Cookies from 'js.cookie'
+import Cookies from 'js.cookie';
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -118,7 +117,7 @@ const Dashboard = () => {
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(15,minmax(40px,1fr))"
+        gridTemplateColumns="repeat(15,minmax(10px,1fr))"
         gridAutoRows="140px"
         gap="20px"
       >
@@ -188,7 +187,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title={totalRevenue}
+            title={Math.round(totalRevenue)}
             subtitle="Total Revenue"
             progress="0.80"
             increase="+43%"
@@ -224,6 +223,7 @@ const Dashboard = () => {
           gridColumn="span 15"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
+          zIndex={-1}
         >
           <Box
             mt="25px"
@@ -245,7 +245,7 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                {(totalRevenue*1000).toLocaleString()}đ
+                {(totalRevenue*1000).toLocaleString()} Coins
               </Typography>
             </Box>
           </Box>
@@ -271,7 +271,18 @@ const Dashboard = () => {
               Recent Transactions
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          <TextField
+                          fullWidth
+                          variant="filled"
+                          type="text"
+                          label="First Name"
+                          name="firstName"
+                          sx={{ gridColumn: "span 2" ,
+                            position: 'relative',
+                            zIndex: 0
+                          }}
+                        />
+          {/*mockTransactions.map((transaction, i) => (
             <Box
               key={`${transaction.txId}-${i}`}
               display="flex"
@@ -301,7 +312,7 @@ const Dashboard = () => {
                 ${transaction.cost}
               </Box>
             </Box>
-          ))}
+          ))*/}
         </Box>
 
         {/* ROW 3 */}

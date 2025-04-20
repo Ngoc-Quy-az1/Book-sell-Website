@@ -22,7 +22,6 @@ const BarChart = ({ isDashboard = false }) => {
       setData(data.slice(0,5));
     });
   }
-  console.log(data);
   return (
     <ResponsiveBar
       data={data}

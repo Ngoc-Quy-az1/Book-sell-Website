@@ -28,8 +28,10 @@ const Chat = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [chatMode, setChatMode] = useState("group1"); 
+  const [users, setUsers] = useState([]);
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
   const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const userId = 2;
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     const fetchMessages = async () => {
@@ -43,6 +45,12 @@ const Chat = () => {
               headers: config,
             }
           );
+          const filteredMessages = response.data.filter(
+            (msg) =>
+              msg.chatType === "PRIVATE" &&
+              (msg.sender.id === userId || msg.receiver?.id === userId)
+          );
+          setMessages(filteredMessages);
         } else if (chatMode === "group1" || chatMode === "group2") {
           const groupId = chatMode === "group1" ? 1 : 2;
           response = await axios.post(
@@ -52,14 +60,14 @@ const Chat = () => {
               headers: config,
             }
           );
+          const filteredMessages = response.data.filter(
+            (msg) =>
+              msg.chatType === (chatMode === "admin" ? "PRIVATE" : "GROUP") &&
+              (msg.sender.id === userId || msg.receiver?.id === userId || msg.groupId)
+          );
+          setMessages(filteredMessages);
         }
 
-        const filteredMessages = response.data.filter(
-          (msg) =>
-            msg.chatType === (chatMode === "admin" ? "PRIVATE" : "GROUP") &&
-            (msg.sender.id === userId || msg.receiver?.id === userId || msg.groupId)
-        );
-        setMessages(filteredMessages);
       } catch (error) {
         console.error("Lỗi khi gọi API:", error);
         alert("Không thể tải lịch sử chat. Vui lòng thử lại sau.");
@@ -140,6 +148,20 @@ const Chat = () => {
         onClick={() => setChatMode("group2")}
         >
           Group chat 2
+        </Box>
+        </button>
+        <button>
+        <Box 
+        height = "40px"
+        borderRadius="5px"
+        gridColumn="span 1"
+        backgroundColor={colors.greenAccent[600]}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        onClick={() => setChatMode("group2")}
+        >
+          {chatMode}
         </Box>
         </button>
       <Box

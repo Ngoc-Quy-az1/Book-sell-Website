@@ -29,6 +29,7 @@ public List<Map<String, Object>> getNotificationsByUserId(Integer userId) {
     for (Notification notification : notifications) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", notification.getNotificationId());
+        map.put("is_read", notification.isRead());
         map.put("message", notification.getMessage());
         results.add(map);
     }

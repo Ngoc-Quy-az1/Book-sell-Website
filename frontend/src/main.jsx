@@ -8,11 +8,8 @@ import Dashboard from "./scenes/admin/dashboard";
 import ManageUsers from "./scenes/admin/manageUsers/index.jsx";
 import Bar from "./scenes/admin/bar";
 import Form from "./scenes/admin/form";
-import Line from "./scenes/admin/line";
-import Pie from "./scenes/admin/pie";
 import Chat from "./scenes/admin/chat";
 import Cart from "./components/Cart/cart.jsx";
-import Geography from "./scenes/admin/geography";
 import Calendar from "./scenes/admin/calendar/calendar";
 import BookCategoryList from "./components/BookCategoryList/BookCategory.jsx";
 import AdminBookCategoryList from "./scenes/admin/BookCategoryList/BookCategory.jsx";
@@ -39,12 +36,9 @@ const router = createBrowserRouter([{
     {path:'manageUsers', element:<ManageUsers />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},
-    {path:'pie', element:<Pie />},
-    {path:'line', element:<Line />},
     {path:'booklist', element:<AdminBookCategoryList />},
     {path:'chat', element: <Chat/>},
-    {path:'calendar', element:<Calendar />},
-    {path:'geography', element:<Geography />}
+    {path:'calendar', element:<Calendar />}
   ]
 }
 ]);
