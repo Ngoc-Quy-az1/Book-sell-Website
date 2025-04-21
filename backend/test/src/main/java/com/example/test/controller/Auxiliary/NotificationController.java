@@ -15,7 +15,7 @@ public class NotificationController {
     private NotificationService notificationService;
 
     //Lấy danh sác thông báo người dùng
-    //URL test Postman: http://localhost:8090/api/notification/show?userId=1
+    //URL test Postman: http://localhost:8090/api/notification/show?userId=16
     @GetMapping("/show")
     public List<Map<String, Object>> getNotifications(@RequestParam Integer userId) {
         return notificationService.getNotificationsByUserId(userId);
