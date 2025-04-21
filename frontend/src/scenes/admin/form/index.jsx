@@ -2,23 +2,57 @@ import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import Notice from "../Notice/index";
 import Header from "../../../components/Admin/Header";
+import { useState } from "react";
+import Cookies from "js.cookie"
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const [notice, setNotice] = useState(false);
+  const [error, setError] = useState(false);
+  const [message, setMessage] = useState("");
+  const showNotice = () => {
+    setNotice(!notice);
+    setTimeout(() => {setNotice()},3000)
+  }
 
   const handleFormSubmit = (values) => {
-    console.log(values);
+    values.full_name = values.firstName + ' ' + values.lastName;
+    createUser(values);
   };
 
+  //Đẩy DL lên Database 
+  const createUser = (form) =>{
+    fetch("http://localhost:8090/api/admin/createUsers",{
+      method:"POST",      
+      headers: {      
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Cookies.get('authToken')}`
+        },
+      body:JSON.stringify(form)
+    }) .then((response) => {
+      if (!response.ok) return response.text();
+    }).then((data) => {
+      if (data!=undefined) {setMessage(data); setError(true)}// this will be a string
+      else {setMessage("Account Successfully Created"); setError(false)}
+      showNotice();
+    });
+  }
   return (
     <Box m="20px">
       <Header title="CREATE USER" subtitle="Create a New User Profile" />
-
+      <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
         validationSchema={checkoutSchema}
+        sx={{
+          "& .TextField":{
+            position: 'relative',
+            zIndex: 0
+          }
+        }}
       >
         {({
           values,
@@ -48,7 +82,10 @@ const Form = () => {
                 name="firstName"
                 error={!!touched.firstName && !!errors.firstName}
                 helperText={touched.firstName && errors.firstName}
-                sx={{ gridColumn: "span 2" }}
+                sx={{ gridColumn: "span 2" ,
+                  position: 'relative',
+                  zIndex: 0
+                }}
               />
               <TextField
                 fullWidth
@@ -62,7 +99,20 @@ const Form = () => {
                 error={!!touched.lastName && !!errors.lastName}
                 helperText={touched.lastName && errors.lastName}
                 sx={{ gridColumn: "span 2" }}
-              />
+              />              
+              <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              label="User Name"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              value={values.name}
+              name="name"
+              error={!!touched.name && !!errors.name}
+              helperText={touched.name && errors.name}
+              sx={{ gridColumn: "span 4" }}
+            />
               <TextField
                 fullWidth
                 variant="filled"
@@ -70,49 +120,49 @@ const Form = () => {
                 label="Email"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.email}
-                name="email"
-                error={!!touched.email && !!errors.email}
-                helperText={touched.email && errors.email}
+                value={values.mail}
+                name="mail"
+                error={!!touched.mail && !!errors.mail}
+                helperText={touched.mail && errors.mail}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Contact Number"
+                label="Password"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.contact}
-                name="contact"
-                error={!!touched.contact && !!errors.contact}
-                helperText={touched.contact && errors.contact}
+                value={values.password}
+                name="password"
+                error={!!touched.password && !!errors.password}
+                helperText={touched.password && errors.password}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Address 1"
+                label="Phone Number"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.address1}
-                name="address1"
-                error={!!touched.address1 && !!errors.address1}
-                helperText={touched.address1 && errors.address1}
+                value={values.phone}
+                name="phone"
+                error={!!touched.phone && !!errors.phone}
+                helperText={touched.phone && errors.phone}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Address 2"
+                label="Address"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.address2}
-                name="address2"
-                error={!!touched.address2 && !!errors.address2}
-                helperText={touched.address2 && errors.address2}
+                value={values.address}
+                name="address"
+                error={!!touched.address && !!errors.address}
+                helperText={touched.address && errors.address}
                 sx={{ gridColumn: "span 4" }}
               />
             </Box>
@@ -127,28 +177,32 @@ const Form = () => {
     </Box>
   );
 };
-
-const phoneRegExp =
-  /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
+//Ràng buộc 
+const phoneRegExp =/^\d{5,15}$/;
 
 const checkoutSchema = yup.object().shape({
   firstName: yup.string().required("required"),
   lastName: yup.string().required("required"),
-  email: yup.string().email("invalid email").required("required"),
-  contact: yup
+  name: yup.string().required("required"),
+  mail: yup.string().email("invalid mail").required("required"),
+  phone: yup
     .string()
     .matches(phoneRegExp, "Phone number is not valid")
     .required("required"),
-  address1: yup.string().required("required"),
-  address2: yup.string().required("required"),
+  address: yup.string().required("required"),
+  password: yup.string().required("required"),
 });
 const initialValues = {
   firstName: "",
   lastName: "",
-  email: "",
-  contact: "",
-  address1: "",
-  address2: "",
+  name: "",
+  full_name: "",
+  mail: "",
+  phone: "",
+  address: "",
+  password: "",
+  membership_level: "Silver",
+  id: "10"
 };
 
 export default Form;
