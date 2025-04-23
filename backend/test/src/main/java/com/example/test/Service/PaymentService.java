@@ -116,13 +116,34 @@ public class PaymentService {
             BigDecimal transactionAmount = new BigDecimal(amountStr);
             
             if (transactionAmount.compareTo(totalAmount) < 0) {
-                return createResponse(false, "Số tiền chuyển khoản (" + amountStr + " VND) không đủ để thanh toán tổng đơn hàng (" + totalAmount + " VND)");
+                return createResponse(false, "Số tiền chuyển khoản (" + amountStr + " VND) không đủ để thanh toán tổng đơn hàng (" + totalAmount + " VND)"+ ". Hãy chuyển thêm "+ (totalAmount.subtract(transactionAmount)) + " VND nữa để hoàn tất thanh toán.");
+            }
+
+            if(transactionAmount.compareTo(totalAmount) > 0) {
+                BigDecimal excessAmount = transactionAmount.subtract(totalAmount); // Tính số tiền thừa
+                int excessXu = excessAmount.divide(BigDecimal.valueOf(100), BigDecimal.ROUND_DOWN).intValue(); 
+                user.setBalance(user.getBalance() + excessXu); // Cộng xu vào tài khoản người dùng
+                
+                for (PurchaseHistory order : orders) {
+                    order.setStatus(PurchaseStatus.Completed);
+                    purchaseHistoryRepository.save(order);
+                    assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
+                }
+                
+                Map<String, Object> result = new HashMap<>();
+                result.put("success", true);
+                result.put("message", "Bạn đã thanh toán thành công " + orders.size() + " đơn hàng" +
+                        ". Số tiền thừa là " + excessAmount + " VND. Xu đã cộng vào tài khoản: " + excessXu + " xu.");
+                result.put("excessAmount", excessAmount);
+                result.put("orderIds", orderIds);
+                result.put("totalAmount", totalAmount);
+                result.put("transactionAmount", transactionAmount);
+                return result;
             }
 
             for (PurchaseHistory order : orders) {
                 order.setStatus(PurchaseStatus.Completed);
                 purchaseHistoryRepository.save(order);
-                // Gán mã giảm giá sau khi thanh toán thành công
                 assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
             }
             

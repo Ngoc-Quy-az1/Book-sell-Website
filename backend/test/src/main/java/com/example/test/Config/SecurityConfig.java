@@ -51,11 +51,15 @@ public class SecurityConfig {
                     "/api/books/details/**",           // API chi tiết sách
                     "/api/payment/process-balance/**", // API thanh toán sử dụng tiền mặt
                     "/api/order/**" ,                  // API đặt hàng
-                    "/api/chat/community/**",       
+                    "/api/chat/community/**",   
+                    "/api/chat/admin/**",    
                     "api/users/forgotpassword",        // API quên mật khẩu
                     "api/users/confirmcode"  ,          // API xác thực mã quên mật khẩu
                     "/api/books/AllTypeCategories",
                     "/swagger-ui/**",
+                    "/ws/**",                         // WebSocket endpoints
+                    "/ws/info",                       // SockJS info endpoint
+                    "/ws/**/websocket",               // WebSocket upgrade endpoint
                     "v3/**"        // API xác thực mã quên mật khẩu
                 ).permitAll()
 
@@ -73,7 +77,7 @@ public class SecurityConfig {
                     "/api/users/logout/**",
                     "/api/users/review/**",
                     "/api/cart/**",
-                    "/api/chat/admin/**",
+                    // "/api/chat/admin/**",
                     "/api/users/{userId}/discount-codes",
                     "/api/users/logout/{userId}"
                 ).authenticated()

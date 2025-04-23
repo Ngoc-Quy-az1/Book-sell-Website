@@ -18,6 +18,7 @@ import com.example.test.Service.ChatService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -88,6 +89,9 @@ public class WithCommunityController {
     @Autowired
     private GroupJoinRequestRepository groupJoinRequestRepository;
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     /**
      * Gửi tin nhắn vào nhóm chat
      * @param request GroupChatRequestDTO chứa:
@@ -114,6 +118,10 @@ public class WithCommunityController {
 
         // Gửi tin nhắn nhóm
         SupportMessage result = chatService.sendGroupMessage(sender, group, request.getMessage());
+        
+        // Send via WebSocket to all group members
+        messagingTemplate.convertAndSend("/topic/group-chat/" + group.getGroupId(), result);
+        
         return ResponseEntity.ok(result);
     }
 
@@ -149,6 +157,10 @@ public class WithCommunityController {
         joinRequest.setStatus(RequestStatus.PENDING);
         groupJoinRequestRepository.save(joinRequest);
     
+        // Notify group admin about new join request
+        messagingTemplate.convertAndSend("/topic/group-notifications/" + groupId, 
+            "New join request from user " + user.getID());
+    
         return ResponseEntity.ok("Request to join group " + groupId + " has been submitted successfully and is pending approval.");
     }
     
@@ -172,9 +184,17 @@ public class WithCommunityController {
         if (RequestStatus.APPROVED.equals(groupJoinRequest.getStatus())) {
             GroupMembers groupMember = new GroupMembers(groupJoinRequest.getGroup(), groupJoinRequest.getUser());
             groupMembersRepository.save(groupMember);
+            
+            // Notify the user about approved request
+            messagingTemplate.convertAndSend("/topic/user-notifications/" + groupJoinRequest.getUser().getID(),
+                "Your request to join group " + groupId + " has been approved!");
+            
+            // Notify group members about new member
+            messagingTemplate.convertAndSend("/topic/group-notifications/" + groupId,
+                "New member joined the group: User " + groupJoinRequest.getUser().getID());
         }
     
-        return ResponseEntity.ok("User request with ID " + requestId + " has been " + groupJoinRequest.getStatus() + " successfully.");
+        return ResponseEntity.ok("Request " + requestId + " has been " + groupJoinRequest.getStatus());
     }
 
 }
