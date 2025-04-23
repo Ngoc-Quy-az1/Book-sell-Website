@@ -31,7 +31,7 @@ const Chat = () => {
   const [users, setUsers] = useState([]);
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
   const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-  const userId = 2;
+  const userId = Cookies.get('userId');
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     const fetchMessages = async () => {

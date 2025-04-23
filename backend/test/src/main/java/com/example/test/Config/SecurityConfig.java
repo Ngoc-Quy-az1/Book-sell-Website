@@ -59,8 +59,7 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/ws/**",                         // WebSocket endpoints
                     "/ws/info",                       // SockJS info endpoint
-                    "/ws/**/websocket",               // WebSocket upgrade endpoint
-                    "v3/**"        // API xác thực mã quên mật khẩu
+                    "v3/**"
                 ).permitAll()
 
                 // Payment endpoints - Không cần đăng nhập
@@ -77,7 +76,7 @@ public class SecurityConfig {
                     "/api/users/logout/**",
                     "/api/users/review/**",
                     "/api/cart/**",
-                    // "/api/chat/admin/**",
+                    //"/api/chat/admin/**",
                     "/api/users/{userId}/discount-codes",
                     "/api/users/logout/{userId}"
                 ).authenticated()
