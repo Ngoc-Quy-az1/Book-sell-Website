@@ -1,12 +1,10 @@
-import React from "react";
-import { useState, useEffect,useRef } from "react";;
+import React,{ useState, useEffect,useRef } from "react";
 import Logo from "../../assets/website/logo.png";
 import { FaCartShopping } from "react-icons/fa6";
 import {Bell, BellDot} from "lucide-react";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
 import Cookies from "js.cookie"
-import { useNavigate } from "react-router-dom";
 
 const Menu = [
   {
@@ -22,6 +20,20 @@ const Menu = [
 ];
 
 const DropdownLinks = [
+  {
+    name: "Trending Books",
+    link: "/#",
+  },
+  {
+    name: "Best Selling",
+    link: "/#",
+  },
+  {
+    name: "Authors",
+    link: "/#",
+  },
+];
+const options = [
   {
     name: "Trending Books",
     link: "/#",
@@ -68,7 +80,21 @@ const notiList = [
   },
 ];
 
+const getColorFromName = (name) => {
+  const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
+  const hash = Array.from(name || "").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+};
 
+const generateAvatar = (name) => {
+  const initials = (name || "NA")
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
+  const bgColor = getColorFromName(name);
+  return `https://ui-avatars.com/api/?name=${initials}&background=${bgColor}&color=fff`;
+};
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   const handleSignOut = () =>{
     fetch("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),{
@@ -83,11 +109,14 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     }).then((data) => {
       console.log(data);
       Cookies.remove('authToken');
-      location.reload();
+      location.replace('/');
     });
   }
-  const [userName, setUserName] = useState();
-  const UserIcon = () => {
+  const fetchUser = () => {
+
+  }
+  const [user, setUser] = useState({'full_name':""});
+  useEffect(() => {
     fetch("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
   {
     headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
@@ -95,17 +124,13 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     .then((response) => {
       return response.json();
     }).then((data) => {
-      setUserName(data.name[0]);
-    });
-    return <button
-    onClick={() => handleSignOut() }
-    className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3 w-30"
-  >
-    {userName}
-    </button>
-  }
+      setUser(data);
+      console.log(data);
+    })},[]
+  )
   const [haveNoti, setHaveNoti] = useState(true);
   const [showNoti, setShowNoti] = useState(false);
+  const [showOption, setShowOption] = useState(false);
   const dropdownRef = useRef(null);
   //const handleShowNoti = () => setShowNoti(!showNoti);
   // useEffect(() => {
@@ -179,43 +204,63 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                 Order
                 <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
               </button>
-              {(Cookies.get('authToken')) ?
-                <UserIcon/>
-                :
-                <button
-                  onClick={() => handleLoginPopup() }
-                  className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
+              <div className="flex justify-end relative " ref={dropdownRef}>
+              
+              {(Cookies.get('authToken')) ? 
+              <>
+                <button className="mr-6"
+                  onClick={() => setShowNoti(!showNoti)}
                 >
-                  Sign In
+                  {haveNoti?<BellDot color="#3e9392" size={28} />:<Bell color="#3e9392" size={28} />}
                 </button>
-              }
-              <div className="flex justify-end relative" ref={dropdownRef}>
-              <button
-                onClick={() => setShowNoti(!showNoti)}
-              >
-                {haveNoti?<BellDot color="#3e9392" size={28} />:<Bell color="#3e9392" size={28} />}
-              </button>
-              {showNoti && (
-                <div className="absolute right-0 mt-10 w-96 bg-white border border-gray-200 rounded shadow-lg z-10 max-h-80 overflow-y-auto">
-                  {/* Dropdown items */}
-                  {notiList.map((noti) => (
-                    <div
-                      key={noti.id}
-                      className="flex flex-col px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      <p>{noti.name}</p>
-                      <div>{noti.content}</div>
+                {showNoti && (
+                  <div className="absolute right-0 mt-10 w-96 bg-white border border-gray-200 rounded shadow-lg z-10 max-h-80 overflow-y-auto">
+                    {/* Dropdown items */}
+                    {notiList.map((noti) => (
+                      <div
+                        key={noti.id}
+                        className="flex flex-col px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      >
+                        <p>{noti.name}</p>
+                        <div>{noti.content}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button onClick={()=>setShowOption(!showOption)} className="w-14 h-14">
+                  <img
+                  src={generateAvatar(user.full_name || user.name)}
+                  alt="Avatar"
+                  className=" rounded-full border-4 border-indigo-500 shadow-lg"/>
+                  <div className="absolute -left-9 z-[9999] w-[150px] rounded-md bg-white p-2 text-black group-hover:block  " hidden={!showOption}>
+                      <ul className="space-y-3">
+                          <li >
+                            <a
+                              className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                              href={`/user-detail/${user.id}`}
+                            >
+                              User Detail
+                            </a>
+                            <a
+                              className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                              onClick={handleSignOut}
+                            >
+                              Log Out
+                            </a>
+                          </li>
+                      </ul>
                     </div>
-                  ))}
-                </div>
-              )}
-              </div>
+                </button>
+              </>
+              :
               <button
                 onClick={() => handleLoginPopup() }
                 className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
               >
                 Sign In
               </button>
+              }
+              </div>
 
             </div>
           </div>

@@ -30,7 +30,8 @@ const router = createBrowserRouter([{
     {index:true, element: <Books/>},
     {path:'books', element:<BookCategoryList/>},
     {path:'cart', element: <Cart/>},
-    {path:'user-detail/14', element:<UserDetail/>},
+    {path:'user-detail/:id', element:<UserDetail/>},
+    {path:'book-detail/:id', element:<BookDetail/>}
   ]
 },
 {path:'/admin', 
@@ -39,7 +40,7 @@ const router = createBrowserRouter([{
     {
       index: true, element: <Dashboard/>
     },
-    // {path:'manageUsers', element:<ManageUsers />},
+    {path:'manageUsers', element:<ManageUsers />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},
     {path:'booklist', element:<AdminBookCategoryList />},

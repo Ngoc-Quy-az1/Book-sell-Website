@@ -19,6 +19,14 @@ const AdminBookCategoryList = () => {
     }, [])
     const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
     const [selectedCategory, setSelectedCategory] = useState([]);
+    const [page, setPage] = useState(1);
+    const handlePage = (int) => {
+      setPage(page + int);
+    }
+    const [maxPage, setMaxPage] = useState(1);
+    const findMaxPage = (int) => {
+      setMaxPage(Math.floor((int+19)/20));
+    }
     const [bookList, setBookList] = useState([]);
     useEffect( () => {
       getBookPage();
@@ -89,8 +97,9 @@ const AdminBookCategoryList = () => {
     if (sortRule==3) return a.price_discounted<b.price_discounted ? 1 : -1;
   }
   const BookList = () => {
-    return bookList.filter((book) => selectedCategory.includes(book.category) || selectedCategory.length == 0).toSorted(sort)
-    .map((book) => (
+    const newList = bookList.filter((book) => selectedCategory.includes(book.category) || selectedCategory.length == 0);
+    findMaxPage(newList.length);
+    return newList.toSorted(sort).slice((page-1)*20,page*20).map((book) => (
       <button id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
         <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
         <h3 className="font-bold text-sm mb-1">{book.title}</h3>
@@ -98,6 +107,11 @@ const AdminBookCategoryList = () => {
         <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}.000đ</div>
       </button>
     ))
+  }
+  const pageIndex = () => {
+    let list = Array.from({length:5}, (x,i) => page-2+i)
+    console.log(list.filter((val) => val>0 && val<=maxPage))
+    return list.filter((val) => val>0 && val<=maxPage)
   }
   return (
     <div className="flex p-5 pl-10">
@@ -126,7 +140,26 @@ const AdminBookCategoryList = () => {
         {/* Book List */}
         <div className={`grid grid-cols-4 gap-4`}>
           <BookList/>
+          
         </div>
+        <div className="flex justify-center mt-6 space-x-2">
+            <button disabled={page === 1} onClick={() => {handlePage(-1)}} className="px-2">
+              &#x2039;
+            </button>
+            {pageIndex().map((index) => (
+              <button
+                key={index}
+                onClick = { ()=>{handlePage(index)}}
+                className={`px-3 py-1 rounded-full border`}
+                style={index==page ? {backgroundColor:colors.greenAccent[700]}: {}}
+              >
+                {index}
+              </button>
+            ))}
+            <button disabled={page === maxPage} onClick={() => {handlePage(1)}} className="px-2">
+              &#x203A;
+            </button>
+          </div>
       </div>
     </div>
   );
