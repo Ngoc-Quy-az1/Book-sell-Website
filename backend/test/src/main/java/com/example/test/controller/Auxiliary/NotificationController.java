@@ -2,6 +2,7 @@ package com.example.test.controller.Auxiliary;
 
 import com.example.test.Service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

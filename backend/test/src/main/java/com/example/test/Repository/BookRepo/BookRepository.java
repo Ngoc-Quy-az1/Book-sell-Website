@@ -4,6 +4,8 @@ import com.example.test.Entity.Book;
 
 import java.util.List;
 
+import org.springdoc.core.converters.models.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +21,15 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
         @Query("SELECT DISTINCT b.category FROM Book b")
         List<String> findDistinctCategories();
+
+        @Query("SELECT b FROM Book b ORDER BY b.price_discounted DESC")
+        List<Book> findAllOrderByPriceDesc();
+        
+        @Query("SELECT b FROM Book b ORDER BY b.price_discounted ASC")
+        List<Book> findAllOrderByPriceAsc();
+
+        @Query("SELECT b FROM Book b WHERE b.price_discounted >= :price1 AND b.price_discounted <= :price2 ORDER BY b.price_discounted ASC")
+        Page<Book> findByPrice(@Param("price1") int price1, @Param("price2") int price2, org.springframework.data.domain.Pageable pageable);
+        
+        
 }
