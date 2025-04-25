@@ -10,4 +10,5 @@ import java.util.List;
 public interface PurchaseHistoryRepository extends JpaRepository<PurchaseHistory, Integer> {
     List<PurchaseHistory> findByStatus(PurchaseStatus status);
     List<PurchaseHistory> findByUserIdAndStatus(Integer userId, PurchaseStatus status);
+    List<PurchaseHistory> findByUserId(Integer userId);
 } 

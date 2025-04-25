@@ -1,13 +1,21 @@
 package com.example.test.controller.CoreController;
 
 import com.example.test.DTO.order.request.CreateOrderRequest;
+import com.example.test.DTO.order.response.OrderDetailsResponseDTO;
 import com.example.test.DTO.order.response.OrderResponse;
+import com.example.test.Entity.OrderDetails;
 import com.example.test.Entity.Orders;
+import com.example.test.Entity.PurchaseHistory;
 import com.example.test.Service.CartService;
 import com.example.test.Service.OrderService;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/order")
@@ -107,4 +115,28 @@ public class OrderController {
             return ResponseEntity.badRequest().body("Lỗi khi tạo đơn hàng: " + e.getMessage()); 
         }
     }
+
+    // Api lấy danh sách đơn hàng của người dùng
+    // // URL: http://localhost:8090/api/order/{userId}
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getOrdersByUserId(@PathVariable Integer userId) {
+        try {
+            List<PurchaseHistory> orders = orderService.getOrdersByUserId(userId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi khi lấy danh sách đơn hàng: " + e.getMessage());
+        }
+    }
+
+    // api lấy chi tiết đơn hàng theo id
+    //  URL: http://localhost:8090/api/order/orderDetails?orderID=1
+    //  URL: http://localhost:8090/api/order/orderDetails?orderID=1
+// URL: http://localhost:8090/api/order/orderDetails?orderID=1
+    @GetMapping("/orderDetails")
+    public List<OrderDetailsResponseDTO> getOrderDetail(@RequestParam String orderID) {
+        Integer orderId = Integer.parseInt(orderID);
+        return orderService.getOrderDetails(orderId);
+    }
+     
 } 
