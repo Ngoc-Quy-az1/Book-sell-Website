@@ -11,34 +11,17 @@ import axios from 'axios';
 export default function Cart() {
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [showVoucher, setShowVoucher] = useState(false);
+  const [showInvalidVoucher, setShowInvalidVoucher] = useState(false);
   const [voucherCode, setVoucherCode] = useState("");
-  const handleSubmitVoucher = () => {
-    console.log("Submitted voucher code:", voucherCode);
-    setShowVoucher(false);
-  };
+  const [pickVoucherText, setPickVoucherText] = useState("Apply voucher");
   const [totalAmount, setTotalAmount]  = useState(0);
   const [cartlist, setCartlist] = useState([])
-  // const [cartlist, setCartlist] = useState([{
-  //   check:true,
-  //   quantity: 1,
-  //   title: "BẠCH DẠ HÀNH",
-  //   price: 199750,
-  //   image: Book1,
-  // }, {
-  //   check:true,
-  //   quantity: 2,
-  //   title: "ĐÔI MẮT CỦA MONA",
-  //   price: 287300,
-  //   image: Book2,
-  // }, {
-  //   check:false,
-  //   quantity: 3,
-  //   title: "CUỐN SÁCH HOANG DÃ",
-  //   price: 115600,
-  //   image: Book3,
-  // }]);
+  const [voucherList, setVoucherList] = useState([]);
+  const [discountText, setDiscountText] = useState('');
+  const [discountText2, setDiscountText2] = useState('');
   useEffect( () => {
     getCartList(14);
+    getVoucherList(14);
     }, []);
 
   const getCartList = async(userId)=>{
@@ -53,7 +36,35 @@ export default function Cart() {
     });
     caculateTotal();
   };
-    
+
+  const getVoucherList = async(userId)=>{
+    await axios.get(`http://localhost:8090/api/users/${userId}/discount-codes`,{
+      headers:auth,
+    })
+    .then((response) => {
+        setVoucherList(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+    caculateTotal();
+  };
+  const handleSubmitVoucher = () => {
+    console.log("Submitted voucher code:", voucherCode);
+    if (voucherCode != voucherList[0].code){
+      setShowInvalidVoucher(true);
+    } else{
+      setShowInvalidVoucher(false);
+      setShowVoucher(false);
+      setPickVoucherText(`Voucher applied`);
+      setDiscountText(`${(totalAmount).toLocaleString('vi-VN')}₫ `);
+      setDiscountText2(`-${voucherList[0].discountPercentage}%`);
+      var tempTotal = 0;
+      tempTotal = totalAmount - totalAmount*parseFloat(voucherList[0].discountPercentage)/100;
+      setTotalAmount(Math.round(tempTotal));
+    }
+  };
+
   const caculateTotal = ()=>{
     var tempTotal = 0;
     for (let i = 0; i < cartlist.length; i++) {
@@ -166,10 +177,11 @@ export default function Cart() {
                     className="text-xl text-blue-600 cursor-pointer"
                     onClick={() => setShowVoucher(!showVoucher)}
                   >
-                    Chọn Voucher
+                    {pickVoucherText}
                   </div>
                   {showVoucher && (
                     <div className="absolute left-3 mt-2 w-64 bg-white shadow-lg border rounded-lg p-4 z-10">
+                      {showInvalidVoucher && <div className="flex justify-center text-red-600 mb-4">Invalid voucher</div>}
                       <input
                         type="text"
                         className="w-full border px-3 py-2 rounded mb-2"
@@ -180,7 +192,7 @@ export default function Cart() {
                       <div className="flex justify-end gap-2">
                         <button
                           className="px-4 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
-                          onClick={() => setShowVoucher(false)}
+                          onClick={() => {setShowVoucher(false); setShowInvalidVoucher(false);}}
                         >
                           Cancel
                         </button>
@@ -196,8 +208,16 @@ export default function Cart() {
                 </div>
               </div>
             {/* Total cart price */}
-            <div className="mt-6 text-right font-bold text-green-600 text-lg">
-              Total amount: {(totalAmount).toLocaleString('vi-VN')}₫
+            <div className="flex flex-row justify-end">
+              <div className="mt-6 text-right font-bold text-green-600 text-lg">
+                Total amount: {(totalAmount).toLocaleString('vi-VN')}₫ 
+              </div>
+              <div className="mt-7 pl-3 text-right line-through text-green-600">
+                {discountText}
+              </div>
+              <div className="mt-7 pl-3 text-right text-green-600">
+                {discountText2}
+              </div>
             </div>
             <button className="mt-4 ml-[1250px] w-96 justify-self-end bg-green-600 text-white py-2 rounded hover:bg-green-700">
               Checkout
