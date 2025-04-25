@@ -47,7 +47,9 @@ const App = () => {
         <ChatButton />
         <Outlet/>
       </>
-      :
+      :<></>
+      
+      }
       <>
         <Hero handleOrderPopup={handleOrderPopup} />
         <Services handleOrderPopup={handleOrderPopup} />
@@ -55,7 +57,6 @@ const App = () => {
         <AppStore />
         <Testimonial />
       </>  
-      }
       <Footer />
        <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
 

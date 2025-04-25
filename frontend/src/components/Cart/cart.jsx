@@ -5,37 +5,60 @@ import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
 import Book3 from "../BookCategoryList/ExampleImage/book3.png";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
+import Cookies from 'js.cookie';
+import axios from 'axios';
 
 export default function Cart() {
+  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const [showVoucher, setShowVoucher] = useState(false);
+  const [voucherCode, setVoucherCode] = useState("");
+  const handleSubmitVoucher = () => {
+    console.log("Submitted voucher code:", voucherCode);
+    setShowVoucher(false);
+  };
   const [totalAmount, setTotalAmount]  = useState(0);
-  const [cartlist, setCartlist] = useState([{
-    check:true,
-    quantity: 1,
-    title: "BẠCH DẠ HÀNH",
-    price: 199750,
-    image: Book1,
-  }, {
-    check:true,
-    quantity: 2,
-    title: "ĐÔI MẮT CỦA MONA",
-    price: 287300,
-    image: Book2,
-  }, {
-    check:false,
-    quantity: 3,
-    title: "CUỐN SÁCH HOANG DÃ",
-    price: 115600,
-    image: Book3,
-  }]);
+  const [cartlist, setCartlist] = useState([])
+  // const [cartlist, setCartlist] = useState([{
+  //   check:true,
+  //   quantity: 1,
+  //   title: "BẠCH DẠ HÀNH",
+  //   price: 199750,
+  //   image: Book1,
+  // }, {
+  //   check:true,
+  //   quantity: 2,
+  //   title: "ĐÔI MẮT CỦA MONA",
+  //   price: 287300,
+  //   image: Book2,
+  // }, {
+  //   check:false,
+  //   quantity: 3,
+  //   title: "CUỐN SÁCH HOANG DÃ",
+  //   price: 115600,
+  //   image: Book3,
+  // }]);
   useEffect( () => {
-    caculateTotal();
+    getCartList(14);
     }, []);
 
+  const getCartList = async(userId)=>{
+    await axios.get(`http://localhost:8090/api/cart/user/${userId}`,{
+      headers:auth,
+    })
+    .then((response) => {
+        setCartlist(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+    caculateTotal();
+  };
+    
   const caculateTotal = ()=>{
     var tempTotal = 0;
     for (let i = 0; i < cartlist.length; i++) {
       if (cartlist[i].check)
-      tempTotal += cartlist[i].quantity*cartlist[i].price;
+      tempTotal += cartlist[i].quantity*cartlist[i].book.price_discounted;
     }
     setTotalAmount(tempTotal);
   }
@@ -52,7 +75,7 @@ export default function Cart() {
 
   const handleCheckBoxChange = (value, index)=>{
     var newBook = {
-      ...cartlist[index], check: value,
+      ...cartlist[index], isPurchased: value,
     }
     var newList = cartlist.slice();
     newList.splice(index, 1, newBook);
@@ -71,29 +94,29 @@ export default function Cart() {
       {(cartlist.length>0)
       ? <div className="flex flex-col content-evenly px-36 ">
         
-            {cartlist.map((book, index) => (
+            {cartlist.map((cartItem, index) => (
               <div key={index} className="flex flex-row content-evenly items-center border-b pb-4">
-                <input checked={book.check} 
+                <input checked={cartItem.isPurchased} 
                   onChange={()=>{
-                    var newValue= !book.check
+                    var newValue= !cartItem.isPurchased
                     handleCheckBoxChange(newValue, index);
                     if (newValue){
-                      setTotalAmount(totalAmount + cartlist[index].price*cartlist[index].quantity);
+                      setTotalAmount(totalAmount + cartlist[index].book.price_discounted*cartlist[index].quantity);
                     } else{
-                      setTotalAmount(totalAmount - cartlist[index].price*cartlist[index].quantity);
+                      setTotalAmount(totalAmount - cartlist[index].book.price_discounted*cartlist[index].quantity);
                     }
                   }} 
                   type="checkbox" className="mr-4 w-5 h-5" />
 
                 {/* Book image */}
-                <img src={book.image} alt={book.title} className="w-20 h-28 object-cover mr-4" />
+                <img src={cartItem.book.image} alt={cartItem.book.title} className="w-20 h-28 object-cover mr-4" />
 
                 {/* Book information */}
                 <div className="flex-1">
-                  <h2 className="text-md font-semibold">{book.title}</h2>
+                  <h2 className="text-md font-semibold">{cartItem.book.title}</h2>
                   <button className="text-red-600 text-sm"
                     onClick={()=>{
-                      if (book.check) setTotalAmount(totalAmount - book.price*book.quantity);
+                      if (cartItem.isPurchased) setTotalAmount(totalAmount - cartItem.price*cartItem.quantity);
                       handleDeleteBook(index);
                     }}
                   >
@@ -101,7 +124,7 @@ export default function Cart() {
                   </button>
                 </div>
                 <div className="text-green-600 font-semibold w-24 text-right">
-                  {(book.price).toLocaleString('vi-VN')}₫
+                  {(cartItem.book.price_discounted).toLocaleString('vi-VN')}₫
                 </div>
 
                 {/* Quantity */}
@@ -109,18 +132,18 @@ export default function Cart() {
                   <div className="inline-flex items-center border border-gray-300 rounded-md overflow-hidden text-sm font-medium">
                     <button
                       onClick={()=>{
-                        if (((book.quantity -1) > 0) && (book.check)) setTotalAmount(totalAmount-cartlist[index].price);
-                        handelQuantityChange(book.quantity - 1, index); 
+                        if (((cartItem.quantity -1) > 0) && (cartItem.isPurchased)) setTotalAmount(totalAmount-cartlist[index].book.price_discounted);
+                        handelQuantityChange(cartItem.quantity - 1, index); 
                       }}
                       className="px-3 py-1 text-2xl text-gray-700 border-r border-gray-300 hover:bg-gray-100 transition"
                     >
                       -
                     </button>
-                    <div className=" text-2xl px-4 py-1">{book.quantity}</div>
+                    <div className=" text-2xl px-4 py-1">{cartItem.quantity}</div>
                     <button
                       onClick={()=>{
-                        handelQuantityChange(book.quantity + 1, index);
-                        if (book.check) setTotalAmount(totalAmount+cartlist[index].price);
+                        handelQuantityChange(cartItem.quantity + 1, index);
+                        if (cartItem.isPurchased) setTotalAmount(totalAmount + cartlist[index].book.price_discounted);
                       }}
                       className="px-3 py-1 text-2xl text-gray-700 border-l border-gray-300 hover:bg-gray-100 transition"
                     >
@@ -131,11 +154,47 @@ export default function Cart() {
 
                 {/* Book final price */}
                 <div className="text-green-600 font-semibold w-24 text-right ml-4">
-                  {(book.price*book.quantity).toLocaleString('vi-VN')}₫
+                  {(cartItem.book.price_discounted*cartItem.quantity).toLocaleString('vi-VN')}₫
                 </div>
               </div>
             ))}
 
+            {/* Pick voucher   */}
+            <div className="flex justify-between items-center py-4 mt-4">
+                <div className="relative">
+                  <div
+                    className="text-xl text-blue-600 cursor-pointer"
+                    onClick={() => setShowVoucher(!showVoucher)}
+                  >
+                    Chọn Voucher
+                  </div>
+                  {showVoucher && (
+                    <div className="absolute left-3 mt-2 w-64 bg-white shadow-lg border rounded-lg p-4 z-10">
+                      <input
+                        type="text"
+                        className="w-full border px-3 py-2 rounded mb-2"
+                        placeholder="Enter voucher"
+                        value={voucherCode}
+                        onChange={(e) => setVoucherCode(e.target.value)}
+                      />
+                      <div className="flex justify-end gap-2">
+                        <button
+                          className="px-4 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+                          onClick={() => setShowVoucher(false)}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="px-4 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                          onClick={handleSubmitVoucher}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             {/* Total cart price */}
             <div className="mt-6 text-right font-bold text-green-600 text-lg">
               Total amount: {(totalAmount).toLocaleString('vi-VN')}₫

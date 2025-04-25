@@ -24,7 +24,7 @@ import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
 
 const router = createBrowserRouter([{
   path: '/',
-  element: <App/>,
+  element: <Cart/>,
   children:[
     {index:true, element: <Books/>},
     {path:'books', element:<BookCategoryList/>},
