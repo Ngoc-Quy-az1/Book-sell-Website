@@ -5,9 +5,11 @@ import com.example.test.Entity.Book;
 import com.example.test.Repository.BookRepo.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,11 +76,35 @@ public Book updateBook(int id, UpdateBookDTO bookDTO) {
         return bookRepository.findByCategory(category);
     }
 
+    //Lấy sách theo khoảng giá cho trước
+    public Page<Book> getBookByPrice(int price1, int price2, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return bookRepository.findByPrice(price1, price2, pageable);
+}
+
+
     //Lấy tất cả sách, phân trang mỗi trang 20 object
     public Page<Book> getAllBooksPaginated(int page, int size) {
         return bookRepository.findAll(PageRequest.of(page, size));
     }
 
+   // Giá tăng dần
+    public Page<Book> getAllBooksPaginatedPriceAsc(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Book> sortedBooks = bookRepository.findAllOrderByPriceAsc();
+        int start = Math.min((int) pageable.getOffset(), sortedBooks.size());
+        int end = Math.min((start + pageable.getPageSize()), sortedBooks.size());
+        return new PageImpl<>(sortedBooks.subList(start, end), pageable, sortedBooks.size());
+    }
+
+    // Giá giảm dần
+    public Page<Book> getAllBooksPaginatedPriceDesc(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Book> sortedBooks = bookRepository.findAllOrderByPriceDesc();
+        int start = Math.min((int) pageable.getOffset(), sortedBooks.size());
+        int end = Math.min((start + pageable.getPageSize()), sortedBooks.size());
+        return new PageImpl<>(sortedBooks.subList(start, end), pageable, sortedBooks.size());
+    }
     //Lấy thê thể loại sách 
     public List<String> getAllCategories() {
         return bookRepository.findDistinctCategories();

@@ -1,6 +1,5 @@
 package com.example.test.controller.CoreController;
 
-import com.example.test.DTO.book.request.BookGetAllRequest;
 import com.example.test.DTO.book.request.UpdateBookDTO;
 import com.example.test.DTO.book.response.BookResponse;
 import com.example.test.Entity.Book;
@@ -16,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/books")
@@ -304,6 +305,57 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
         return ResponseEntity.ok(responsePage);
     }
 
+    //Api lấy ra danh sách sách có phân trang và sắp xếp theo giá giảm dần 
+    // Nếu không truyền về số trang thì mặc định lấy trang 0
+    // http://localhost:8090/api/books/GetAllPaginated/sortedAcss
+    // 
+    // http://localhost:8090/api/books/GetAllPaginated/sortedAcs?page=1&size=20
+    @GetMapping("/GetAllPaginated/sortedAcs")
+    public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedAcs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<Book> booksPage = bookService.getAllBooksPaginatedPriceAsc(page, size);
+        List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
+            BookResponse response = new BookResponse();
+            response.setId(book.getID());
+            response.setTitle(book.getTitle());
+            response.setAuthor(book.getAuthor());
+            response.setCategory(book.getCategory());
+            response.setImage(book.getImage());
+            response.setPrice_discounted((int)book.getPrice_discounted());
+            response.setPrice_original((int) book.getPrice_original());
+            response.setDescription(book.getDescription());
+            return response;
+        }).collect(Collectors.toList());
+        Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
+        return ResponseEntity.ok(responsePage);
+    }
+
+    //Api lấy ra danh sách sách có phân trang và sắp xếp theo giá giảm dần 
+    // Nếu không truyền về số trang thì mặc định lấy trang 0
+    // http://localhost:8090/api/books/GetAllPaginated/sortedDesc
+    // 
+    // http://localhost:8090/api/books/GetAllPaginated/sortedDesc?page=1&size=20
+    @GetMapping("/GetAllPaginated/sortedDesc")
+    public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedDesc(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<Book> booksPage = bookService.getAllBooksPaginatedPriceDesc(page, size);
+        List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
+            BookResponse response = new BookResponse();
+            response.setId(book.getID());
+            response.setTitle(book.getTitle());
+            response.setAuthor(book.getAuthor());
+            response.setCategory(book.getCategory());
+            response.setImage(book.getImage());
+            response.setPrice_discounted((int)book.getPrice_discounted());
+            response.setPrice_original((int) book.getPrice_original());
+            response.setDescription(book.getDescription());
+            return response;
+        }).collect(Collectors.toList());
+        Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
+        return ResponseEntity.ok(responsePage);
+    }
     //Api lấy ra các thể loại sách đang có 
     // http://localhost:8090/api/books/AllTypeCategories
     @GetMapping("/AllTypeCategories")
@@ -311,4 +363,42 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
         List<String> categories = bookService.getAllCategories();
         return ResponseEntity.ok(categories);
     }
+
+    //API lấy sách theo khoảng giá cho trước
+    //http://localhost:8090/api/books/GetAllPaginated/SearchByPrice
+    // request body
+    // {
+    //     "minPrice" : "10000",
+    //     "maxPrice" : "20000",
+    //     "page" : "0",
+    //     "size" : "20",
+    // }
+    
+    @PostMapping("/GetAllPaginated/SearchByPrice")
+    public ResponseEntity<Page<BookResponse>> getBooksByPrice(@RequestBody Map<String, Integer> priceRange) {
+        int minPrice = priceRange.get("minPrice");
+        int maxPrice = priceRange.get("maxPrice");
+        int page = priceRange.getOrDefault("page", 0);
+        int size = priceRange.getOrDefault("size", 20);
+    
+        Page<Book> booksPage = bookService.getBookByPrice(minPrice, maxPrice, page, size);
+    
+        List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
+            BookResponse response = new BookResponse();
+            response.setId(book.getID());
+            response.setTitle(book.getTitle());
+            response.setAuthor(book.getAuthor());
+            response.setCategory(book.getCategory());
+            response.setImage(book.getImage());
+            response.setPrice_discounted((int) book.getPrice_discounted());
+            response.setPrice_original((int) book.getPrice_original());
+            response.setDescription(book.getDescription());
+            return response;
+        }).collect(Collectors.toList());
+    
+        Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
+        return ResponseEntity.ok(responsePage);
+    }
+    
+    
 }

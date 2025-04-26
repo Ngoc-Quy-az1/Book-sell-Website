@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chat-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        .message.sent {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+        .message.received {
+            background-color: #f5f5f5;
+            margin-right: 20px;
+        }
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .notification {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-header">
+            <h2>Group Chat Interface</h2>
+            <div class="input-section">
+                <input type="number" id="userId" placeholder="Your User ID">
+                <input type="number" id="groupId" placeholder="Group ID">
+                <button onclick="connectWebSocket()">Connect</button>
+            </div>
+        </div>
+        <div id="groupMessages" class="chat-messages"></div>
+        <div class="input-section">
+            <input type="text" id="groupMessage" placeholder="Type a message...">
+            <button onclick="sendGroupMessage()">Send to Group</button>
+        </div>
+        <div class="input-section">
+            <button onclick="getGroupHistory()">Get Group History</button>
+        </div>
+        <div class="input-section">
+            <button onclick="sendJoinRequest()">Send Join Request</button>
+        </div>
+        <div id="groupStatus" class="status"></div>
+    </div>
+
+    <script>
+        let stompClient = null;
+
+        function connectWebSocket() {
+            const userId = document.getElementById('userId').value;
+            const groupId = document.getElementById('groupId').value;
+            
+            if (!userId || !groupId) {
+                showStatus('Please enter both User ID and Group ID', 'groupStatus', true);
+                return;
+            }
+
+            const socket = new SockJS('http://localhost:8090/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function(frame) {
+                showStatus('Connected to WebSocket', 'groupStatus');
+                
+                // Subscribe to group chat topic
+                stompClient.subscribe('/topic/group-chat/' + groupId, function(message) {
+                    const messageBody = JSON.parse(message.body);
+                    const type = messageBody.sender.id == parseInt(userId) ? 'sent' : 'received';
+                    appendMessage(messageBody, 'groupMessages', type);
+                });
+
+                // Subscribe to group notifications
+                stompClient.subscribe('/topic/group-notifications/' + groupId, function(message) {
+                    showStatus(message.body, 'groupStatus', false, true);
+                });
+
+                // Load group history on connect
+                getGroupHistory();
+            }, function(error) {
+                showStatus('Error connecting to WebSocket: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function sendGroupMessage() {
+            const userId = document.getElementById('userId').value;
+            const groupId = document.getElementById('groupId').value;
+            const message = document.getElementById('groupMessage').value;
+            
+            if (!userId || !groupId || !message) {
+                showStatus('Please enter all required fields', 'groupStatus', true);
+                return;
+            }
+
+            fetch('http://localhost:8090/api/chat/community/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    senderId: parseInt(userId),
+                    groupId: parseInt(groupId),
+                    message: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('groupMessage').value = ''; // Clear input field
+                // Do not append message here; let WebSocket subscription handle it
+            })
+            .catch(error => {
+                showStatus('Error sending group message: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function getGroupHistory() {
+            const groupId = document.getElementById('groupId').value;
+            const userId = document.getElementById('userId').value;
+            
+            if (!groupId) {
+                showStatus('Please enter Group ID', 'groupStatus', true);
+                return;
+            }
+
+            fetch('http://localhost:8090/api/chat/community/history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    groupId: parseInt(groupId)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('groupMessages');
+                container.innerHTML = ''; // Clear previous messages
+                data.forEach(message => {
+                    const type = message.sender.id == parseInt(userId) ? 'sent' : 'received';
+                    appendMessage(message, 'groupMessages', type);
+                });
+            })
+            .catch(error => {
+                showStatus('Error getting group history: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function sendJoinRequest() {
+            const userId = document.getElementById('userId').value;
+            const groupId = document.getElementById('groupId').value;
+            
+            if (!userId || !groupId) {
+                showStatus('Please enter both User ID and Group ID', 'groupStatus', true);
+                return;
+            }
+
+            fetch(`http://localhost:8090/api/chat/community/group/${groupId}/joinRequest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: parseInt(userId)
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                showStatus(data, 'groupStatus');
+            })
+            .catch(error => {
+                showStatus('Error sending join request: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function appendMessage(message, containerId, type) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const senderInfo = message.sender ? `User ${message.sender.id}` : 'Unknown';
+            const time = new Date(message.createdAt).toLocaleTimeString();
+            
+            messageDiv.innerHTML = `
+                <strong>${senderInfo}</strong> (${time})<br>
+                ${message.message}
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showStatus(message, elementId, isError = false, isNotification = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${isError ? 'error' : isNotification ? 'notification' : ''}`;
+        }
+    </script>
+</body>
+</html>

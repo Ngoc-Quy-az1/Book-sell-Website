@@ -14,6 +14,7 @@ import { Outlet } from "react-router-dom";
 import ChatButton from "./components/ChatButton/ChatButton.jsx";
 import UserDetail from "./components/UserDetail/UserDetail";
 import Cookies from "js.cookie"
+import Books from "./components/BooksSlider/Books.jsx";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -55,6 +56,7 @@ const App = () => {
         <Services handleOrderPopup={handleOrderPopup} />
         <Banner />
         <AppStore />
+        <Books />
         <Testimonial />
       </>  
       <Footer />
