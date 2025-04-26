@@ -26,9 +26,11 @@ export default Notification = ({notification, handleNotification}) => {
       setNotice(Response);
     })
   }
-  const handleClick = (id) => {
-    markAsRead(id);
-    console.log(id)
+  const clearAll = () => {
+    notice.map((message) => {
+      if (!message.is_read) markAsRead(message.id);
+    }
+    )
   }
   const markAsRead = (msgId) => {
     fetch("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{
@@ -39,32 +41,47 @@ export default Notification = ({notification, handleNotification}) => {
     });
   }
   return (
-    <div
+    <div 
     >
       {notification && (
         <Box
-          className={`fixed top-16 right-5 w-80 rounded-lg shadow-lg border transition-all flex flex-col z-50`}
+          className={`fixed top-16 right-5 w-80 rounded-lg shadow-lg border transition-all flex flex-col`}
           backgroundColor={colors.primary[400]}
           borderColor={colors.primary[300]}
         >
-          {/* Tin nhắn */}
+          <button onClick={clearAll}> 
+            <Box
+                className={ `ml-auto p-2 rounded-lg text-sm inline-block mb-2`}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor={colors.primary[400]}
+                color={colors.primary[100]}
+                style={{ borderWidth:"1px"}}
+                borderColor={colors.primary[300]}
+              >
+              Mark All as read
+            </Box>
+            </button>
           <div className="flex-1 overflow-y-auto p-3 rounded max-h-[60vh] space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
             {notice.toReversed().map((msg) => (
-              <>
-                <Box
-                  className={ `ml-auto p-2 rounded-lg text-sm inline-block mb-2`}
-                  display="flex"
-                  backgroundColor={colors.primary[400]}
-                  color={colors.primary[100]}
-                  key={msg.id}
-                  style={{ borderWidth:"1px"}}
-                  borderColor={colors.primary[300]}
-                  onClick={(() => handleClick(msg.id))}
-                >
-                  {msg.message}
-                </Box>
-                  {msg.is_read ? "" : <Box className="flex-1 w-1 p-1 rounded-lg" backgroundColor="blue" display="flex"/>}
-                  </>
+              <Box
+                className={ `ml-auto p-2 rounded-lg text-sm inline-block mb-2`}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor={colors.primary[400]}
+                color={colors.primary[100]}
+                key={msg.id}
+                style={{ borderWidth:"1px"}}
+                borderColor={colors.primary[300]}
+                onClick={(() => markAsRead(msg.id))}
+              >
+                {msg.message}
+                {msg.is_read ? "" : <Box className="flex-1 w-[10px] h-[10px] p-1 rounded-lg" 
+                  backgroundColor="blue" 
+                  display="flex"/>}
+              </Box>
             ))}
           </div>
         </Box>

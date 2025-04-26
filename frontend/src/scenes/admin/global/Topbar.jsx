@@ -8,18 +8,13 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import Notification from "../Notification";
 import Cookies from "js.cookie"
 
-const Topbar = () => {
+const Topbar = ({handleNotification}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-  const [notification, setNotification] = useState(false);
   const [showOption, setShowOption] = useState(false);
-  const handleNotification = () => {
-    setNotification(!notification);
-  }
   const handleShowOption = () => {
     setShowOption(!showOption);
   }
@@ -87,8 +82,6 @@ const Topbar = () => {
         </IconButton>
       </Box>
     </Box>
-    
-    <Notification notification={notification} handleNotification={handleNotification}/>
     </div>
   );
 };

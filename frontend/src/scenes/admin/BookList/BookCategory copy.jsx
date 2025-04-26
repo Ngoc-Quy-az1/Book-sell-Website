@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from "react";
 import axios from 'axios';
-import UserPopup from "./UserPopup";
+import UserPopup from "./BookPopup";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
 import Cookies from "js.cookie"
@@ -19,6 +19,7 @@ const AdminBookCategoryList = () => {
     }, [])
     const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
     const [selectedCategory, setSelectedCategory] = useState([]);
+    const [url, setUrl] = useState("http://localhost:8090/api/books/GetAllPaginated");
     const [page, setPage] = useState(1);
     const handlePage = (int) => {
       setPage(page + int);
@@ -36,12 +37,13 @@ const AdminBookCategoryList = () => {
       getDetail()
     },[])
     const getBookPage = async ()=>{
-      await fetch('http://localhost:8090/api/books/all',{ headers: config})
+      await fetch(url,{ headers: config})
       .then((response) => {
         return response.json();
       })
       .then((response) => {
-        setBookList(response);
+        setBookList(response.content);
+        console.log(response.content);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -76,9 +78,9 @@ const AdminBookCategoryList = () => {
       setUserPopup(!userPopup);
   
     };
-  const handleSortRule = (rule) => {
-    setSortRule(rule);
-    setSelectedSortRule(rule);
+  const handleSort = (url) => {
+    setSortRule(url);
+    getBookPage();
   }
   const handleManage = (book) => {
     setSelectedBook(book);
@@ -88,7 +90,6 @@ const AdminBookCategoryList = () => {
     const index = selectedCategory.indexOf(event.target.id);
     (event.target.checked) ? setSelectedCategory([...selectedCategory, event.target.id])
     : setSelectedCategory([...selectedCategory.slice(0,index),...selectedCategory.slice(index+1)])
-    console.log(selectedCategory);
   }
   const sort = (a,b) => {
     if (sortRule==0) return a.title>b.title ? 1 : -1;
@@ -99,7 +100,7 @@ const AdminBookCategoryList = () => {
   const BookList = () => {
     const newList = bookList.filter((book) => selectedCategory.includes(book.category) || selectedCategory.length == 0);
     findMaxPage(newList.length);
-    return newList.toSorted(sort).slice((page-1)*20,page*20).map((book) => (
+    return newList.map((book) => (
       <button id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
         <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
         <h3 className="font-bold text-sm mb-1">{book.title}</h3>
@@ -110,7 +111,6 @@ const AdminBookCategoryList = () => {
   }
   const pageIndex = () => {
     let list = Array.from({length:5}, (x,i) => page-2+i)
-    console.log(list.filter((val) => val>0 && val<=maxPage))
     return list.filter((val) => val>0 && val<=maxPage)
   }
   return (
@@ -131,10 +131,9 @@ const AdminBookCategoryList = () => {
         <UserPopup book={selectedBook} userPopup={userPopup} handleUserPopup={handleUserPopup}/>
         {/* Sorting Options */}
         <div className="flex gap-2 mb-4">
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(0)} style={(selectedSortRule==0) ? {backgroundColor : colors.greenAccent[600]} : {}}>Mặc định</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(1)} style={(selectedSortRule==1) ? {backgroundColor : colors.greenAccent[600]} : {}}>Sách mới</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(2)} style={(selectedSortRule==2) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(3)} style={(selectedSortRule==3) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSort("http://localhost:8090/api/books/GetAllPaginated")} style={(selectedSortRule==1) ? {backgroundColor : colors.greenAccent[600]} : {}}>Sách mới</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSort("http://localhost:8090/api/books/GetAllPaginated/sortedAcs")} style={(selectedSortRule==2) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSort("http://localhost:8090/api/books/GetAllPaginated/sortedDesc")} style={(selectedSortRule==3) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
         </div>
         
         {/* Book List */}

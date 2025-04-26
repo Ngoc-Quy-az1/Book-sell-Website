@@ -47,6 +47,10 @@ const App = () => {
       <>
         <ChatButton />
         <Outlet/>
+        <Banner />
+        <AppStore />
+        <Books />
+        <Testimonial />
       </>
       :
       <>
