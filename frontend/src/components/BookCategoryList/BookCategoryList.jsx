@@ -3,30 +3,37 @@ import { useState,useEffect } from "react";
 import axios from 'axios';
 import Cookies from 'js.cookie';
 
+
 const BookCategoryList = () => {
   const [selectedCountries, setSelectedCountries] = useState([]);
   const category = ["Giáo dục", "Kinh tế", "Văn học", "Tiểu thuyết", "Thiếu nhi"];
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const [totalPage, setTotalPage] = useState(1)
   const [bookList, setBooklist] = useState([]);
+  const [selectedPage, setSelectedPage] = useState(1)
   useEffect( () => {
     getBookPage();
   }, []);
+
   const getBookPage = async ()=>{
     await axios.get('http://localhost:8090/api/books/GetAllPaginated',{
       headers:auth,
     })
     .then((response) => {
         setBooklist(response.data.content);
+        setTotalPage(response.data.totalPages);
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
     });
   }
+
   const onPageChange = async (page)=> {
     await axios
     .get(
       'http://localhost:8090/api/books/GetAllPaginated',
       {
+        headers:auth,
         params: {
           page: page,
         }
@@ -37,6 +44,27 @@ const BookCategoryList = () => {
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
+    });
+    
+  }
+
+  const addToCart = async (userId, bookId)=>{
+    let data = {
+      "userId": userId,
+      "bookId": bookId,
+      "quantity":1,
+    };
+    await axios.post('http://localhost:8090/api/cart/add',
+      data,
+      {
+        headers:auth,
+      }
+    )
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error.response.data);
     });
   }
   return (
@@ -75,16 +103,24 @@ const BookCategoryList = () => {
 
               <div className="text-xl font-bold text-green-600">
               {(parseFloat(book.price_discounted)).toLocaleString(undefined,
-                {'minimumFractionDigits':3}
+                
               )}₫ 
               <span className="text-base line-through text-gray-500 ml-2">
                 {(parseFloat(book.price_original)).toLocaleString(undefined,
-              {'minimumFractionDigits':3}  
+               
               )}₫</span>
               <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
                 {Math.round( (parseFloat(book.price_original) - parseFloat(book.price_discounted))*100
                   /parseFloat(book.price_original) )} %
               </span>
+              
+              <button onClick={()=>{
+                addToCart(14, book.id);
+              }} 
+              className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600">
+                Add to cart
+              </button>
+      
 
             </div>
               
@@ -96,13 +132,16 @@ const BookCategoryList = () => {
             <button disabled={1 === 1} onClick={() => {}} className="px-2">
               &#x2039;
             </button>
-            {[1, 2, 3].map((page, index) => (
+            {[...Array(totalPage)].map((page, index) => (
               <button
                 key={index}
-                onClick = { ()=>{}}
-                className={`px-3 py-1 rounded-full border ${1 === page ? 'text-green-600 border-green-600' : ''}`}
+                onClick = { async ()=>{
+                  await onPageChange(index);
+                  setSelectedPage(page);
+                }}
+                className={`px-3 py-1 rounded-full border ${selectedPage === (index+1)  ? 'text-green-600 border-green-600' : ''}`}
               >
-                {page}
+                {index+1}
               </button>
             ))}
             <button disabled={3 === 3} onClick={() =>{}} className="px-2">

@@ -1,24 +1,43 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
+import Cookies from 'js.cookie';
 
 export default function PlaceOrder() {
-  const bookList = [
-    {
-      id: 3,
-      title: "ĂN DẶM KHÔNG NƯỚC MẮT",
-      price: 53360,
-      quantity: 1,
-      image: "https://bizweb.dktcdn.net/100/363/455/products/an-dam-khong-nuoc-mat.jpg?v=1695032717550",
-    },
-    {
-      id: 2,
-      title: "NUÔI DẠY CON KHÔNG QUÁT MẮNG",
-      price: 53360,
-      quantity: 2,
-      image: "https://bizweb.dktcdn.net/100/363/455/products/nuoidayconkhongquatmangcover01.jpg?v=1705552116190",
-    },
-  ];
+  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const [orderList, setOrderList] = useState([]);
+  useEffect( () => {
+    getOrder(1);
+  }, []);
 
-  const total = bookList.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const getOrder = async (orderID)=>{
+    await axios.get(`http://localhost:8090/api/order/orderDetails?orderID=${orderID}`,{
+      headers:auth,
+    })
+    .then((response) => {
+        setOrderList(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
+  // const orderList = [
+  //   {
+  //     id: 3,
+  //     title: "ĂN DẶM KHÔNG NƯỚC MẮT",
+  //     price: 53360,
+  //     quantity: 1,
+  //     image: "https://bizweb.dktcdn.net/100/363/455/products/an-dam-khong-nuoc-mat.jpg?v=1695032717550",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "NUÔI DẠY CON KHÔNG QUÁT MẮNG",
+  //     price: 53360,
+  //     quantity: 2,
+  //     image: "https://bizweb.dktcdn.net/100/363/455/products/nuoidayconkhongquatmangcover01.jpg?v=1705552116190",
+  //   },
+  // ];
+
+  const total = orderList.reduce((sum, item) => sum + item.price * item.quantity, 0);
   
   return (
     <div className="flex flex-row">
@@ -30,11 +49,11 @@ export default function PlaceOrder() {
           <h2 className="text-xl font-semibold mb-4 ml-[69px]">Amount</h2>
           <h2 className="text-xl font-semibold mb-4 ml-[80px]">Total</h2>
         </div>
-        {bookList.map((item) => (
-          <div key={item.id} className="flex items-center justify-between py-3 border-b">
+        {orderList.map((item) => (
+          <div key={item.bookName} className="flex items-center justify-between py-3 border-b">
             <div className="flex items-center gap-4">
               <img src={item.image} alt="book" className="w-12 h-16 object-cover" />
-              <span className=" text-2xl">{item.title}</span>
+              <span className=" text-2xl">{item.bookName}</span>
             </div>
             <div className="flex items-center">
               <span className=" text-xl mr-12 w-24 text-left">₫{item.price.toLocaleString()}</span>
