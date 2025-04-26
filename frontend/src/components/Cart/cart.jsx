@@ -9,7 +9,7 @@ import Cookies from 'js.cookie';
 import axios from 'axios';
 
 export default function Cart() {
-  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`,}
   const [showVoucher, setShowVoucher] = useState(false);
   const [showInvalidVoucher, setShowInvalidVoucher] = useState(false);
   const [voucherCode, setVoucherCode] = useState("");
@@ -37,6 +37,39 @@ export default function Cart() {
     caculateTotal();
   };
 
+  const updateCartListBackend = async (userId, bookId, quantity)=>{
+    let data = {
+      "userId": userId,
+      "bookId": bookId,
+      "quantity": quantity,
+    };
+    await axios.put(`http://localhost:8090/api/cart/update-quantity`,
+    data,
+    {   
+      headers: auth,
+    })
+    .then((response) => {
+        console.log(response.data);
+    })
+    .catch((error) => {
+      console.error(' qqq Error fetching data:', error);
+    });
+  };
+
+  const deleteCartBookBackend = async (userId, bookId)=>{
+    await axios.delete(`http://localhost:8090/api/cart/${userId}/${bookId}`,
+    //data,
+    {   
+      headers: auth,
+    })
+    .then((response) => {
+        console.log(response.data);
+    })
+    .catch((error) => {
+      console.error(' qqq Error fetching data:', error);
+    });
+  }
+
   const getVoucherList = async(userId)=>{
     await axios.get(`http://localhost:8090/api/users/${userId}/discount-codes`,{
       headers:auth,
@@ -49,6 +82,7 @@ export default function Cart() {
     });
     caculateTotal();
   };
+
   const handleSubmitVoucher = () => {
     console.log("Submitted voucher code:", voucherCode);
     if (voucherCode != voucherList[0].code){
@@ -68,13 +102,13 @@ export default function Cart() {
   const caculateTotal = ()=>{
     var tempTotal = 0;
     for (let i = 0; i < cartlist.length; i++) {
-      if (cartlist[i].check)
+      if (cartlist[i].isPurchased)
       tempTotal += cartlist[i].quantity*cartlist[i].book.price_discounted;
     }
     setTotalAmount(tempTotal);
   }
 
-  const handelQuantityChange = (value, index) =>{
+  const handelQuantityChange = async (value, index) =>{
     if (value<1) return;
     var newBook = {
       ...cartlist[index], quantity: value,
@@ -82,9 +116,10 @@ export default function Cart() {
     var newList = cartlist.slice();
     newList.splice(index, 1, newBook);
     setCartlist(newList);
+    await updateCartListBackend(14, newBook.bookId, value)
   }
 
-  const handleCheckBoxChange = (value, index)=>{
+  const handleCheckBoxChange = async (value, index)=>{
     var newBook = {
       ...cartlist[index], isPurchased: value,
     }
@@ -93,10 +128,32 @@ export default function Cart() {
     setCartlist(newList);
   }
 
-  const handleDeleteBook = (index)=>{
+  const handleDeleteBook = async (index)=>{
     var newList = cartlist.slice();
     newList.splice(index, 1);
     setCartlist(newList);
+    await deleteCartBookBackend(14, cartlist[index].bookId )
+  }
+
+  const handlePlaceOrder = async (userId)=>{
+    let tempList = []
+    for (let i=0; i< cartlist.length; i++){
+      if (cartlist[i].isPurchased) tempList.push(cartlist[i].bookId)
+    };
+    let data = {
+      "userId": userId,
+      "bookIds": tempList,
+    };
+    await axios.post('http://localhost:8090/api/order/create',
+      data,
+      {
+        headers: auth,
+      }
+    ).then((response)=>{
+      console.log(response.data);
+    }). catch((error)=>{
+      console.error('qqq Error fetching data:', error)
+    })
   }
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -219,8 +276,8 @@ export default function Cart() {
                 {discountText2}
               </div>
             </div>
-            <button className="mt-4 ml-[1250px] w-96 justify-self-end bg-green-600 text-white py-2 rounded hover:bg-green-700">
-              Checkout
+            <button onClick={()=>{handlePlaceOrder(14);}} className="mt-4 ml-[1250px] w-96 justify-self-end bg-green-600 text-white py-2 rounded hover:bg-green-700">
+              Place Order
             </button>
           
         </div>
