@@ -89,22 +89,23 @@ public Book updateBook(int id, UpdateBookDTO bookDTO) {
     }
 
    // Giá tăng dần
-    public Page<Book> getAllBooksPaginatedPriceAsc(int page, int size) {
+    public Page<Book> getAllBooksPaginatedPriceAsc(int page, int size, String category) {
         Pageable pageable = PageRequest.of(page, size);
-        List<Book> sortedBooks = bookRepository.findAllOrderByPriceAsc();
+        List<Book> sortedBooks = bookRepository.findAllByCategoryOptionalOrderByPriceASC(category);
         int start = Math.min((int) pageable.getOffset(), sortedBooks.size());
         int end = Math.min((start + pageable.getPageSize()), sortedBooks.size());
         return new PageImpl<>(sortedBooks.subList(start, end), pageable, sortedBooks.size());
     }
 
     // Giá giảm dần
-    public Page<Book> getAllBooksPaginatedPriceDesc(int page, int size) {
+    public Page<Book> getAllBooksByCategoryPaginatedPriceDesc(int page, int size, String category) {
         Pageable pageable = PageRequest.of(page, size);
-        List<Book> sortedBooks = bookRepository.findAllOrderByPriceDesc();
+        List<Book> sortedBooks = bookRepository.findAllByCategoryOptionalOrderByPriceDesc(category);
         int start = Math.min((int) pageable.getOffset(), sortedBooks.size());
         int end = Math.min((start + pageable.getPageSize()), sortedBooks.size());
         return new PageImpl<>(sortedBooks.subList(start, end), pageable, sortedBooks.size());
     }
+    
     //Lấy thê thể loại sách 
     public List<String> getAllCategories() {
         return bookRepository.findDistinctCategories();

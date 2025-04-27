@@ -22,11 +22,15 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
         @Query("SELECT DISTINCT b.category FROM Book b")
         List<String> findDistinctCategories();
 
-        @Query("SELECT b FROM Book b ORDER BY b.price_discounted DESC")
-        List<Book> findAllOrderByPriceDesc();
+        // xử lý theo giá tăng dần
+        @Query("SELECT b FROM Book b WHERE (:category IS NULL OR b.category = :category) ORDER BY b.price_discounted ASC")
+        List<Book> findAllByCategoryOptionalOrderByPriceASC(@Param("category") String category);
         
-        @Query("SELECT b FROM Book b ORDER BY b.price_discounted ASC")
-        List<Book> findAllOrderByPriceAsc();
+
+        // xử lý theo giá giảm dần 
+        @Query("SELECT b FROM Book b WHERE (:category IS NULL OR b.category = :category) ORDER BY b.price_discounted DESC")
+        List<Book> findAllByCategoryOptionalOrderByPriceDesc(@Param("category") String category);
+        
 
         @Query("SELECT b FROM Book b WHERE b.price_discounted >= :price1 AND b.price_discounted <= :price2 ORDER BY b.price_discounted ASC")
         Page<Book> findByPrice(@Param("price1") int price1, @Param("price2") int price2, org.springframework.data.domain.Pageable pageable);
