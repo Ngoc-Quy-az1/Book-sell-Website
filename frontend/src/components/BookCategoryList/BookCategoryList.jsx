@@ -140,13 +140,12 @@ const BookCategoryList = () => {
 
               <div className="text-xl font-bold text-green-600">
                 {(parseFloat(book.price_discounted)).toLocaleString(undefined,
-                  {'minimumFractionDigits':3}
+                  
                 )}₫ 
               </div>
               <div>
                 <span className="text-base line-through text-gray-500 ml-2">
                   {(parseFloat(book.price_original)).toLocaleString(undefined,
-                {'minimumFractionDigits':3}  
                 )}₫</span>
                 <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
                   {Math.round( (parseFloat(book.price_original) - parseFloat(book.price_discounted))*100
