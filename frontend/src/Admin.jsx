@@ -4,20 +4,24 @@ import Topbar from "./scenes/admin/global/Topbar";
 import Sidebar from "./scenes/admin/global/Sidebar";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
-
+import Notification from "./scenes/admin/notification";
 const Admin = () => {
   const [theme, colorMode] = useMode();
-  const [isSidebar, setIsSidebar] = useState(true);
+  const [notification, setNotification] = useState(false);
+  const handleNotification = () => {
+    setNotification(!notification);
+  }
   return (
     <div>
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-        <Sidebar isSidebar={isSidebar}/>
-          <main className="content" style={{position:'relative',zIndex:'0'}}>
-              <Topbar setIsSidebar={setIsSidebar} />
+        <Sidebar/>
+          <main className="content" style={{position:'relative',zIndex:'1'}}>
+              <Topbar handleNotification={handleNotification}/>
               <Outlet/>
+              <Notification notification={notification} handleNotification={handleNotification}/>
           </main>
         </div>
       </ThemeProvider>

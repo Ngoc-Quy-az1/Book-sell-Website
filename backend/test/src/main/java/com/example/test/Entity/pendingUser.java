@@ -26,6 +26,12 @@ public class pendingUser {
     @Column (name = "status")
     private boolean status;
 
+    @Column (name = "full_name")
+    private String full_name;
+
+    @Column (name = "address")
+    private String address;
+
     @Column (name = "code")
     private String code;
 
@@ -83,5 +89,21 @@ public class pendingUser {
 
     public void setMail(String mail) {
         this.mail = mail;
+    }
+
+    public String getFull_name() {
+        return full_name;
+    }
+
+    public void setFull_name(String full_name) {
+        this.full_name = full_name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

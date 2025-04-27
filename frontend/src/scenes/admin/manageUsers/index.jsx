@@ -256,7 +256,7 @@ const ManageUsers = () => {
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",
-            zIndex: -1
+            zIndex: 0
           },
           "& .MuiDataGrid-cell": {
             borderBottom: "none",
@@ -274,6 +274,7 @@ const ManageUsers = () => {
           "& .MuiDataGrid-footerContainer": {
             borderTop: "none",
             backgroundColor: colors.blueAccent[700],
+            maxHeight:"10%"
           },
           "& .MuiCheckbox-root": {
             color: `${colors.greenAccent[200]} !important`,
@@ -281,6 +282,10 @@ const ManageUsers = () => {
         }}
       >
         <DataGrid 
+        sx={{
+            display: 'grid',
+            gridTemplateRows: 'auto 1f auto',
+        }}
         rows={rows}
         columns={columns}
         editMode="row"

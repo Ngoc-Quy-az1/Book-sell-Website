@@ -185,6 +185,9 @@
 
         // Lấy số lượng tin nhắn được nhận tới của 1 người dùng 
         // http://localhost:8090/api/chat/admin/count_messages/{userId}
+        // Trả về số lượng tin nhắn chưa đọc của người dùng
+        // ví dụ trả về hợp lệ 
+        // 5
         
         @GetMapping("/count_messages/{userId}")
         public ResponseEntity<Integer> getCountOfMessages(@PathVariable int userId) {

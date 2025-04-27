@@ -11,9 +11,8 @@ import Form from "./scenes/admin/form";
 import Chat from "./scenes/admin/chat";
 import Cart from "./components/Cart/cart.jsx";
 import Calendar from "./scenes/admin/calendar/calendar";
-import Checkout from "./components/Checkout/Checkout.jsx";
 import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
-import AdminBookCategoryList from "./scenes/admin/BookCategoryList/BookCategory.jsx";
+import AdminBookList from "./scenes/admin/BookList/AdminBookList.jsx";
 import Books from "./components/BooksSlider/Books.jsx";
 
 // Import css files
@@ -31,8 +30,8 @@ const router = createBrowserRouter([{
     {index:true, element: <Books/>},
     {path:'books', element:<BookCategoryList/>},
     {path:'cart', element: <Cart/>},
-    {path:'user-detail', element:<UserDetail/>},
-    {path:'checkout', element:<Checkout/>},
+    {path:'user-detail/:id', element:<UserDetail/>},
+    {path:'book-detail/:id', element:<BookDetail/>}
   ]
 },
 {path:'/admin', 
@@ -41,10 +40,10 @@ const router = createBrowserRouter([{
     {
       index: true, element: <Dashboard/>
     },
-    // {path:'manageUsers', element:<ManageUsers />},
+    {path:'manageUsers', element:<ManageUsers />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},
-    {path:'booklist', element:<AdminBookCategoryList />},
+    {path:'booklist', element:<AdminBookList />},
     {path:'chat', element: <Chat/>},
     {path:'calendar', element:<Calendar />}
   ]

@@ -21,6 +21,21 @@ public class Orders {
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
+    @Column(name = "applied_discount_code_id")
+    private Integer appliedDiscountCodeId;
+
+    @Column(name = "discount_amount")
+    private BigDecimal discountAmount;
+
+    @Column(name = "final_amount")
+    private BigDecimal finalAmount;
+
+    @Column(name = "original_amount")
+    private BigDecimal originalAmount;
+
+
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
