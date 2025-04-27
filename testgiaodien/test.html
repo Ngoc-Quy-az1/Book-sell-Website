@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Test Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .chat-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chat-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+        }
+        .message.sent {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+        .message.received {
+            background-color: #f5f5f5;
+            margin-right: 20px;
+        }
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .notification {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Admin Chat Section -->
+        <div class="chat-section">
+            <div class="chat-header">
+                <h2>Admin Chat</h2>
+                <div class="input-section">
+                    <input type="number" id="userId" placeholder="User ID">
+                    <input type="number" id="adminId" placeholder="Admin ID">
+                    <button onclick="connectWebSocket()">Connect</button>
+                </div>
+            </div>
+            <div id="adminMessages" class="chat-messages"></div>
+            <div class="input-section">
+                <input type="text" id="adminMessage" placeholder="Type a message...">
+                <button onclick="sendToAdmin()">Send to Admin</button>
+            </div>
+            <div class="input-section">
+                <input type="text" id="adminReply" placeholder="Type a reply...">
+                <button onclick="adminReply()">Admin Reply</button>
+            </div>
+            <div class="input-section">
+                <button onclick="getChatHistory()">Get Chat History</button>
+                <button onclick="getMessageCount()">Get Message Count</button>
+            </div>
+            <div id="adminStatus" class="status"></div>
+        </div>
+
+        <!-- Group Chat Section -->
+        <div class="chat-section">
+            <div class="chat-header">
+                <h2>Group Chat</h2>
+                <div class="input-section">
+                    <input type="number" id="groupId" placeholder="Group ID">
+                    <button onclick="connectGroupWebSocket()">Connect Group</button>
+                </div>
+            </div>
+            <div id="groupMessages" class="chat-messages"></div>
+            <div class="input-section">
+                <input type="text" id="groupMessage" placeholder="Type a message...">
+                <button onclick="sendGroupMessage()">Send to Group</button>
+            </div>
+            <div class="input-section">
+                <button onclick="getGroupHistory()">Get Group History</button>
+            </div>
+            <div class="input-section">
+                <input type="number" id="joinUserId" placeholder="User ID">
+                <button onclick="sendJoinRequest()">Send Join Request</button>
+            </div>
+            <div class="input-section">
+                <input type="number" id="requestId" placeholder="Request ID">
+                <input type="number" id="approveAdminId" placeholder="Admin ID">
+                <select id="requestStatus">
+                    <option value="APPROVED">Approve</option>
+                    <option value="REJECTED">Reject</option>
+                </select>
+                <button onclick="approveJoinRequest()">Process Request</button>
+            </div>
+            <div id="groupStatus" class="status"></div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let groupStompClient = null;
+        const connectionId = Math.random().toString(36).substring(2, 15);
+
+        function connectWebSocket() {
+            const userId = document.getElementById('userId').value;
+            const adminId = document.getElementById('adminId').value;
+            
+            if (!userId || !adminId) {
+                showStatus('Please enter both User ID and Admin ID', 'adminStatus', true);
+                return;
+            }
+
+            const socket = new SockJS('http://localhost:8090/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function(frame) {
+                showStatus('Connected to WebSocket', 'adminStatus');
+                
+                stompClient.subscribe('/topic/user-chat/' + userId, function(message) {
+                    const messageBody = JSON.parse(message.body);
+                    appendMessage(messageBody, 'adminMessages', 'received');
+                });
+                
+                stompClient.subscribe('/topic/admin-chat/' + adminId + '/' + connectionId, function(message) {
+                    const messageBody = JSON.parse(message.body);
+                    appendMessage(messageBody, 'adminMessages', 'received');
+                });
+            }, function(error) {
+                showStatus('Error connecting to WebSocket: ' + error, 'adminStatus', true);
+            });
+        }
+
+        function connectGroupWebSocket() {
+            const groupId = document.getElementById('groupId').value;
+            
+            if (!groupId) {
+                showStatus('Please enter Group ID', 'groupStatus', true);
+                return;
+            }
+
+            const socket = new SockJS('http://localhost:8090/ws');
+            groupStompClient = Stomp.over(socket);
+            
+            groupStompClient.connect({}, function(frame) {
+                showStatus('Connected to Group WebSocket', 'groupStatus');
+                
+                groupStompClient.subscribe('/topic/group-chat/' + groupId, function(message) {
+                    const messageBody = JSON.parse(message.body);
+                    appendMessage(messageBody, 'groupMessages', 'received');
+                });
+
+                groupStompClient.subscribe('/topic/group-notifications/' + groupId, function(message) {
+                    showStatus(message.body, 'groupStatus', false, true);
+                });
+            }, function(error) {
+                showStatus('Error connecting to Group WebSocket: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function sendToAdmin() {
+            const userId = document.getElementById('userId').value;
+            const message = document.getElementById('adminMessage').value;
+            
+            if (!userId || !message) {
+                showStatus('Please enter both User ID and message', 'adminStatus', true);
+                return;
+            }
+
+            fetch('http://localhost:8090/api/chat/admin/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    senderId: parseInt(userId),
+                    message: message,
+                    connectionId: connectionId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage(data, 'adminMessages', 'sent');
+                document.getElementById('adminMessage').value = '';
+            })
+            .catch(error => {
+                showStatus('Error sending message: ' + error, 'adminStatus', true);
+            });
+        }
+
+        function adminReply() {
+            const adminId = document.getElementById('adminId').value;
+            const userId = document.getElementById('userId').value;
+            const message = document.getElementById('adminReply').value;
+            
+            if (!adminId || !userId || !message) {
+                showStatus('Please enter all required fields', 'adminStatus', true);
+                return;
+            }
+
+            fetch('http://localhost:8090/api/chat/admin/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    adminId: parseInt(adminId),
+                    userId: parseInt(userId),
+                    message: message,
+                    connectionId: connectionId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage(data, 'adminMessages', 'sent');
+                document.getElementById('adminReply').value = '';
+            })
+            .catch(error => {
+                showStatus('Error sending reply: ' + error, 'adminStatus', true);
+            });
+        }
+
+        function getChatHistory() {
+            const userId = document.getElementById('userId').value;
+            
+            if (!userId) {
+                showStatus('Please enter User ID', 'adminStatus', true);
+                return;
+            }
+
+            fetch('http://localhost:8090/api/chat/admin/history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: parseInt(userId)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('adminMessages');
+                container.innerHTML = '';
+                data.forEach(message => {
+                    appendMessage(message, 'adminMessages', message.sender.id == userId ? 'sent' : 'received');
+                });
+            })
+            .catch(error => {
+                showStatus('Error getting chat history: ' + error, 'adminStatus', true);
+            });
+        }
+
+        function getMessageCount() {
+            const userId = document.getElementById('userId').value;
+            
+            if (!userId) {
+                showStatus('Please enter User ID', 'adminStatus', true);
+                return;
+            }
+
+            fetch(`http://localhost:8090/api/chat/admin/count_messages/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                showStatus(`Total messages: ${data}`, 'adminStatus');
+            })
+            .catch(error => {
+                showStatus('Error getting message count: ' + error, 'adminStatus', true);
+            });
+        }
+
+        function sendGroupMessage() {
+            const userId = document.getElementById('userId').value;
+            const groupId = document.getElementById('groupId').value;
+            const message = document.getElementById('groupMessage').value;
+            
+            if (!userId || !groupId || !message) {
+                showStatus('Please enter all required fields', 'groupStatus', true);
+                return;
+            }
+
+            fetch('http://localhost:8090/api/chat/community/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    senderId: parseInt(userId),
+                    groupId: parseInt(groupId),
+                    message: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage(data, 'groupMessages', 'sent');
+                document.getElementById('groupMessage').value = '';
+            })
+            .catch(error => {
+                showStatus('Error sending group message: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function getGroupHistory() {
+            const groupId = document.getElementById('groupId').value;
+            
+            if (!groupId) {
+                showStatus('Please enter Group ID', 'groupStatus', true);
+                return;
+            }
+
+            fetch('http://localhost:8090/api/chat/community/history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    groupId: parseInt(groupId)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('groupMessages');
+                container.innerHTML = '';
+                data.forEach(message => {
+                    appendMessage(message, 'groupMessages', message.sender.id == document.getElementById('userId').value ? 'sent' : 'received');
+                });
+            })
+            .catch(error => {
+                showStatus('Error getting group history: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function sendJoinRequest() {
+            const userId = document.getElementById('joinUserId').value;
+            const groupId = document.getElementById('groupId').value;
+            
+            if (!userId || !groupId) {
+                showStatus('Please enter both User ID and Group ID', 'groupStatus', true);
+                return;
+            }
+
+            fetch(`http://localhost:8090/api/chat/community/group/${groupId}/joinRequest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: parseInt(userId)
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                showStatus(data, 'groupStatus');
+            })
+            .catch(error => {
+                showStatus('Error sending join request: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function approveJoinRequest() {
+            const groupId = document.getElementById('groupId').value;
+            const requestId = document.getElementById('requestId').value;
+            const adminId = document.getElementById('approveAdminId').value;
+            const status = document.getElementById('requestStatus').value;
+            
+            if (!groupId || !requestId || !adminId) {
+                showStatus('Please enter all required fields', 'groupStatus', true);
+                return;
+            }
+
+            fetch(`http://localhost:8090/api/chat/community/group/${groupId}/joinRequest/${requestId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    adminId: parseInt(adminId),
+                    status: status
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                showStatus(data, 'groupStatus');
+            })
+            .catch(error => {
+                showStatus('Error processing join request: ' + error, 'groupStatus', true);
+            });
+        }
+
+        function appendMessage(message, containerId, type) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const senderInfo = message.sender ? `User ${message.sender.id}` : 'Unknown';
+            const time = new Date(message.createdAt).toLocaleTimeString();
+            
+            messageDiv.innerHTML = `
+                <strong>${senderInfo}</strong> (${time})<br>
+                ${message.message}
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showStatus(message, elementId, isError = false, isNotification = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${isError ? 'error' : isNotification ? 'notification' : ''}`;
+        }
+    </script>
+</body>
+</html>

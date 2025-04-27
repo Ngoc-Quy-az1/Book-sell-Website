@@ -5,6 +5,8 @@ public class registerDTO {
     private String mail;
     private String phone;
     private String password;
+    private String full_name;
+    private String address;
 
     public String getName() {
         return name;
@@ -36,5 +38,21 @@ public class registerDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public String getFull_name() {
+        return full_name;
+    }
+
+    public void setFull_name(String full_name) {
+        this.full_name = full_name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

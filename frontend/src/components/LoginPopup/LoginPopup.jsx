@@ -1,23 +1,23 @@
 import React, { useState, useRef} from "react";
-import Signin from "./Signin";
+import SignUp from "./SignUp";
 import Login from "./Login";
 import Verify from "./Verify";
 import Notice from "../Notice";
 import ForgotPassword from "./ForgotPassword";
 
 const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
-  const [showSignIn, setShowSignIn] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
   const [showVerify, setShowVerify] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const handleEmail = (str) => {
     setEmail(str);
   }
-  const handleSignIn = () => {
-    setShowSignIn(!showSignIn);
+  const handleSignUp = () => {
+    setShowSignUp(!showSignUp);
     setShowVerify();
   };
-  const handleVerify = (isSignIn) => {
+  const handleVerify = () => {
     if (forgotPassword && showVerify) {
       handleForgotPassword();
     }
@@ -60,10 +60,10 @@ window.addEventListener("click", (e) => {
           
             <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
             {
-              (showVerify) ? <Verify handleSignIn={handleSignIn} handleVerify={handleVerify} mail={email} handleNotice={handleNotice} forgotPassword={forgotPassword}/>
-              : (showSignIn) ? <Signin handleSignIn={handleSignIn} handleVerify={handleVerify} handleMail={handleEmail} handleNotice={handleNotice}/>
+              (showVerify) ? <Verify handleVerify={handleVerify} mail={email} handleNotice={handleNotice} forgotPassword={forgotPassword}/>
+              : (showSignUp) ? <SignUp handleSignUp={handleSignUp} handleVerify={handleVerify} handleMail={handleEmail} handleNotice={handleNotice}/>
               : (forgotPassword) ? <ForgotPassword handleForgotPassword={handleForgotPassword} handleNotice={handleNotice} handleVerify={handleVerify} handleMail={handleEmail}/>
-              : <Login handleSignIn={handleSignIn} handleNotice={handleNotice} handleForgotPassword={handleForgotPassword}/>
+              : <Login handleSignUp={handleSignUp} handleNotice={handleNotice} handleForgotPassword={handleForgotPassword}/>
             }
           </div>
         </div>

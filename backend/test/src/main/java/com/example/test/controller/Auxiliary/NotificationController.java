@@ -2,6 +2,7 @@ package com.example.test.controller.Auxiliary;
 
 import com.example.test.Service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class NotificationController {
     private NotificationService notificationService;
 
     //Lấy danh sác thông báo người dùng
-    //URL test Postman: http://localhost:8090/api/notification/show?userId=1
+    //URL test Postman: http://localhost:8090/api/notification/show?userId=16
     @GetMapping("/show")
     public List<Map<String, Object>> getNotifications(@RequestParam Integer userId) {
         return notificationService.getNotificationsByUserId(userId);

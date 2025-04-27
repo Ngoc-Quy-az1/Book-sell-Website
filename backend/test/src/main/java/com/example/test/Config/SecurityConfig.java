@@ -46,17 +46,26 @@ public class SecurityConfig {
                     "/api/users/login",                // API đăng nhập
                     "/api/users/register",             // API đăng ký
                     "/api/users/verify",               // API xác thực email
+                    "api/users/forgotpassword",        // API quên mật khẩu
+                    "api/users/confirmcode"  ,          // API xác thực mã quên mật khẩu
+
                     "/api/books/search/**",            // API tìm kiếm sách
                     "/api/books/categories/**",        // API danh mục sách
                     "/api/books/details/**",           // API chi tiết sách
+                    "/api/books/{id}",                 // API chi tiết sách theo ID    
+                    "/api/books/GetAllPaginated/**",   // API lấy tất cả sách phân trang
+                    "/api/books/AllTypeCategories",   // API lấy tất cả danh mục sách
+                    "/api/books/GetAllPaginated/SearchByPrice", // API lấy tất cả danh mục sách theo ID
+
                     "/api/payment/process-balance/**", // API thanh toán sử dụng tiền mặt
                     "/api/order/**" ,                  // API đặt hàng
-                    "/api/chat/community/**",       
-                    "api/users/forgotpassword",        // API quên mật khẩu
-                    "api/users/confirmcode"  ,          // API xác thực mã quên mật khẩu
-                    "/api/books/AllTypeCategories",
+                    "/api/chat/community/**",   
+                    "/api/chat/admin/**",    
+
                     "/swagger-ui/**",
-                    "v3/**"        // API xác thực mã quên mật khẩu
+                    "/ws/**",                         // WebSocket endpoints
+                    "/ws/info",                       // SockJS info endpoint             
+                    "v3/**"                         
                 ).permitAll()
 
                 // Payment endpoints - Không cần đăng nhập
@@ -73,7 +82,7 @@ public class SecurityConfig {
                     "/api/users/logout/**",
                     "/api/users/review/**",
                     "/api/cart/**",
-                    "/api/chat/admin/**",
+                    // "/api/chat/admin/**",
                     "/api/users/{userId}/discount-codes",
                     "/api/users/logout/{userId}"
                 ).authenticated()

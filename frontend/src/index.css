@@ -70,6 +70,9 @@ html {
   .order-input {
     @apply w-full rounded-full border border-gray-300 dark:border-gray-500 dark:bg-gray-800 px-2 py-1 mb-4;
   }
+  .search-input {
+    @apply w-full border border-gray-300 dark:border-gray-500 dark:bg-gray-800 px-2 py-1 mb-4;
+  }
   .input{
     @apply w-full border rounded-full border-gray-300 dark:border-gray-500 dark:bg-gray-800 ;
   }

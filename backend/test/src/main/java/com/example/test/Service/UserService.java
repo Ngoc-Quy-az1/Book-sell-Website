@@ -109,6 +109,8 @@ public class UserService {
             newUser.setName(user.getName());
             newUser.setPhone(user.getPhone());
             newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            newUser.setFull_name(user.getFull_name());
+            newUser.setAddress(user.getAddress());
             String code = generateRandomNumber();
             newUser.setCode(code);
             userPendingRepository.save(newUser);
@@ -145,6 +147,8 @@ public class UserService {
                 newUser.setName(pendingUser.getName());
                 newUser.setMail(pendingUser.getMail());
                 newUser.setPhone(pendingUser.getPhone());
+                newUser.setAddress(pendingUser.getAddress());
+                newUser.setFull_name(pendingUser.getFull_name());
                 userRepository.save(newUser);
 
                 // Tặng mã giảm giá 30%

@@ -24,8 +24,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Map;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -48,12 +46,14 @@ public class userController {
 
 
 
-
+// http://localhost:8090/api/users/register
 //    {
 //         "name" : "linh",
 //         "phone": "12091212",
 //          "mail": "121341@gmail.com",
-//          "password" : "12345"
+//          "password" : "12345",
+//          "full_name": "Ngocquy",
+//          "address" : "Hai Ba Trung"
 //    }
     @PostMapping("/register")
     public boolean register(@RequestBody registerDTO user)
@@ -84,7 +84,7 @@ public class userController {
     // }
     // hoặc
     // {
-    //     "phone":"12091112212",
+    //     "phone":"0987654321",
     //     "password":"12345"
     // }
     @PostMapping("/login")

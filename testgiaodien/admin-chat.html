@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Chat Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chat-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        .message.sent {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+        .message.received {
+            background-color: #f5f5f5;
+            margin-right: 20px;
+        }
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-header">
+            <h2>Admin Chat Interface</h2>
+            <div class="input-section">
+                <input type="number" id="userId" placeholder="User ID to chat with">
+                <button onclick="connectWebSocket()">Connect</button>
+            </div>
+        </div>
+        <div id="adminMessages" class="chat-messages"></div>
+        <div class="input-section">
+            <input type="text" id="adminMessage" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        <div id="adminStatus" class="status"></div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        const ADMIN_ID = 16;
+    
+        function connectWebSocket() {
+    const userId = document.getElementById('userId').value;
+
+    if (!userId) {
+        showStatus('Please enter User ID', 'adminStatus', true);
+        return;
+    }
+
+    const socket = new SockJS('http://localhost:8090/ws');
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        showStatus('Connected to WebSocket', 'adminStatus');
+
+        // 1. Subscribe kênh cho admin
+        stompClient.subscribe('/topic/admin-chat/' + ADMIN_ID, function (message) {
+            const messageBody = JSON.parse(message.body);
+
+            if (
+                (messageBody.sender.id === parseInt(userId) && messageBody.receiver.id === ADMIN_ID) ||
+                (messageBody.sender.id === ADMIN_ID && messageBody.receiver.id === parseInt(userId))
+            ) {
+                const type = messageBody.sender.id === ADMIN_ID ? 'sent' : 'received';
+                appendMessage(messageBody, 'adminMessages', type);
+            }
+        });
+
+        // 2. Gọi đúng API POST để lấy lịch sử chat
+        fetch('http://localhost:8090/api/chat/admin/history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId: parseInt(userId) })
+        })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('adminMessages');
+                container.innerHTML = ''; // Clear old messages
+                data.forEach(msg => {
+                    const type = msg.sender.id === ADMIN_ID ? 'sent' : 'received';
+                    appendMessage(msg, 'adminMessages', type);
+                });
+            })
+            .catch(error => {
+                showStatus('Error loading history: ' + error, 'adminStatus', true);
+            });
+    }, function (error) {
+        showStatus('Error connecting to WebSocket: ' + error, 'adminStatus', true);
+    });
+}
+
+    
+        function sendMessage() {
+            const userId = document.getElementById('userId').value;
+            const message = document.getElementById('adminMessage').value;
+    
+            if (!userId || !message) {
+                showStatus('Please enter both User ID and message', 'adminStatus', true);
+                return;
+            }
+    
+            fetch('http://localhost:8090/api/chat/admin/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    adminId: ADMIN_ID,
+                    userId: parseInt(userId),
+                    message: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('adminMessage').value = '';
+                // KHÔNG appendMessage ở đây nữa
+            })
+            .catch(error => {
+                showStatus('Error sending message: ' + error, 'adminStatus', true);
+            });
+        }
+    
+        function appendMessage(message, containerId, type) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+    
+            const senderInfo = type === 'sent' ? 'Admin' : `User ${message.sender.id}`;
+            const time = new Date(message.createdAt).toLocaleTimeString();
+    
+            messageDiv.innerHTML = `
+                <strong>${senderInfo}</strong> (${time})<br>
+                ${message.message}
+            `;
+    
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+    
+        function showStatus(message, elementId, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${isError ? 'error' : ''}`;
+        }
+    </script>
+    
