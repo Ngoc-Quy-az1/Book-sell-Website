@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider, BrowserRouter  } from "react-router-dom";
-import Admin from "./admin.jsx";
+import Admin from "./Admin.jsx";
 import Dashboard from "./scenes/admin/dashboard";
 import ManageUsers from "./scenes/admin/manageUsers/index.jsx";
 import Bar from "./scenes/admin/bar";
