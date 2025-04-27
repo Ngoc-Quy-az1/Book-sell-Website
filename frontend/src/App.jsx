@@ -12,7 +12,6 @@ import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import { Outlet } from "react-router-dom";
 import ChatButton from "./components/ChatButton/ChatButton.jsx";
-import UserDetail from "./components/UserDetail/UserDetail";
 import Cookies from "js.cookie"
 import Books from "./components/BooksSlider/Books.jsx";
 

@@ -9,9 +9,9 @@ const ChatButton = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [chatMode, setChatMode] = useState("admin"); // admin, group1, group2
   const [messages, setMessages] = useState([]);
-  const [userId, setUserId] = useState(Cookies.get('userId')); // 👈 userId để gửi vào body API
+  const [userId, setUserId] = useState(Cookies.get('userId'));
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
-  const userToken = localStorage.getItem("token")
+  const userToken = localStorage.getItem("token");
   const toggleChat = () => setIsOpen(!isOpen);
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
   const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
@@ -21,7 +21,7 @@ const ChatButton = () => {
     const fetchMessages = async () => {
       try {
         let response;
-        if (chatMode === "admin") {
+        if (chatMode == "admin") {
           response = await axios.post(
             "http://localhost:8090/api/chat/admin/history",
             { userId: userId },
@@ -29,8 +29,11 @@ const ChatButton = () => {
               headers: config,
             }
           );
-        } else if (chatMode === "group1" || chatMode === "group2") {
-          const groupId = chatMode === "group1" ? 1 : 2;
+        } else if (chatMode == "group1" || chatMode == "group2") {
+          const groupId = chatMode == "group1" ? 1 : 2;
+          console.log("Chat Mode:", chatMode);
+          console.log("Group ID:", groupId);
+  
           response = await axios.post(
             "http://localhost:8090/api/chat/community/history",
             { groupId: groupId },
@@ -39,19 +42,35 @@ const ChatButton = () => {
             }
           );
         }
-
-        const filteredMessages = response.data.filter(
-          (msg) =>
-            msg.chatType === (chatMode === "admin" ? "PRIVATE" : "GROUP") &&
-            (msg.sender.id === userId || msg.receiver?.id === userId || msg.groupId)
-        );
+  
+        console.log("Response Data:", response.data);
+  
+        const filteredMessages = response.data.filter((msg) => {
+          if (chatMode == "admin") {
+            return (
+              msg.chatType == "PRIVATE" &&
+              (msg.sender.id == userId || msg.receiver?.id === userId)
+            );
+          } else {
+            return (
+              msg.chatType == "GROUP"            
+            );
+          }
+        });
+  
+        console.log("Filtered Messages:", filteredMessages);
+  
         setMessages(filteredMessages);
       } catch (error) {
         console.error("Lỗi khi gọi API:", error);
+        if (error.response) {
+          console.log("STATUS:", error.response.status);
+          console.log("DATA:", error.response.data);
+        }
         alert("Không thể tải lịch sử chat. Vui lòng thử lại sau.");
       }
     };
-
+  
     fetchMessages();
   }, [chatMode, userId]);
 
@@ -61,39 +80,39 @@ const ChatButton = () => {
       alert("Vui lòng nhập nội dung tin nhắn!");
       return;
     }
-
+  
     const apiUrl =
       chatMode === "admin"
         ? "http://localhost:8090/api/chat/admin/send"
         : "http://localhost:8090/api/chat/community/send";
-
+  
     const requestBody =
       chatMode === "admin"
         ? { senderId: userId, message: newMessage }
-        : { senderId: userId, message: newMessage, groupId: chatMode === "group1" ? 1 : 2 };
-
+        : { senderId: userId, message: newMessage, groupId: chatMode == "group1" ? 1 : 2 };
+  
     axios
       .post(apiUrl, requestBody, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${Cookies.get('authToken')}`,
         },
       })
       .then((response) => {
+        console.log("Response Data:", response.data);
         setMessages((prevMessages) => [
           ...prevMessages,
           {
-            messageId: response.data.messageId,
+            messageId: response.data.messageId || new Date().getTime(),
             sender: { id: userId, name: "Bạn" },
             message: newMessage,
             createdAt: new Date().toISOString(),
-            groupId: chatMode === "group1" ? 1 : 2,
+            groupId: chatMode == "group1" ? 1 : 2,
           },
         ]);
         setNewMessage("");
       })
       .catch((error) => {
         console.error("Lỗi khi gửi tin nhắn:", error);
-        alert("Không thể gửi tin nhắn. Vui lòng thử lại sau.");
       });
   };
 
@@ -120,7 +139,7 @@ const ChatButton = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => setChatMode("admin")}
-                className={`px-3 py-1 rounded ${chatMode === "admin"
+                className={`px-3 py-1 rounded ${chatMode == "admin"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-black"
                   }`}
@@ -129,7 +148,7 @@ const ChatButton = () => {
               </button>
               <button
                 onClick={() => setChatMode("group1")}
-                className={`px-3 py-1 rounded ${chatMode === "group1"
+                className={`px-3 py-1 rounded ${chatMode == "group1"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-black"
                   }`}
@@ -138,7 +157,7 @@ const ChatButton = () => {
               </button>
               <button
                 onClick={() => setChatMode("group2")}
-                className={`px-3 py-1 rounded ${chatMode === "group2"
+                className={`px-3 py-1 rounded ${chatMode == "group2"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200 text-black"
                   }`}
