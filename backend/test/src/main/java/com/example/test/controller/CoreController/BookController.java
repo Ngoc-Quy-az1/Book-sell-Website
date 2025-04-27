@@ -305,7 +305,7 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
         return ResponseEntity.ok(responsePage);
     }
 
-    //Api lấy ra danh sách sách có phân trang và sắp xếp theo giá giảm dần 
+    //Api lấy ra danh sách sách có phân trang và sắp xếp theo giá tăng dần 
     // Nếu không truyền về số trang thì mặc định lấy trang 0
     // http://localhost:8090/api/books/GetAllPaginated/sortedAcss
     // 
@@ -313,8 +313,9 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
     @GetMapping("/GetAllPaginated/sortedAcs")
     public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedAcs(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<Book> booksPage = bookService.getAllBooksPaginatedPriceAsc(page, size);
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String category) {
+        Page<Book> booksPage = bookService.getAllBooksPaginatedPriceAsc(page, size,category);
         List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
             BookResponse response = new BookResponse();
             response.setId(book.getID());
@@ -339,8 +340,11 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
     @GetMapping("/GetAllPaginated/sortedDesc")
     public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedDesc(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<Book> booksPage = bookService.getAllBooksPaginatedPriceDesc(page, size);
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String category) {
+    
+        Page<Book> booksPage = bookService.getAllBooksByCategoryPaginatedPriceDesc(page, size, category);
+    
         List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
             BookResponse response = new BookResponse();
             response.setId(book.getID());
@@ -348,14 +352,17 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
             response.setAuthor(book.getAuthor());
             response.setCategory(book.getCategory());
             response.setImage(book.getImage());
-            response.setPrice_discounted((int)book.getPrice_discounted());
+            response.setPrice_discounted((int) book.getPrice_discounted());
             response.setPrice_original((int) book.getPrice_original());
             response.setDescription(book.getDescription());
             return response;
         }).collect(Collectors.toList());
+    
         Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
         return ResponseEntity.ok(responsePage);
     }
+    
+
     //Api lấy ra các thể loại sách đang có 
     // http://localhost:8090/api/books/AllTypeCategories
     @GetMapping("/AllTypeCategories")
