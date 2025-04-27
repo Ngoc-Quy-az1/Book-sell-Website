@@ -43,28 +43,22 @@ const App = () => {
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       {/* <BookCategoryList/> */}
       {/* <Cart/> */}
-      { (Cookies.get('authToken'))?
-      <>
-        <ChatButton />
-        <Outlet/>
-        <Banner />
-        <AppStore />
-        <Books />
-        <Testimonial />
-      </>
-      :
-      <>
         <Hero handleOrderPopup={handleOrderPopup} />
         <Services handleOrderPopup={handleOrderPopup} />
         <Banner />
         <AppStore />
-        <Books />
         <Testimonial />
+        <Outlet/>
+      { (Cookies.get('authToken'))?
+      <>
+        <ChatButton />
+      </>
+      :
+      <>
       </>  
       }
       <Footer />
-       <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
-
+      <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
       <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
 
     </div>
