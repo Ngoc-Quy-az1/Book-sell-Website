@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Cookies from 'js.cookie';
+import OrderItem from "./OrderItem";
+import { selectClasses } from "@mui/material";
+import Moment from 'moment';
 
 export default function PlaceOrder() {
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const [selectedOrder, setSelectedOrder] = useState(-1);
   const [orderList, setOrderList] = useState([]);
   useEffect( () => {
-    getOrder(1);
+    Moment.locale('en');
+    getOrderList(14);
   }, []);
 
-  const getOrder = async (orderID)=>{
-    await axios.get(`http://localhost:8090/api/order/orderDetails?orderID=${orderID}`,{
+  const getOrderList = async (userID)=>{
+    await axios.get(`http://localhost:8090/api/order/${userID}`,{
       headers:auth,
     })
     .then((response) => {
@@ -20,65 +25,58 @@ export default function PlaceOrder() {
       console.error('Error fetching data:', error);
     });
   }
-  // const orderList = [
-  //   {
-  //     id: 3,
-  //     title: "ĂN DẶM KHÔNG NƯỚC MẮT",
-  //     price: 53360,
-  //     quantity: 1,
-  //     image: "https://bizweb.dktcdn.net/100/363/455/products/an-dam-khong-nuoc-mat.jpg?v=1695032717550",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "NUÔI DẠY CON KHÔNG QUÁT MẮNG",
-  //     price: 53360,
-  //     quantity: 2,
-  //     image: "https://bizweb.dktcdn.net/100/363/455/products/nuoidayconkhongquatmangcover01.jpg?v=1705552116190",
-  //   },
-  // ];
-
-  const total = orderList.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  
+  //const total = orderList.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = 3;
   return (
     <div className="flex flex-row">
-
-      <div className="flex flex-col max-w-4xl ml-60 mr-40 p-6 bg-slate-300 pl-6 shadow-md rounded-xl mt-10">
-        <div className="flex flex-row">
-          <h2 className="text-xl font-semibold mb-4">Product</h2>
-          <h2 className="text-xl font-semibold mb-4 ml-[460px]">Price</h2>
-          <h2 className="text-xl font-semibold mb-4 ml-[69px]">Amount</h2>
-          <h2 className="text-xl font-semibold mb-4 ml-[80px]">Total</h2>
-        </div>
-        {orderList.map((item) => (
-          <div key={item.bookName} className="flex items-center justify-between py-3 border-b">
-            <div className="flex items-center gap-4">
-              <img src={item.image} alt="book" className="w-12 h-16 object-cover" />
-              <span className=" text-2xl">{item.bookName}</span>
-            </div>
-            <div className="flex items-center">
-              <span className=" text-xl mr-12 w-24 text-left">₫{item.price.toLocaleString()}</span>
-              <span className=" text-lg mr-12 w-7">{item.quantity}</span>
-              <span className=" text-xl w-24 text-right">₫{(item.price * item.quantity).toLocaleString()}</span>
-            </div>
-          </div>
+      <div className="flex flex-col mb-16">
+        {orderList.map((order, index)=>(
+          <OrderItem key={order.orderId} 
+            status={order.status}
+            isSelected={selectedOrder == index} 
+            orderId={order.orderId} 
+            orderCreateAt={order.createdAt}
+            onClickFunc={()=>{
+              console.log(`click on ${index}`);
+              if (selectedOrder != index) {
+                setSelectedOrder(index);
+              } else {
+                setSelectedOrder(-1)
+              }
+            }}
+          />
         ))}
       </div>
-
-      <div className="flex flex-col justify-items-start p-6 bg-slate-300 rounded-xl shadow-md mt-10">
       
 
-        <div className="flex justify-end text-lg font-bold py-4 border-t">
-          Final price: 
-          <span className="text-red-500 ml-2">₫{total.toLocaleString()}</span>
-        </div>
+      <div className="flex flex-col justify-items-start w-96 p-6 bg-slate-300 rounded-xl shadow-md mt-10 fixed top-2 right-12">
+      
+        {(selectedOrder == -1)
+        ? <div className="text-lg font-bold">Select order to view detail</div> 
+        :<div>
+          <div className="flex flex-row justify-between">
+            <div className="text-lg font-bold text-purple-800">
+              Order {orderList[selectedOrder].orderId}, {Moment(orderList[selectedOrder].createdAt).format("MMMM Do YYYY")}
+            </div>
+            <div 
+              className={`text-xl font-semibold ${orderList[selectedOrder].status == 'Pending'? 'text-red-500': 'text-green-600'} `}
+            >
+              {orderList[selectedOrder].status}
+            </div>
+          </div>
+          <div className="flex justify-end text-lg font-bold py-4 border-t  ">
+            Final price: 
+            <span className="text-red-500 ml-2">
+              ₫{orderList[selectedOrder].totalAmount.toLocaleString()}
+            </span>
+          </div>
 
-        <div className="text-center text-sm text-gray-500 mt-2">
-          When you click Place order it mean you agree with <span className="text-blue-600 cursor-pointer"> Our term of service.</span>
-        </div>
-
-        <div className="flex justify-end mt-4">
-          <button className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600">Place order</button>
-        </div>
+          {orderList[selectedOrder].status == 'Pending'
+          ?<div className="flex justify-end mt-4">
+            <button className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600">Place order</button>
+           </div>
+           : null}
+        </div>}
       </div>  
       
     </div>
