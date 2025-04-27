@@ -10,18 +10,21 @@ import axios from 'axios';
 
 export default function Cart() {
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`,}
+  const userId = Cookies.get('userId');
   const [showVoucher, setShowVoucher] = useState(false);
   const [showInvalidVoucher, setShowInvalidVoucher] = useState(false);
   const [voucherCode, setVoucherCode] = useState("");
   const [pickVoucherText, setPickVoucherText] = useState("Apply voucher");
   const [totalAmount, setTotalAmount]  = useState(0);
+  const [voucherIndex, setVoucherIndex] = useState(-1);
   const [cartlist, setCartlist] = useState([])
   const [voucherList, setVoucherList] = useState([]);
   const [discountText, setDiscountText] = useState('');
   const [discountText2, setDiscountText2] = useState('');
   useEffect( () => {
-    getCartList(14);
-    getVoucherList(14);
+    console.log(userId);
+    getCartList(userId);
+    getVoucherList(userId);
     }, []);
 
   const getCartList = async(userId)=>{
@@ -85,16 +88,16 @@ export default function Cart() {
 
   const handleSubmitVoucher = () => {
     console.log("Submitted voucher code:", voucherCode);
-    if (voucherCode != voucherList[0].code){
-      setShowInvalidVoucher(true);
+    if (false){
+      
     } else{
-      setShowInvalidVoucher(false);
+      console.log('good');
       setShowVoucher(false);
       setPickVoucherText(`Voucher applied`);
       setDiscountText(`${(totalAmount).toLocaleString('vi-VN')}₫ `);
-      setDiscountText2(`-${voucherList[0].discountPercentage}%`);
+      setDiscountText2(`-${voucherList[voucherIndex].discountPercentage}%`);
       var tempTotal = 0;
-      tempTotal = totalAmount - totalAmount*parseFloat(voucherList[0].discountPercentage)/100;
+      tempTotal = totalAmount - totalAmount*parseFloat(voucherList[voucherIndex].discountPercentage)/100;
       setTotalAmount(Math.round(tempTotal));
     }
   };
@@ -230,26 +233,49 @@ export default function Cart() {
             {/* Pick voucher   */}
             <div className="flex justify-between items-center py-4 mt-4">
                 <div className="relative">
+                  
+                  {/* Text Button */}
                   <div
                     className="text-xl text-blue-600 cursor-pointer"
                     onClick={() => setShowVoucher(!showVoucher)}
                   >
                     {pickVoucherText}
                   </div>
+
+                  {/* Drop down */}
                   {showVoucher && (
-                    <div className="absolute left-3 mt-2 w-64 bg-white shadow-lg border rounded-lg p-4 z-10">
-                      {showInvalidVoucher && <div className="flex justify-center text-red-600 mb-4">Invalid voucher</div>}
-                      <input
+                    <div className="flex flex-col absolute left-3 mt-2 w-64 bg-white shadow-lg border rounded-lg p-4 z-10">
+                      
+                      {/* <input
                         type="text"
                         className="w-full border px-3 py-2 rounded mb-2"
                         placeholder="Enter voucher"
                         value={voucherCode}
                         onChange={(e) => setVoucherCode(e.target.value)}
-                      />
+                      /> */}
+
+                      {/* Voucher list */}
+                      {(voucherList.length ==0)
+                      ? <div>You don't have any voucher</div>
+                      : voucherList.map((voucher, index)=>(
+                        <div key={index} className="flex items-center mb-2">
+                          <input
+                            type="radio"
+                            name="voucher"
+                            value={index}
+                            checked={voucherIndex === index}
+                            onChange={() => {setVoucherCode(voucher.code); setVoucherIndex(index)}}
+                            className="mr-2"
+                          />
+                          <div>{voucher.code}</div>
+                        </div>
+                      ))}
+
+                      {/* Option button  */}
                       <div className="flex justify-end gap-2">
                         <button
                           className="px-4 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
-                          onClick={() => {setShowVoucher(false); setShowInvalidVoucher(false);}}
+                          onClick={() => {setShowVoucher(false); setShowInvalidVoucher(false); setVoucherIndex(-1)}}
                         >
                           Cancel
                         </button>
@@ -263,7 +289,7 @@ export default function Cart() {
                     </div>
                   )}
                 </div>
-              </div>
+            </div>
             {/* Total cart price */}
             <div className="flex flex-row justify-end">
               <div className="mt-6 text-right font-bold text-green-600 text-lg">

@@ -5,6 +5,7 @@ import Cookies from 'js.cookie';
 
 
 const BookCategoryList = () => {
+  const userId = Cookies.get('userId');
   const [selectedCountries, setSelectedCountries] = useState([]);
   const category = ["Giáo dục", "Kinh tế", "Văn học", "Tiểu thuyết", "Thiếu nhi"];
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
@@ -115,7 +116,7 @@ const BookCategoryList = () => {
               </span>
               
               <button onClick={()=>{
-                addToCart(14, book.id);
+                addToCart(userId, book.id);
               }} 
               className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600">
                 Add to cart

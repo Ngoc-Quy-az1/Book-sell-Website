@@ -6,12 +6,13 @@ import { selectClasses } from "@mui/material";
 import Moment from 'moment';
 
 export default function PlaceOrder() {
+  const userId = Cookies.get('userId');
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [selectedOrder, setSelectedOrder] = useState(-1);
   const [orderList, setOrderList] = useState([]);
   useEffect( () => {
     Moment.locale('en');
-    getOrderList(14);
+    getOrderList(userId);
   }, []);
 
   const getOrderList = async (userID)=>{
