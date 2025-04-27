@@ -7,7 +7,7 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = (values) => {
-    values.full_name=values.lastName + values.firstName;
+    values.full_name=values.lastName + ' ' + values.firstName;
     handleMail(values);
     createUser(values);
   };
