@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import UpdateBook from "./UpdateBook";
 import Notice from "../Notice/index";
-const UserPopup = ({ userPopup, handleUserPopup,book }) => {
-  const userPopupRef = useRef();
+const BookPopup = ({ bookPopup, handleBookPopup, book, handleDelete }) => {
+  const bookPopupRef = useRef();
   window.addEventListener("click", (e) => {
-    if (e.target === userPopupRef.current) {
-      handleUserPopup(false);
+    if (e.target === bookPopupRef.current) {
+      handleBookPopup(false);
     }
   });
   
@@ -18,13 +18,13 @@ const UserPopup = ({ userPopup, handleUserPopup,book }) => {
     }
   return (
     <>
-      {userPopup && (<>
+      {bookPopup && (<>
         <div
-          ref={userPopupRef}
+          ref={bookPopupRef}
           className="h-screen w-screen fixed top-0 left-0 bg-black/50 z-50 backdrop-blur-sm"
         >
           <div className="rounded-2xl bg-white/10 backdrop-md shadow-custom-inset sm:w-[600px] md:w-[380px] ">
-            <UpdateBook book={book} showNotice={showNotice} setError={setError} setMessage={setMessage} handleUserPopup={handleUserPopup} />
+            <UpdateBook book={book} showNotice={showNotice} setError={setError} setMessage={setMessage} handleBookPopup={handleBookPopup} handleDelete={handleDelete} />
             
           </div>
         </div>
@@ -35,4 +35,4 @@ const UserPopup = ({ userPopup, handleUserPopup,book }) => {
   );
 };
 
-export default UserPopup;
+export default BookPopup;

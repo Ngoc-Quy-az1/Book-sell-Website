@@ -31,54 +31,60 @@ export default function PlaceOrder() {
   return (
     <div className="flex flex-row">
       <div className="flex flex-col mb-16">
-        {orderList.map((order, index)=>(
-          <OrderItem key={order.orderId} 
-            status={order.status}
-            isSelected={selectedOrder == index} 
-            orderId={order.orderId} 
-            orderCreateAt={order.createdAt}
-            onClickFunc={()=>{
-              console.log(`click on ${index}`);
-              if (selectedOrder != index) {
-                setSelectedOrder(index);
-              } else {
-                setSelectedOrder(-1)
-              }
-            }}
-          />
-        ))}
+        {(orderList.length == 0)
+        ? <div className=" text-center text-3xl font-bold ml-[800px] mr-40 p-6 bg-slate-300 pl-6 shadow-md rounded-xl mt-10">You don't have any order</div>
+        :orderList.map((order, index)=>(
+            <OrderItem key={order.orderId} 
+              status={order.status}
+              isSelected={selectedOrder == index} 
+              orderId={order.orderId} 
+              orderCreateAt={order.createdAt}
+              onClickFunc={()=>{
+                console.log(`click on ${index}`);
+                if (selectedOrder != index) {
+                  setSelectedOrder(index);
+                } else {
+                  setSelectedOrder(-1)
+                }
+              }}
+            />
+          ))
+        }
       </div>
       
 
-      <div className="flex flex-col justify-items-start w-96 p-6 bg-slate-300 rounded-xl shadow-md mt-10 fixed top-2 right-12">
+      {(orderList.length == 0)
+      ? null
+      :<div className="flex flex-col justify-items-start w-96 p-6 bg-slate-300 rounded-xl shadow-md mt-10 fixed top-2 right-12">
       
-        {(selectedOrder == -1)
-        ? <div className="text-lg font-bold">Select order to view detail</div> 
-        :<div>
-          <div className="flex flex-row justify-between">
-            <div className="text-lg font-bold text-purple-800">
-              Order {orderList[selectedOrder].orderId}, {Moment(orderList[selectedOrder].createdAt).format("MMMM Do YYYY")}
+          {(selectedOrder == -1)
+          ? <div className="text-lg font-bold">Select order to view detail</div> 
+          :<div>
+            <div className="flex flex-row justify-between">
+              <div className="text-lg font-bold text-purple-800">
+                Order {orderList[selectedOrder].orderId}, {Moment(orderList[selectedOrder].createdAt).format("MMMM Do YYYY")}
+              </div>
+              <div 
+                className={`text-xl font-semibold ${orderList[selectedOrder].status == 'Pending'? 'text-red-500': 'text-green-600'} `}
+              >
+                {orderList[selectedOrder].status}
+              </div>
             </div>
-            <div 
-              className={`text-xl font-semibold ${orderList[selectedOrder].status == 'Pending'? 'text-red-500': 'text-green-600'} `}
-            >
-              {orderList[selectedOrder].status}
+            <div className="flex justify-end text-lg font-bold py-4 border-t  ">
+              Final price: 
+              <span className="text-red-500 ml-2">
+                ₫{orderList[selectedOrder].totalAmount.toLocaleString()}
+              </span>
             </div>
-          </div>
-          <div className="flex justify-end text-lg font-bold py-4 border-t  ">
-            Final price: 
-            <span className="text-red-500 ml-2">
-              ₫{orderList[selectedOrder].totalAmount.toLocaleString()}
-            </span>
-          </div>
 
-          {orderList[selectedOrder].status == 'Pending'
-          ?<div className="flex justify-end mt-4">
-            <button className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600">Place order</button>
-           </div>
-           : null}
-        </div>}
-      </div>  
+            {orderList[selectedOrder].status == 'Pending'
+            ?<div className="flex justify-end mt-4">
+              <button className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600">Place order</button>
+            </div>
+            : null}
+          </div>}
+        </div>
+      }  
       
     </div>
   );

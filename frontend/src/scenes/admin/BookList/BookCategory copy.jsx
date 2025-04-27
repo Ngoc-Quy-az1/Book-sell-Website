@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from "react";
 import axios from 'axios';
-import UserPopup from "./UserPopup";
+import UserPopup from "./BookPopup";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
 import Cookies from "js.cookie"
@@ -19,6 +19,15 @@ const AdminBookCategoryList = () => {
     }, [])
     const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
     const [selectedCategory, setSelectedCategory] = useState([]);
+    const [url, setUrl] = useState("http://localhost:8090/api/books/GetAllPaginated");
+    const [page, setPage] = useState(1);
+    const handlePage = (int) => {
+      setPage(page + int);
+    }
+    const [maxPage, setMaxPage] = useState(1);
+    const findMaxPage = (int) => {
+      setMaxPage(Math.floor((int+19)/20));
+    }
     const [bookList, setBookList] = useState([]);
     useEffect( () => {
       getBookPage();
@@ -28,12 +37,13 @@ const AdminBookCategoryList = () => {
       getDetail()
     },[])
     const getBookPage = async ()=>{
-      await fetch('http://localhost:8090/api/books/all',{ headers: config})
+      await fetch(url,{ headers: config})
       .then((response) => {
         return response.json();
       })
       .then((response) => {
-        setBookList(response);
+        setBookList(response.content);
+        console.log(response.content);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -68,9 +78,9 @@ const AdminBookCategoryList = () => {
       setUserPopup(!userPopup);
   
     };
-  const handleSortRule = (rule) => {
-    setSortRule(rule);
-    setSelectedSortRule(rule);
+  const handleSort = (url) => {
+    setSortRule(url);
+    getBookPage();
   }
   const handleManage = (book) => {
     setSelectedBook(book);
@@ -80,7 +90,6 @@ const AdminBookCategoryList = () => {
     const index = selectedCategory.indexOf(event.target.id);
     (event.target.checked) ? setSelectedCategory([...selectedCategory, event.target.id])
     : setSelectedCategory([...selectedCategory.slice(0,index),...selectedCategory.slice(index+1)])
-    console.log(selectedCategory);
   }
   const sort = (a,b) => {
     if (sortRule==0) return a.title>b.title ? 1 : -1;
@@ -89,8 +98,9 @@ const AdminBookCategoryList = () => {
     if (sortRule==3) return a.price_discounted<b.price_discounted ? 1 : -1;
   }
   const BookList = () => {
-    return bookList.filter((book) => selectedCategory.includes(book.category) || selectedCategory.length == 0).toSorted(sort)
-    .map((book) => (
+    const newList = bookList.filter((book) => selectedCategory.includes(book.category) || selectedCategory.length == 0);
+    findMaxPage(newList.length);
+    return newList.map((book) => (
       <button id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
         <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
         <h3 className="font-bold text-sm mb-1">{book.title}</h3>
@@ -98,6 +108,10 @@ const AdminBookCategoryList = () => {
         <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}.000đ</div>
       </button>
     ))
+  }
+  const pageIndex = () => {
+    let list = Array.from({length:5}, (x,i) => page-2+i)
+    return list.filter((val) => val>0 && val<=maxPage)
   }
   return (
     <div className="flex p-5 pl-10">
@@ -117,16 +131,34 @@ const AdminBookCategoryList = () => {
         <UserPopup book={selectedBook} userPopup={userPopup} handleUserPopup={handleUserPopup}/>
         {/* Sorting Options */}
         <div className="flex gap-2 mb-4">
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(0)} style={(selectedSortRule==0) ? {backgroundColor : colors.greenAccent[600]} : {}}>Mặc định</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(1)} style={(selectedSortRule==1) ? {backgroundColor : colors.greenAccent[600]} : {}}>Sách mới</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(2)} style={(selectedSortRule==2) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(3)} style={(selectedSortRule==3) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSort("http://localhost:8090/api/books/GetAllPaginated")} style={(selectedSortRule==1) ? {backgroundColor : colors.greenAccent[600]} : {}}>Sách mới</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSort("http://localhost:8090/api/books/GetAllPaginated/sortedAcs")} style={(selectedSortRule==2) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSort("http://localhost:8090/api/books/GetAllPaginated/sortedDesc")} style={(selectedSortRule==3) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
         </div>
         
         {/* Book List */}
         <div className={`grid grid-cols-4 gap-4`}>
           <BookList/>
+          
         </div>
+        <div className="flex justify-center mt-6 space-x-2">
+            <button disabled={page === 1} onClick={() => {handlePage(-1)}} className="px-2">
+              &#x2039;
+            </button>
+            {pageIndex().map((index) => (
+              <button
+                key={index}
+                onClick = { ()=>{handlePage(index)}}
+                className={`px-3 py-1 rounded-full border`}
+                style={index==page ? {backgroundColor:colors.greenAccent[700]}: {}}
+              >
+                {index}
+              </button>
+            ))}
+            <button disabled={page === maxPage} onClick={() => {handlePage(1)}} className="px-2">
+              &#x203A;
+            </button>
+          </div>
       </div>
     </div>
   );

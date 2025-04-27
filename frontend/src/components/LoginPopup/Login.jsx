@@ -8,7 +8,7 @@ import * as yup from "yup";
 import { redirect } from "react-router-dom";
 import Cookies from "js.cookie"
 
-const Login = ({ handleSignIn, handleNotice, handleForgotPassword }) => {
+const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
   const [showPassword, setShowPassword] = useState(false);
   const handleFormSubmit = (values) => {
     if (phoneRegExp.test(values.input)) values.phone = values.input;
@@ -116,7 +116,7 @@ const Login = ({ handleSignIn, handleNotice, handleForgotPassword }) => {
         </p>
         <p
           className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
-          onClick={handleSignIn}
+          onClick={handleSignUp}
         >
           No Account? Signup here
         </p>

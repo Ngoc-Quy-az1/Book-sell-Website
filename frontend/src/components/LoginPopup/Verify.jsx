@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import OTPInput from "react-otp-input";
-const Verify = ( {handleSignIn, handleVerify, mail, handleNotice, forgotPassword} ) => {
+const Verify = ( {handleVerify, mail, handleNotice, forgotPassword} ) => {
   const [code, setCode] = useState('','','','','','');
   const selectUrl = () => {
     if (forgotPassword) return "http://localhost:8090/api/users/confirmcode";

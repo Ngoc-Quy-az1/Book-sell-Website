@@ -12,7 +12,6 @@ import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import { Outlet } from "react-router-dom";
 import ChatButton from "./components/ChatButton/ChatButton.jsx";
-import UserDetail from "./components/UserDetail/UserDetail";
 import Cookies from "js.cookie"
 import Books from "./components/BooksSlider/Books.jsx";
 
@@ -43,10 +42,15 @@ const App = () => {
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       {/* <BookCategoryList/> */}
       {/* <Cart/> */}
+        <Outlet/>
       { (Cookies.get('authToken'))?
       <>
         <ChatButton />
-        <Outlet/>
+        <Hero handleOrderPopup={handleOrderPopup} />
+        <Services handleOrderPopup={handleOrderPopup} />
+        <Banner />
+        <AppStore />
+        <Testimonial />
       </>
       :<></>
       
@@ -56,12 +60,10 @@ const App = () => {
         <Services handleOrderPopup={handleOrderPopup} />
         <Banner />
         <AppStore />
-        <Books />
         <Testimonial />
       </>  
       <Footer />
-       <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
-
+      <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
       <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
 
     </div>
