@@ -1,5 +1,6 @@
 package com.example.test.controller.CoreController;
 
+import com.example.test.DTO.book.request.BookGetAllRequest;
 import com.example.test.DTO.book.request.UpdateBookDTO;
 import com.example.test.DTO.book.response.BookResponse;
 import com.example.test.Entity.Book;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 
 
 @RestController
@@ -310,57 +312,57 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
     // http://localhost:8090/api/books/GetAllPaginated/sortedAcss
     // 
     // http://localhost:8090/api/books/GetAllPaginated/sortedAcs?page=1&size=20
-    @GetMapping("/GetAllPaginated/sortedAcs")
-    public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedAcs(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String category) {
-        Page<Book> booksPage = bookService.getAllBooksPaginatedPriceAsc(page, size,category);
-        List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
-            BookResponse response = new BookResponse();
-            response.setId(book.getID());
-            response.setTitle(book.getTitle());
-            response.setAuthor(book.getAuthor());
-            response.setCategory(book.getCategory());
-            response.setImage(book.getImage());
-            response.setPrice_discounted((int)book.getPrice_discounted());
-            response.setPrice_original((int) book.getPrice_original());
-            response.setDescription(book.getDescription());
-            return response;
-        }).collect(Collectors.toList());
-        Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
-        return ResponseEntity.ok(responsePage);
-    }
+    // @GetMapping("/GetAllPaginated/sortedAcs")
+    // public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedAcs(
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "20") int size,
+    //         @RequestParam(required = false) String category) {
+    //     Page<Book> booksPage = bookService.getAllBooksPaginatedPriceAsc(page, size,category);
+    //     List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
+    //         BookResponse response = new BookResponse();
+    //         response.setId(book.getID());
+    //         response.setTitle(book.getTitle());
+    //         response.setAuthor(book.getAuthor());
+    //         response.setCategory(book.getCategory());
+    //         response.setImage(book.getImage());
+    //         response.setPrice_discounted((int)book.getPrice_discounted());
+    //         response.setPrice_original((int) book.getPrice_original());
+    //         response.setDescription(book.getDescription());
+    //         return response;
+    //     }).collect(Collectors.toList());
+    //     Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
+    //     return ResponseEntity.ok(responsePage);
+    // }
 
     //Api lấy ra danh sách sách có phân trang và sắp xếp theo giá giảm dần 
     // Nếu không truyền về số trang thì mặc định lấy trang 0
     // http://localhost:8090/api/books/GetAllPaginated/sortedDesc
     // 
     // http://localhost:8090/api/books/GetAllPaginated/sortedDesc?page=1&size=20
-    @GetMapping("/GetAllPaginated/sortedDesc")
-    public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedDesc(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String category) {
+    // @GetMapping("/GetAllPaginated/sortedDesc")
+    // public ResponseEntity<Page<BookResponse>> getAllBooksPaginatedSortedDesc(
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "20") int size,
+    //         @RequestParam(required = false) String category) {
     
-        Page<Book> booksPage = bookService.getAllBooksByCategoryPaginatedPriceDesc(page, size, category);
+    //     Page<Book> booksPage = bookService.getAllBooksByCategoryPaginatedPriceDesc(page, size, category);
     
-        List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
-            BookResponse response = new BookResponse();
-            response.setId(book.getID());
-            response.setTitle(book.getTitle());
-            response.setAuthor(book.getAuthor());
-            response.setCategory(book.getCategory());
-            response.setImage(book.getImage());
-            response.setPrice_discounted((int) book.getPrice_discounted());
-            response.setPrice_original((int) book.getPrice_original());
-            response.setDescription(book.getDescription());
-            return response;
-        }).collect(Collectors.toList());
+    //     List<BookResponse> bookResponses = booksPage.getContent().stream().map(book -> {
+    //         BookResponse response = new BookResponse();
+    //         response.setId(book.getID());
+    //         response.setTitle(book.getTitle());
+    //         response.setAuthor(book.getAuthor());
+    //         response.setCategory(book.getCategory());
+    //         response.setImage(book.getImage());
+    //         response.setPrice_discounted((int) book.getPrice_discounted());
+    //         response.setPrice_original((int) book.getPrice_original());
+    //         response.setDescription(book.getDescription());
+    //         return response;
+    //     }).collect(Collectors.toList());
     
-        Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
-        return ResponseEntity.ok(responsePage);
-    }
+    //     Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
+    //     return ResponseEntity.ok(responsePage);
+    // }
     
 
     //Api lấy ra các thể loại sách đang có 
@@ -406,6 +408,50 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
         Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
         return ResponseEntity.ok(responsePage);
     }
-    
-    
+
+
+    // api gộp mọi thứ 
+    // http://localhost:8090/api/books/GetAllPaginated1
+    // request body
+    // {
+    //     "sort": acs 
+    //     "minPrice" : "10000",
+    //     "maxPrice" : "20000",
+    //     "page" : "0",
+    //     "size" : "20",
+    //     "category" : [Tiểu thuyết, Nuôi dạy con]
+    //     "Search" : "Tìm kiếm"
+    // }
+    @GetMapping("/GetAllPaginatedFull")
+    public ResponseEntity<Page<BookResponse>> getAllPaginated(@RequestBody BookGetAllRequest bookRequest) {
+        String sort = bookRequest.getSort();
+        Integer minPrice = bookRequest.getMinPrice();
+        Integer maxPrice = bookRequest.getMaxPrice();
+        int page = bookRequest.getPage();
+        int size = bookRequest.getSize();
+        List<String> category = bookRequest.getCategory();
+        String search = bookRequest.getSearch();
+
+        Page<Book> booksPage = bookService.getAllBooks(sort,minPrice, maxPrice, page, size, category, search);
+
+        List<BookResponse> bookResponses = booksPage.getContent()
+                .stream()
+                .map(book -> {
+                    BookResponse response = new BookResponse();
+                    response.setId(book.getID());
+                    response.setTitle(book.getTitle());
+                    response.setAuthor(book.getAuthor());
+                    response.setCategory(book.getCategory());
+                    response.setImage(book.getImage());
+                    response.setPrice_discounted((int) book.getPrice_discounted());
+                    response.setPrice_original((int) book.getPrice_original());
+                    response.setDescription(book.getDescription());
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        Page<BookResponse> responsePage = new PageImpl<>(bookResponses, PageRequest.of(page, size), booksPage.getTotalElements());
+
+        return ResponseEntity.ok(responsePage);
+    }
 }
