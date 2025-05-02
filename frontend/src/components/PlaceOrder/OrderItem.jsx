@@ -1,78 +1,89 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
-import Cookies from 'js.cookie';
-import Moment from 'moment';
+import axios from "axios";
+import Cookies from "js.cookie";
+import Moment from "moment";
 
 export default function OrderItem({
-  isSelected: isSelected,
-  orderId: orderId, 
-  orderCreateAt: orderCreateAt,
-  onClickFunc: onClickFunc,
-  status: status,})
-{
-  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  isSelected,
+  orderId,
+  orderCreateAt,
+  onClickFunc,
+  status,
+}) {
+  const auth = { Authorization: `Bearer ${Cookies.get("authToken")}` };
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [bookList, setBooklist] = useState([]);
-  const handleClick = async (isShow)=> {
-    Moment.locale('en');
-    console.log(isShow);
-    if (isCollapsed){
-      await axios.get(`http://localhost:8090/api/order/orderDetails?orderID=${orderId}`,{
-        headers:auth,
-      })
-      .then((response) => {
-          setBooklist(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+
+  const handleClick = async () => {
+    if (isCollapsed) {
+      try {
+        const response = await axios.get(
+          `http://localhost:8090/api/order/orderDetails?orderID=${orderId}`,
+          { headers: auth }
+        );
+        setBooklist(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     }
-  }
-  return(
-    <div className={
-      `flex flex-col max-w-4xl ml-60 mr-40 p-6 
-      ${isSelected? 'bg-blue-300' : 'bg-slate-300'} 
-      pl-6 shadow-md rounded-xl mt-10
-      ${isCollapsed ? 'h-16 overflow-hidden' :'h-auto'}`
-    }>
+    setIsCollapsed(!isCollapsed);
+    onClickFunc();
+  };
+
+  return (
+    <div
+      className={`flex flex-col w-full bg-white rounded-lg shadow-md p-6 mb-6 transition-all ${
+        isSelected ? "border-4 border-blue-500" : "border border-gray-300"
+      }`}
+    >
       {/* Header */}
-      <div 
-      className="flex flex-row justify-between border-b"
-      key={orderId} onClick={async ()=>{
-        if (isCollapsed || isSelected){
-          setIsCollapsed(!isCollapsed);
-        }
-        onClickFunc();
-        await handleClick(!isCollapsed);
-      }}>
-        <div className="text-xl font-semibold mb-4 text-purple-800">
-          Order {orderId}, {Moment(orderCreateAt).format("MMMM Do YYYY")}
+      <div
+        className="flex justify-between items-center cursor-pointer"
+        onClick={handleClick}
+      >
+        <div>
+          <h3 className="text-2xl font-bold text-gray-800">
+            Order #{orderId}
+          </h3>
+          <p className="text-lg text-gray-600">
+            {Moment(orderCreateAt).format("MMMM Do YYYY")}
+          </p>
         </div>
-        <div className={`text-xl font-semibold ${status == 'Pending'? 'text-red-500': 'text-green-600'} `}>{status}</div>
+        <span
+          className={`text-lg font-semibold ${
+            status === "Pending" ? "text-red-500" : "text-green-500"
+          }`}
+        >
+          {status}
+        </span>
       </div>
 
-      {/* ColumnName */}
-      <div className="flex flex-row ">
-        <h2 className="text-xl font-semibold mb-4">Product</h2>
-        <h2 className="text-xl font-semibold mb-4 ml-[460px]">Price</h2>
-        <h2 className="text-xl font-semibold mb-4 ml-[69px]">Amount</h2>
-        <h2 className="text-xl font-semibold mb-4 ml-[80px]">Total</h2>
-      </div>
-
-      {/* Book detail list */}
-      {isCollapsed? null : bookList.map((item) => (
-      <div key={item.bookName} className="flex items-center justify-between py-3 border-b">
-        <div className="flex items-center gap-4">
-        <span className=" text-2xl">{item.bookName}</span>
+      {/* Book List */}
+      {!isCollapsed && (
+        <div className="mt-6">
+          <div className="grid grid-cols-4 text-lg font-bold text-gray-600 border-b pb-4">
+            <span>Product</span>
+            <span className="text-center">Price</span>
+            <span className="text-center">Quantity</span>
+            <span className="text-right">Total</span>
+          </div>
+          {bookList.map((item) => (
+            <div
+              key={item.bookName}
+              className="grid grid-cols-4 text-lg text-gray-800 py-4 border-b"
+            >
+              <span>{item.bookName}</span>
+              <span className="text-center">
+                ₫{item.price.toLocaleString()}
+              </span>
+              <span className="text-center">{item.quantity}</span>
+              <span className="text-right">
+                ₫{(item.price * item.quantity).toLocaleString()}
+              </span>
+            </div>
+          ))}
         </div>
-        <div className="flex items-center">
-        <span className=" text-xl mr-12 w-24 text-left">₫{item.price.toLocaleString()}</span>
-        <span className=" text-lg mr-12 w-7">{item.quantity}</span>
-        <span className=" text-xl w-24 text-right">₫{(item.price * item.quantity).toLocaleString()}</span>
-        </div>
-      </div>
-      ))}
-
+      )}
     </div>
   );
 }
