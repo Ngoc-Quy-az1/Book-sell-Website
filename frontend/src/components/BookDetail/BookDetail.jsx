@@ -5,10 +5,11 @@ import { Star } from "lucide-react";
 import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
 import Navbar from "../Navbar/Navbar";
 import axios from 'axios';
-
+import Cookies from 'js.cookie';
 
 
 const BookDetail = () => {
+  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [listComment, setListComment] = useState([
     {
       id:"1",
@@ -40,7 +41,9 @@ const BookDetail = () => {
     getBookDetail();
   }, []);
   const getBookDetail = ()=>{
-    axios.get('http://localhost:8090/api/books/4')
+    axios.get('http://localhost:8090/api/books/4',{
+      headers:auth,
+    })
     .then((response) => {
       setBookDetail(response.data);
     })

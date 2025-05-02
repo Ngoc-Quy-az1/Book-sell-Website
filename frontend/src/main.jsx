@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider, BrowserRouter  } from "react-router-dom";
-import Admin from "./admin.jsx";
+import Admin from "./Admin.jsx";
 import Dashboard from "./scenes/admin/dashboard";
 import ManageUsers from "./scenes/admin/manageUsers/index.jsx";
 import Bar from "./scenes/admin/bar";
@@ -12,7 +12,7 @@ import Chat from "./scenes/admin/chat";
 import Cart from "./components/Cart/cart.jsx";
 import Calendar from "./scenes/admin/calendar/calendar";
 import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
-import AdminBookCategoryList from "./scenes/admin/BookCategoryList/BookCategory.jsx";
+import AdminBookList from "./scenes/admin/BookList/AdminBookList.jsx";
 import Books from "./components/BooksSlider/Books.jsx";
 
 // Import css files
@@ -25,12 +25,14 @@ import UserDetail from "./components/UserDetail/UserDetail.jsx";
 
 const router = createBrowserRouter([{
   path: '/',
-  element: <App/>,
+  element: <App />,
   children:[
     {index:true, element: <Books/>},
     {path:'books', element:<BookCategoryList/>},
     {path:'cart', element: <Cart/>},
-    {path:'user-detail/14', element:<UserDetail/>},
+    {path:'placeorder', element:<PlaceOrder/>},
+    {path:'user-detail/:id', element:<UserDetail/>},
+    {path:'book-detail/:id', element:<BookDetail/>}
   ]
 },
 {path:'/admin', 
@@ -39,10 +41,10 @@ const router = createBrowserRouter([{
     {
       index: true, element: <Dashboard/>
     },
-    // {path:'manageUsers', element:<ManageUsers />},
+    {path:'manageUsers', element:<ManageUsers />},
     {path:'form', element:<Form />},
     {path:'bar', element:<Bar />},
-    {path:'booklist', element:<AdminBookCategoryList />},
+    {path:'booklist', element:<AdminBookList />},
     {path:'chat', element: <Chat/>},
     {path:'calendar', element:<Calendar />}
   ]

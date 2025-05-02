@@ -1,63 +1,166 @@
-import Navbar from "../Navbar/Navbar";
+import React from "react";
 import { useState,useEffect } from "react";
 import axios from 'axios';
+import Cookies from "js.cookie";
+import { Slider } from "@mui/material";
 
+const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+const userId = Cookies.get('userId');
+const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+console.log(Cookies.get('authToken'))
 const BookCategoryList = () => {
-  const [selectedCountries, setSelectedCountries] = useState([]);
-  const category = ["Giáo dục", "Kinh tế", "Văn học", "Tiểu thuyết", "Thiếu nhi"];
-  const [bookList, setBooklist] = useState([]);
+  const [totalPage, setTotalPage] = useState(1);
+  const [selectedPage, setSelectedPage] = useState(1);
+  //Lấy tất cả thể loại
+  const [categories, setCategories] = useState([]);
   useEffect( () => {
-    getBookPage();
-  }, []);
-  const getBookPage = async ()=>{
-    await axios.get('http://localhost:8090/api/books/GetAllPaginated')
+    getBookCategory();
+  }, [])
+
+//Thể loại đang được chọn 
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const handleChange = (event) => {
+    const index = selectedCategory.indexOf(event.target.id);
+    (event.target.checked) ? setSelectedCategory([...selectedCategory, event.target.id])
+    : setSelectedCategory([...selectedCategory.slice(0,index),...selectedCategory.slice(index+1)])
+  }
+//Slider xét giá
+  const [value, setValue] = React.useState([0, 1000000]);
+
+  const handleSlider = (event, newValue) => {
+    setValue(newValue);
+  };
+  const handleMinSlider = (event) => {
+    setValue([event.target.value === '' ? 0 : Number(event.target.value),value[1]]);
+  };
+  const handleMaxSlider = (event) => {
+    setValue([value[0],event.target.value === '' ? 0 : Number(event.target.value)]);
+  };
+  
+  const getBookCategory = async ()=>{
+    await fetch('http://localhost:8090/api/books/AllTypeCategories', {headers: config})
     .then((response) => {
-        setBooklist(response.data.content);
+      return response.json();
+    })
+    .then((response) => {
+      setCategories(response); 
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
     });
   }
+  const [bookList, setBookList] = useState([]);
+  useEffect( () => {
+    getBookPage();
+  }, []);
+
+  const getBookPage = async ()=>{
+    await axios.get('http://localhost:8090/api/books/GetAllPaginated',{
+      headers:auth,
+    })
+    .then((response) => {
+        setBookList(response.data.content);
+        setTotalPage(response.data.totalPages);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
+
   const onPageChange = async (page)=> {
     await axios
     .get(
       'http://localhost:8090/api/books/GetAllPaginated',
       {
+        headers:auth,
         params: {
           page: page,
         }
       }
     )
     .then((response) => {
-        setBooklist(response.data.content);
+        setBookList(response.data.content);
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
+    });
+    
+  }
+
+  const addToCart = async (userId, bookId)=>{
+    let data = {
+      "userId": userId,
+      "bookId": bookId,
+      "quantity":1,
+    };
+    await axios.post('http://localhost:8090/api/cart/add',
+      data,
+      {
+        headers:auth,
+      }
+    )
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error.response.data);
     });
   }
   return (
     <div className="flex p-5 pl-40 pr-40">
       {/* Sidebar */}
       <div className="w-1/4 pr-5 border-r">
-        <h2 className="font-bold text-lg mb-2 text-green-600">Thể loại</h2>
-        {category.map((country) => (
-          <div key={country} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" />
-            <span>{country}</span>
+        <h2 className="font-bold text-lg mb-2 text-green-600">Phi hư cấu</h2>
+        {categories.slice(0,10).map((category) => (
+          <div key={category} className="flex items-center mb-2">
+            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <span>{category}</span>
           </div>
         ))}
+        <h2 className="font-bold text-lg mb-2 text-green-600">Hư cấu </h2>
+        {categories.slice(10,21).map((category) => (
+          <div key={category} className="flex items-center mb-2">
+            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <span>{category}</span>
+          </div>
+        ))}
+        <h2 className="font-bold text-lg mb-2 text-green-600">Thiếu nhi</h2>
+        {categories.slice(21,25).map((category) => (
+          <div key={category} className="flex items-center mb-2">
+            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <span>{category}</span>
+          </div>
+        ))}
+        
+        {/*Slider giá */}
+        <h2 className="font-bold text-lg mb-2 text-green-600">Giá</h2>
+          <Slider
+            getAriaLabel={(index) => (index === 0 ? 'Minimum price' : 'Maximum price')}
+            value={value}
+            onChange={handleSlider}
+            min={0}
+            step={10000}
+            max={1000000}
+            valueLabelDisplay="auto"
+          />
+        <div className="flex items-center mb-2 justify-center"> Giá tối thiểu: 
+          <input value={value[0]} className="search-input" onChange={handleMinSlider} style={{marginLeft:"5px", }}></input>
+        </div>
+        <div className="flex items-center mb-2 justify-center"> Giá tối đa:  
+          <input value={value[1]} className="search-input" onChange={handleMaxSlider} style={{marginLeft:"10px", }}></input>
+        </div>
       </div>
 
       {/* Main Content */}
       <div className="w-3/4">
         
         {/* Sorting Options */}
-        <div className="flex gap-2 mb-4">
+        {/* <div className="flex gap-2 mb-4">
           <button className="px-3 py-1 border rounded bg-gray-200">Mặc định</button>
           <button className="px-3 py-1 border rounded">Sách mới</button>
           <button className="px-3 py-1 border rounded">Giá thấp - cao</button>
           <button className="px-3 py-1 border rounded">Giá cao - thấp</button>
-        </div>
+        </div> */}
         
         {/* Book List */}
         <div className="grid grid-cols-4 gap-4">
@@ -67,20 +170,26 @@ const BookCategoryList = () => {
               <h1 className="font-bold text-xl mb-1">{book.title}</h1>
 
               <div className="text-xl font-bold text-green-600">
-              {(parseFloat(book.price_discounted)).toLocaleString(undefined,
-                {'minimumFractionDigits':3}
-              )}₫ 
-              <span className="text-base line-through text-gray-500 ml-2">
-                {(parseFloat(book.price_original)).toLocaleString(undefined,
-              {'minimumFractionDigits':3}  
-              )}₫</span>
-              <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
-                {Math.round( (parseFloat(book.price_original) - parseFloat(book.price_discounted))*100
-                  /parseFloat(book.price_original) )} %
-              </span>
-
-            </div>
-              
+                {(parseFloat(book.price_discounted)).toLocaleString(undefined,
+                  
+                )}₫ 
+              </div>
+              <div>
+                <span className="text-base line-through text-gray-500 ml-2">
+                  {(parseFloat(book.price_original)).toLocaleString(undefined,
+                )}₫</span>
+                <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
+                  {Math.round( (parseFloat(book.price_original) - parseFloat(book.price_discounted))*100
+                    /parseFloat(book.price_original) )} %
+                </span>
+                
+              </div>
+              <button onClick={()=>{
+                  addToCart(userId, book.id);
+                }} 
+                className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600 mt-4">
+                  Add to cart
+                </button>
             </div>
           ))}
         </div>
@@ -89,13 +198,16 @@ const BookCategoryList = () => {
             <button disabled={1 === 1} onClick={() => {}} className="px-2">
               &#x2039;
             </button>
-            {[1, 2, 3].map((page, index) => (
+            {[...Array(totalPage)].map((page, index) => (
               <button
                 key={index}
-                onClick = { ()=>{}}
-                className={`px-3 py-1 rounded-full border ${1 === page ? 'text-green-600 border-green-600' : ''}`}
+                onClick = { async ()=>{
+                  await onPageChange(index);
+                  setSelectedPage(page);
+                }}
+                className={`px-3 py-1 rounded-full border ${selectedPage === (index+1)  ? 'text-green-600 border-green-600' : ''}`}
               >
-                {page}
+                {index+1}
               </button>
             ))}
             <button disabled={3 === 3} onClick={() =>{}} className="px-2">

@@ -7,7 +7,7 @@ import Header from "../../../components/Admin/Header";
 import { ColorModeContext,tokens } from "../../../theme";
 import Cookies from "js.cookie"
 
-const UpdateBook = ({ book, showNotice , setError, setMessage, handleUserPopup }) => {
+const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, handleDelete }) => {
   useEffect(() => {
   },[])
   const theme = useTheme();
@@ -21,9 +21,10 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleUserPopup }
     getUpdateImformation(!updateInformation);
     
   }
-  const handleDelete = () => {
+  const handleDeleteBook = () => {
     deleteBook(book.id);
-    setTimeout(() => {handleUserPopup()},3000)
+    setTimeout(() => {handleBookPopup()},3000)
+    handleDelete(book);
   }
   //Đẩy DL lên Database 
   const updateBook = (form) =>{
@@ -180,7 +181,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleUserPopup }
               {updateInformation ? "Edit Details" : "Save"}</Button>
               </Box>
               <Box >
-              <Button type="button" color="secondary" variant="contained" onClick={handleDelete}>
+              <Button type="button" color="secondary" variant="contained" onClick={handleDeleteBook}>
               Remove Book</Button>
               </Box>
             </Box>

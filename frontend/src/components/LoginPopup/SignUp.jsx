@@ -3,10 +3,11 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Formik } from "formik";
 import {  TextField } from "@mui/material";
 import * as yup from "yup";
-const Signin = ( {handleSignIn, handleVerify, handleMail, handleNotice } ) => {
+const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = (values) => {
+    values.full_name=values.lastName + ' ' + values.firstName;
     handleMail(values);
     createUser(values);
   };
@@ -61,6 +62,36 @@ const Signin = ( {handleSignIn, handleVerify, handleMail, handleNotice } ) => {
               name="name"
               error={!!touched.name && !!errors.name}
               helperText={touched.name && errors.name}/>
+            <TextField id="firstName" 
+              type="text" 
+              className="input" 
+              onBlur={handleBlur}
+              label="First Name"
+              onChange={handleChange}
+              value={values.firstName}
+              name="firstName"
+              error={!!touched.firstName && !!errors.firstName}
+              helperText={touched.firstName && errors.firstName}/>
+            <TextField id="lastName" 
+              type="text" 
+              className="input" 
+              onBlur={handleBlur}
+              label="Last Name"
+              onChange={handleChange}
+              value={values.lastName}
+              name="lastName"
+              error={!!touched.lastName && !!errors.lastName}
+              helperText={touched.lastName && errors.lastName}/>   
+            <TextField id="address" 
+              type="text" 
+              className="input" 
+              onBlur={handleBlur}
+              label="Address"
+              onChange={handleChange}
+              value={values.address}
+              name="address"
+              error={!!touched.address && !!errors.address}
+              helperText={touched.address && errors.address}/>           
             <TextField id="mail" 
               type="text" 
               className="input" 
@@ -114,7 +145,7 @@ const Signin = ( {handleSignIn, handleVerify, handleMail, handleNotice } ) => {
       </Formik>
         <p
           className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
-          onClick={handleSignIn}
+          onClick={handleSignUp}
         >
           Already have an Account? Log in
         </p>
@@ -125,6 +156,9 @@ const phoneRegExp =/^\d{5,15}$/;
 
 const checkoutSchema = yup.object().shape({
   name: yup.string().required("required"),
+  firstName: yup.string().required("required"),
+  lastName: yup.string().required("required"),
+  address: yup.string().required("required"),
   mail: yup.string().email("invalid mail").required("required"),
   phone: yup
   .string()
@@ -134,9 +168,13 @@ const checkoutSchema = yup.object().shape({
 });
 const initialValues = {
   name: "",
+  firstName:"",
+  lastName:"",
+  full_name:"",
+  address:"",
   mail: "",
   phone: "",
   password: "",
   code:""
 };
-export default Signin;
+export default SignUp;
