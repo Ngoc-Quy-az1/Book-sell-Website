@@ -1,30 +1,21 @@
 import { Box, InputBase, useTheme } from "@mui/material";
 import { useState, useEffect } from "react";
-import Typography from "@mui/material/Typography";
-import useWebSocket,{ReadyState} from "react-use-websocket";
 import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import { tokens } from "../../../theme";
 import axios from "axios";
 import Cookies from "js.cookie"
-const Item = ({ title, to, icon, selected, setSelected }) => {
+const Chat = () => {
+  const ADMIN_ID = Cookies.get("userId");
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  return (
-    <MenuItem
-      active={selected === title}
-      style={{
-        color: colors.grey[100],
-      }}
-      onClick={() => setSelected(title)}
-      icon={icon}
-    >
-      <Typography>{title}</Typography>
-      <Link to={"/admin"+to} />
-    </MenuItem>
-  );
-};
-const Chat = () => {
+  const [userList, setUserList] = useState([]);
+  const [userId, setUserId] = useState();
+  const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
+  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const [messages, setMessages] = useState([]); 
+  const [subscribed, setSubcribed] = useState([]);
+
   const getMessage = (userId) => {
   fetch(
     "http://localhost:8090/api/chat/admin/history",
@@ -37,14 +28,11 @@ const Chat = () => {
     .then(result => {setMessages(result); console.log(result);})
     .catch(error => console.log('error', error));
   }
-  let stompClient = null;
-  const ADMIN_ID = Cookies.get("userId");
 
-  function connectWebSocket(userId) {
+  const connectWebSocket = () => {
 
     const socket = new SockJS('http://localhost:8090/ws');
-    stompClient = Stomp.over(socket);
-
+    let stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
       // Subscribe kênh admin chat
       stompClient.subscribe('/topic/admin-chat/' + ADMIN_ID, function (message) {
@@ -55,16 +43,13 @@ const Chat = () => {
           (messageBody.sender.id == userId && messageBody.receiver.id == ADMIN_ID) ||
           (messageBody.sender.id == ADMIN_ID && messageBody.receiver.id == userId)
         ) {
-          setMessages(messages => [...messages, message])
+          setMessages(messages => [...messages, messageBody])
         }
       });
       getMessage(userId);
     })}
 
   
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const [userList, setUserList] = useState([]);
   useEffect(() => {
     fetch("http://localhost:8090/api/admin/users",{
       method:"GET",
@@ -76,16 +61,18 @@ const Chat = () => {
     .then(Response => {
       setUserList(Response.filter((user) => !user.is_admin));
     })
+    connectWebSocket();
   },[])
-  const [userId, setUserId] = useState();
-  const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-  const [messages, setMessages] = useState([]);
+
   useEffect(() => 
     document.getElementById("bottom").scrollIntoView(),[messages])
   const showMessage = (id) => {
     setUserId(id);
-    connectWebSocket(id);
+    getMessage(id);
+    if (!subscribed.includes(id)) {
+      getSubscribed(subscribed => [...subscribed, id]);
+      connectWebSocket();
+    }
   }
   
   const handleSendMessage = () => {
