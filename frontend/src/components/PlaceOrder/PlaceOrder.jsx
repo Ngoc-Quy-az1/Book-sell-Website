@@ -1,99 +1,219 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
+import Cookies from 'js.cookie';
+import OrderItem from "./OrderItem";
+import { selectClasses } from "@mui/material";
+import Moment from 'moment';
+import qrImage from "../../assets/qr_checkout.png"; // Import QR image
 
 export default function PlaceOrder() {
-  const bookList = [
-    {
-      id: 3,
-      title: "ĂN DẶM KHÔNG NƯỚC MẮT",
-      price: 53360,
-      quantity: 1,
-      image: "https://bizweb.dktcdn.net/100/363/455/products/an-dam-khong-nuoc-mat.jpg?v=1695032717550",
-    },
-    {
-      id: 2,
-      title: "NUÔI DẠY CON KHÔNG QUÁT MẮNG",
-      price: 53360,
-      quantity: 2,
-      image: "https://bizweb.dktcdn.net/100/363/455/products/nuoidayconkhongquatmangcover01.jpg?v=1705552116190",
-    },
-  ];
+  const userId = Cookies.get('userId');
+  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const [selectedOrder, setSelectedOrder] = useState(-1);
+  const [orderList, setOrderList] = useState([]);
+  const [activeSection, setActiveSection] = useState(null); // Manage payment section visibility
+  const [paymentResult, setPaymentResult] = useState({ qr: "", coin: "" }); // Payment result
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null); // Selected order details
 
-  const total = bookList.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const [showVoucher, setShowVoucher] = useState(false);
-  const [voucherCode, setVoucherCode] = useState("");
-  const handleSubmitVoucher = () => {
-    console.log("Submitted voucher code:", voucherCode);
-    setShowVoucher(false);
+  useEffect( () => {
+    Moment.locale('en');
+    getOrderList(userId);
+  }, []);
+
+  const getOrderList = async (userID)=>{
+    await axios.get(`http://localhost:8090/api/order/${userID}`,{
+      headers:auth,
+    })
+    .then((response) => {
+        setOrderList(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
+
+  const showSection = (section) => {
+    setActiveSection(section);
   };
-  return (
-    <div className="max-w-4xl mx-auto bg-white p-6 shadow-md rounded-xl mt-10">
-      <div className="flex flex-row">
-        <h2 className="text-xl font-semibold mb-4">Product</h2>
-        <h2 className="text-xl font-semibold mb-4 ml-[460px]">Price</h2>
-        <h2 className="text-xl font-semibold mb-4 ml-[69px]">Amount</h2>
-        <h2 className="text-xl font-semibold mb-4 ml-[80px]">Total</h2>
-      </div>
-      {bookList.map((item) => (
-        <div key={item.id} className="flex items-center justify-between py-3 border-b">
-          <div className="flex items-center gap-4">
-            <img src={item.image} alt="book" className="w-12 h-16 object-cover" />
-            <span className=" text-2xl">{item.title}</span>
-          </div>
-          <div className="flex items-center">
-            <span className=" text-xl mr-12 w-24 text-left">₫{item.price.toLocaleString()}</span>
-            <span className=" text-lg mr-12 w-7">{item.quantity}</span>
-            <span className=" text-xl w-24 text-right">₫{(item.price * item.quantity).toLocaleString()}</span>
-          </div>
-        </div>
-      ))}
 
-      <div className="flex justify-between items-center py-4 border-t mt-4">
-        <div className="relative">
-          <div
-            className="text-xl text-blue-600 cursor-pointer"
-            onClick={() => setShowVoucher(!showVoucher)}
-          >
-            Chọn Voucher
-          </div>
-          {showVoucher && (
-            <div className="absolute left-3 mt-2 w-64 bg-white shadow-lg border rounded-lg p-4 z-10">
-              <input
-                type="text"
-                className="w-full border px-3 py-2 rounded mb-2"
-                placeholder="Enter voucher"
-                value={voucherCode}
-                onChange={(e) => setVoucherCode(e.target.value)}
+  const checkPayment = async (method) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8090/api/payment/check-status/${orderList[selectedOrder].orderId}`,
+        { headers: auth }
+      );
+      if (response.data.status === "Completed") {
+        setPaymentResult((prev) => ({
+          ...prev,
+          [method]: "✅ Payment successful! Thank you.",
+        }));
+        // Update order status to "Completed"
+        const updatedOrderList = orderList.map((order, index) =>
+          index === selectedOrder ? { ...order, status: "Completed" } : order
+        );
+        setOrderList(updatedOrderList);
+      } else {
+        setPaymentResult((prev) => ({
+          ...prev,
+          [method]: "⚠️ Order not yet paid.",
+        }));
+      }
+    } catch (error) {
+      setPaymentResult((prev) => ({
+        ...prev,
+        [method]: "⚠️ Unable to check payment status.",
+      }));
+    }
+  };
+
+  const payWithBalance = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8090/api/payment/pay-with-balance",
+        {
+          orderIds: [orderList[selectedOrder].orderId],
+          userId: userId,
+        },
+        { headers: auth }
+      );
+      if (response.data.success) {
+        alert(`✅ ${response.data.message}`);
+        setPaymentResult((prev) => ({
+          ...prev,
+          coin: `✅ ${response.data.message}`,
+        }));
+        // Update order status to "Completed"
+        const updatedOrderList = orderList.map((order, index) =>
+          index === selectedOrder ? { ...order, status: "Completed" } : order
+        );
+        setOrderList(updatedOrderList);
+      } else {
+        alert(`⚠️ ${response.data.message}`);
+        setPaymentResult((prev) => ({
+          ...prev,
+          coin: `⚠️ ${response.data.message}`,
+        }));
+      }
+    } catch (error) {
+      alert("⚠️ Unable to process payment.");
+      setPaymentResult((prev) => ({
+        ...prev,
+        coin: "⚠️ Unable to process payment.",
+      }));
+    }
+  };
+
+  //const total = orderList.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = 3;
+  return (
+    <div className="flex flex-col lg:flex-row justify-center items-start gap-8 px-16 py-8 bg-gray-100 min-h-screen">
+      {/* Order List Section */}
+      <div className="w-full lg:w-2/3 bg-white rounded-lg shadow-md p-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Orders</h2>
+        {(orderList.length === 0)
+          ? <div className="text-center text-xl font-semibold text-gray-600">You don't have any orders.</div>
+          : orderList.map((order, index) => (
+              <OrderItem
+                key={order.orderId}
+                status={order.status}
+                isSelected={selectedOrder === index}
+                orderId={order.orderId}
+                orderCreateAt={order.createdAt}
+                onClickFunc={() => {
+                  // Reset paymentResult when switching orders
+                  setPaymentResult({ qr: "", coin: "" });
+                  if (selectedOrder !== index) {
+                    setSelectedOrder(index);
+                  } else {
+                    setSelectedOrder(-1);
+                  }
+                }}
               />
-              <div className="flex justify-end gap-2">
-                <button
-                  className="px-4 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
-                  onClick={() => setShowVoucher(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                  onClick={handleSubmitVoucher}
-                >
-                  Apply
-                </button>
+            ))
+        }
+      </div>
+
+      {/* Order Details Section */}
+      <div className="w-full lg:w-1/3 bg-white rounded-lg shadow-md p-8 relative">
+        {(selectedOrder === -1)
+          ? <div className="text-center text-xl font-semibold text-gray-600">Select an order to view details.</div>
+          : <div>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">
+                  Order #{orderList[selectedOrder].orderId}
+                </h3>
+                <span className={`text-lg font-semibold ${orderList[selectedOrder].status === 'Pending' ? 'text-red-500' : 'text-green-500'}`}>
+                  {orderList[selectedOrder].status}
+                </span>
+              </div>
+              <div className="text-lg text-gray-600 mb-6">
+                Created on: {Moment(orderList[selectedOrder].createdAt).format("MMMM Do YYYY")}
+              </div>
+              <div className="text-2xl font-bold text-gray-800 border-t pt-6">
+                Total: <span className="text-red-500">₫{orderList[selectedOrder].totalAmount.toLocaleString()}</span>
+              </div>
+
+              {/* Payment Section */}
+              <div className="mt-8">
+                <h4 className="text-2xl font-bold text-gray-800 mb-6">Choose Payment Method</h4>
+                <div className="flex justify-center gap-6 mb-8">
+                  <button
+                    onClick={() => showSection("qr")}
+                    className="px-8 py-4 bg-green-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-green-600 transition"
+                  >
+                    💳 QR Code
+                  </button>
+                  <button
+                    onClick={() => showSection("coin")}
+                    className="px-8 py-4 bg-blue-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-600 transition"
+                  >
+                    🪙 Use Coins
+                  </button>
+                </div>
+
+                {/* QR Code Section */}
+                {activeSection === "qr" && (
+                  <div className="animate-fade-in text-center">
+                    <img
+                      src={qrImage}
+                      alt="QR Code"
+                      className="w-48 h-48 object-cover rounded-lg shadow-md mx-auto mb-6"
+                    />
+                    <div className="text-xl font-semibold text-red-600 mb-6">
+                      Price: ₫{orderList[selectedOrder].totalAmount.toLocaleString()}
+                    </div>
+                    <button
+                      onClick={() => checkPayment("qr")}
+                      className="px-8 py-4 bg-purple-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-purple-600 transition"
+                    >
+                      Check Payment
+                    </button>
+                    <div className={`mt-6 text-lg font-medium ${paymentResult.qr.includes("✅") ? "text-green-600" : "text-red-600"}`}>
+                      {paymentResult.qr}
+                    </div>
+                  </div>
+                )}
+
+                {/* Coin Section */}
+                {activeSection === "coin" && (
+                  <div className="animate-fade-in text-center">
+                    <div className="text-xl font-semibold text-red-600 mb-6">
+                      Price: {Math.round(orderList[selectedOrder].totalAmount / 1000)} Coins
+                    </div>
+                    <button
+                      onClick={payWithBalance}
+                      className="px-8 py-4 bg-purple-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-purple-600 transition"
+                    >
+                      Pay with Coins
+                    </button>
+                    <div className={`mt-6 text-lg font-medium ${paymentResult.coin.includes("✅") ? "text-green-600" : "text-red-600"}`}>
+                      {paymentResult.coin}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex justify-end text-lg font-bold py-4 border-t">
-        Final price: 
-        <span className="text-red-500 ml-2">₫{total.toLocaleString()}</span>
-      </div>
-
-      <div className="text-center text-sm text-gray-500 mt-2">
-        When you click Place order it mean you agree with <span className="text-blue-600 cursor-pointer"> Our term of service.</span>
-      </div>
-
-      <div className="flex justify-end mt-4">
-        <button className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600">Place order</button>
+        }
       </div>
     </div>
   );

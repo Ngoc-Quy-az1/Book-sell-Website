@@ -42,10 +42,11 @@ const App = () => {
       <>
         <ChatButton />
       </>
-      :
+      :<></>
+      
+      }
       <>
       </>  
-      }
       <Footer />
       <OrderPopup orderPopup={orderPopup} setOrderPopup={setOrderPopup} />
       <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />

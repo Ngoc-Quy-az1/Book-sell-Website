@@ -4,10 +4,11 @@ import { Dialog } from "@headlessui/react";
 import { Star } from "lucide-react";
 import axios from 'axios';
 import { useParams } from "react-router-dom";
-
+import Cookies from 'js.cookie';
 
 
 const BookDetail = () => {
+  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [listComment, setListComment] = useState([
     {
       id:"1",
@@ -40,7 +41,9 @@ const BookDetail = () => {
   }, []);
   let {id} = useParams();
   const getBookDetail = ()=>{
-    axios.get(`http://localhost:8090/api/books/${id}`)
+    axios.get(`http://localhost:8090/api/books/${id}`,{
+      headers:auth,
+    })
     .then((response) => {
       setBookDetail(response.data);
     })
