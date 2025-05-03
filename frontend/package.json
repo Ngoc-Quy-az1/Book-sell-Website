@@ -27,6 +27,7 @@
     "@nivo/line": "^0.88.0",
     "@nivo/pie": "^0.88.0",
     "@remix-run/node": "^2.16.5",
+    "@stomp/stompjs": "^7.1.1",
     "@tailwindcss/line-clamp": "^0.4.4",
     "10_project_biryani-shop": "file:",
     "aos": "^2.3.4",
@@ -45,7 +46,14 @@
     "react-router-dom": "^6.30.0",
     "react-slick": "^0.29.0",
     "react-star-ratings": "^2.3.0",
+    "react-use-websocket": "^4.13.0",
     "slick-carousel": "^1.8.1",
+    "sockjs": "^0.3.24",
+    "sockjs-client": "^1.6.1",
+    "stomp": "^0.1.1",
+    "stomp-client": "^0.9.0",
+    "webstomp-client": "^1.2.6",
+    "ws": "^8.18.1",
     "yup": "^1.6.1"
   },
   "devDependencies": {

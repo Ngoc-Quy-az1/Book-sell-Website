@@ -1,12 +1,15 @@
-import React from "react";
-import { useState,useEffect } from "react";
+import React, { useState,useEffect } from "react";
 import axios from 'axios';
 import Cookies from "js.cookie";
-import { Slider } from "@mui/material";
+import { Slider, Box, IconButton } from "@mui/material";
+import InputBase from "@mui/material/InputBase";
+import SearchIcon from "@mui/icons-material/Search";
+import { Link, redirect } from "react-router-dom";
 
 const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 console.log(Cookies.get('authToken'))
 const BookCategoryList = () => {
+  const [sortRule, setSortRule] = useState("Tasc");
   //Lấy tất cả thể loại
   const [categories, setCategories] = useState([]);
   useEffect( () => {
@@ -34,7 +37,7 @@ const BookCategoryList = () => {
   };
   
   const getBookCategory = async ()=>{
-    await fetch('http://localhost:8090/api/books/AllTypeCategories', {headers: config})
+    await fetch('http://localhost:8090/api/books/AllTypeCategories', )
     .then((response) => {
       return response.json();
     })
@@ -45,40 +48,91 @@ const BookCategoryList = () => {
       console.error('Error fetching data:', error);
     });
   }
-  const [bookList, setBookList] = useState([]);
-  useEffect( () => {
-    getBookPage();
-  }, []);
   const getBookPage = async ()=>{
-    await axios.get('http://localhost:8090/api/books/GetAllPaginated')
-    .then((response) => {
-        setBookList(response.data.content);
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-    });
-  }
-  const onPageChange = async (page)=> {
-    await axios
-    .get(
-      'http://localhost:8090/api/books/GetAllPaginated',
-      {
-        params: {
-          page: page,
-        }
+    await fetch('http://localhost:8090/api/books/GetAllPaginatedFull',
+      { method:"POST",
+        headers: {'Content-Type': 'application/json',},
+        body: JSON.stringify({"sort": sortRule ,
+          "minPrice" : value[0],
+          "maxPrice" : value[1],
+          "page" : page - 1,
+          "size" : "20",
+          "category" : selectedCategory,
+          "search" : search})
       }
     )
     .then((response) => {
-        setBookList(response.data.content);
+      return response.json();
+    })
+    .then((response) => {
+      setBookList(response.content);
+      setMaxPage(response.totalPages);
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
     });
   }
+  
+    
+    const pageIndex = () => {
+      let list = Array.from({length:5}, (x,i) => page-2+i)
+      return list.filter((val) => val>0 && val<=maxPage)
+    }
+  //Số trang tối đa 
+    const [maxPage, setMaxPage] = useState(1);
+  //Tìm theo tên     
+    const [search, setSearch] = useState("")
+    const handleSearch = (e) => {
+      setSearch(e.target.value);
+    }
+    const showBookDetail = (id) => {
+      location.assign(`book-detail/${id}`)
+    }
+  //Danh sách sau khi lọc 
+    const BookList = () => {
+      return bookList.map((book) => (
+        <button id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => showBookDetail(book.id)}>
+          <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
+          <h3 className="font-bold text-sm mb-1">{book.title}</h3>
+          <div className="text-green-600 font-semibold">{book.price_discounted.toLocaleString()}đ</div>
+          <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}đ</div>
+        </button>
+      ))
+    }
+    
+  //Quy tắc sắp xếp đang được chọn    
+    const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
+    
+    const handleSortRule = (rule) => {
+      setPage(1);
+      setSortRule(rule);
+      setSelectedSortRule(rule);
+    }
+  //Số trang hiện tại 
+    const [page, setPage] = useState(1);
+    const handlePage = (int) => {
+      setPage(int);
+    }
+    
+  const [bookList, setBookList] = useState([]);
+  useEffect( () => {
+    getBookPage();
+    console.log(value,page, selectedCategory, search, sortRule)
+  }, [value, page, selectedCategory, search, sortRule]);
   return (
     <div className="flex p-5 pl-40 pr-40">
       {/* Sidebar */}
       <div className="w-1/4 pr-5 border-r">
+        {/*Search*/}
+        <Box
+          display="flex"
+          borderRadius="3px"
+        >
+          <input className="search-input" placeholder="Search" onChange={handleSearch}/>
+          <IconButton type="button" sx={{ pb: 2 }}>
+            <SearchIcon />
+          </IconButton>
+        </Box>
         <h2 className="font-bold text-lg mb-2 text-green-600">Phi hư cấu</h2>
         {categories.slice(0,10).map((category) => (
           <div key={category} className="flex items-center mb-2">
@@ -125,52 +179,31 @@ const BookCategoryList = () => {
         
         {/* Sorting Options */}
         <div className="flex gap-2 mb-4">
-          <button className="px-3 py-1 border rounded bg-gray-200">Mặc định</button>
-          <button className="px-3 py-1 border rounded">Sách mới</button>
-          <button className="px-3 py-1 border rounded">Giá thấp - cao</button>
-          <button className="px-3 py-1 border rounded">Giá cao - thấp</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tasc")} style={(selectedSortRule=="Tasc") ? {backgroundColor : "green"} : {}}>A - Z</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tdesc")} style={(selectedSortRule=="Tdesc") ? {backgroundColor : "green"} : {}}>Z - A</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("asc")} style={(selectedSortRule=="asc") ? {backgroundColor : "green"} : {}}>Giá thấp - cao</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("desc")} style={(selectedSortRule=="desc") ? {backgroundColor : "green"} : {}}>Giá cao - thấp</button>
         </div>
         
         {/* Book List */}
         <div className="grid grid-cols-4 gap-4">
-          {bookList.map((book) => (
-            <div key={book.title} className="border p-3 rounded-lg shadow-sm">
-              <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
-              <h1 className="font-bold text-xl mb-1">{book.title}</h1>
-
-              <div className="text-xl font-bold text-green-600">
-                {(parseFloat(book.price_discounted)).toLocaleString(undefined,
-                  
-                )}₫ 
-              </div>
-              <div>
-                <span className="text-base line-through text-gray-500 ml-2">
-                  {(parseFloat(book.price_original)).toLocaleString(undefined,
-                )}₫</span>
-                <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
-                  {Math.round( (parseFloat(book.price_original) - parseFloat(book.price_discounted))*100
-                    /parseFloat(book.price_original) )} %
-                </span>
-              </div>
-              
-            </div>
-          ))}
+          <BookList/>
         </div>
 
         <div className="flex justify-center mt-6 space-x-2 text-gray-600">
-            <button disabled={1 === 1} onClick={() => {}} className="px-2">
+            <button disabled={page === 1} onClick={() => {handlePage(page-1)}} className="px-2">
               &#x2039;
             </button>
-            {[1, 2, 3].map((page, index) => (
+            {pageIndex().map((index) => (
               <button
                 key={index}
-                onClick = { ()=>{}}
-                className={`px-3 py-1 rounded-full border ${1 === page ? 'text-green-600 border-green-600' : ''}`}
+                onClick = { ()=>{handlePage(index)}}
+                className={`px-3 py-1 rounded-full border `}
               >
-                {page}
+                {index}
               </button>
             ))}
-            <button disabled={3 === 3} onClick={() =>{}} className="px-2">
+            <button disabled={page === maxPage} onClick={() => {handlePage(page+1)}} className="px-2">
               &#x203A;
             </button>
           </div>

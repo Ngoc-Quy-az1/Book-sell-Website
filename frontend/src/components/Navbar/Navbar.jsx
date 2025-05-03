@@ -109,7 +109,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     }).then((data) => {
       console.log(data);
       Cookies.remove('authToken');
-      location.replace('/');
+      location.assign('/');
     });
   }
   const fetchUser = () => {
@@ -241,6 +241,13 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                             >
                               User Detail
                             </a>
+                            {Cookies.get("userId")==16 ?
+                            <a
+                              className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                              href={`/admin`}
+                            >
+                              Admin Page
+                            </a>: <></>}
                             <a
                               className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
                               onClick={handleSignOut}

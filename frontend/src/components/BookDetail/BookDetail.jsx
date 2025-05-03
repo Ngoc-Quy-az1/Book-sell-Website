@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Minus, Plus, Pen } from "lucide-react";
 import { Dialog } from "@headlessui/react";
 import { Star } from "lucide-react";
-import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
-import Navbar from "../Navbar/Navbar";
 import axios from 'axios';
+import { useParams } from "react-router-dom";
 
 
 
@@ -39,8 +38,9 @@ const BookDetail = () => {
   useEffect( () => {
     getBookDetail();
   }, []);
+  let {id} = useParams();
   const getBookDetail = ()=>{
-    axios.get('http://localhost:8090/api/books/4')
+    axios.get(`http://localhost:8090/api/books/${id}`)
     .then((response) => {
       setBookDetail(response.data);
     })
@@ -69,9 +69,8 @@ const BookDetail = () => {
   if (bookDetail == undefined) {
     return <div>Loading...</div>;
   }
-  return (
-    <div className="min-h-screen bg-white flex flex-col items-center">
-      <Navbar/>
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center">
       <div className="max-w-5xl w-full flex flex-col md:flex-row gap-8">
         {/* Book Cover */}
         <div className="flex-shrink-0">

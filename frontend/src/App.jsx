@@ -1,10 +1,5 @@
 import React from "react";
-import Hero from "./components/Hero/Hero";
 import Navbar from "./components/Navbar/Navbar";
-import Services from "./components/Services/Services.jsx";
-import Banner from "./components/Banner/Banner.jsx";
-import AppStore from "./components/AppStore/AppStore.jsx";
-import Testimonial from "./components/Testimonial/Testimonial.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -12,9 +7,7 @@ import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import { Outlet } from "react-router-dom";
 import ChatButton from "./components/ChatButton/ChatButton.jsx";
-import UserDetail from "./components/UserDetail/UserDetail";
 import Cookies from "js.cookie"
-import Books from "./components/BooksSlider/Books.jsx";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -39,7 +32,8 @@ const App = () => {
 
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
-
+      {/*Cookies.remove("authToken")}
+      {Cookies.remove("userId")*/}
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       {/* <BookCategoryList/> */}
       {/* <Cart/> */}
@@ -47,19 +41,9 @@ const App = () => {
       { (Cookies.get('authToken'))?
       <>
         <ChatButton />
-        <Hero handleOrderPopup={handleOrderPopup} />
-        <Services handleOrderPopup={handleOrderPopup} />
-        <Banner />
-        <AppStore />
-        <Testimonial />
       </>
       :
       <>
-        <Hero handleOrderPopup={handleOrderPopup} />
-        <Services handleOrderPopup={handleOrderPopup} />
-        <Banner />
-        <AppStore />
-        <Testimonial />
       </>  
       }
       <Footer />

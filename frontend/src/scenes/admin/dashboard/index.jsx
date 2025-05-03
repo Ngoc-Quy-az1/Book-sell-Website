@@ -117,7 +117,7 @@ const Dashboard = () => {
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(15,minmax(10px,1fr))"
+        gridTemplateColumns="repeat(12,minmax(10px,1fr))"
         gridAutoRows="140px"
         gap="20px"
       >
@@ -198,29 +198,10 @@ const Dashboard = () => {
             }
           />
         </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title={message}
-            subtitle="total Messages"
-            progress="0.75"
-            increase="+14%"
-            icon={
-              <EmailIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "30px" }}
-              />
-            }
-          />
-        </Box>
 
         {/* ROW 2 */}
         <Box
-          gridColumn="span 15"
+          gridColumn="span 12"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           zIndex={-1}
@@ -254,7 +235,7 @@ const Dashboard = () => {
           </Box>
         </Box>
         <Box
-          gridColumn="span 5"
+          gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           overflow="auto"
@@ -317,7 +298,7 @@ const Dashboard = () => {
 
         {/* ROW 3 */}
         <Box
-          gridColumn="span 5"
+          gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           p="30px"
@@ -343,7 +324,7 @@ const Dashboard = () => {
           </Box>
         </Box>
         <Box
-          gridColumn="span 5"
+          gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >

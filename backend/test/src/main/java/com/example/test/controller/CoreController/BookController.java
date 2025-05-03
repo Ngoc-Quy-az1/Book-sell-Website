@@ -422,7 +422,7 @@ public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Update
     //     "category" : [Tiểu thuyết, Nuôi dạy con]
     //     "Search" : "Tìm kiếm"
     // }
-    @GetMapping("/GetAllPaginatedFull")
+    @PostMapping("/GetAllPaginatedFull")
     public ResponseEntity<Page<BookResponse>> getAllPaginated(@RequestBody BookGetAllRequest bookRequest) {
         String sort = bookRequest.getSort();
         Integer minPrice = bookRequest.getMinPrice();

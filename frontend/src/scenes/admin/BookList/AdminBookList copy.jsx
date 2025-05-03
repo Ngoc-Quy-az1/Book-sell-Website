@@ -9,13 +9,14 @@ import { tokens } from "../../../theme";
 import Cookies from "js.cookie";
 
 //Lấy Cookie 
+const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 console.log(Cookies.get('authToken'))
 
 const AdminBookList = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [bookPopup, setBookPopup] = React.useState(false);
-  const [sortRule, setSortRule] = useState("Tasc");
+  const [sortRule, setSortRule] = useState("Lowest Cost");
   const [deleted, setDeleted] = useState([]);
 //Lấy tất cả thể loại
   const [categories, setCategories] = useState([]);
@@ -24,8 +25,7 @@ const AdminBookList = () => {
   }, [])
   
   const getBookCategory = async ()=>{
-    await fetch('http://localhost:8090/api/books/AllTypeCategories', 
-      {headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}})
+    await fetch('http://localhost:8090/api/books/AllTypeCategories', {headers: config})
     .then((response) => {
       return response.json();
     })
@@ -40,14 +40,12 @@ const AdminBookList = () => {
   const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
   
   const handleSortRule = (rule) => {
-    setPage(1);
     setSortRule(rule);
     setSelectedSortRule(rule);
   }
 //Thể loại đang được chọn 
   const [selectedCategory, setSelectedCategory] = useState([]);
   const handleChange = (event) => {
-    setPage(1);
     const index = selectedCategory.indexOf(event.target.id);
     (event.target.checked) ? setSelectedCategory([...selectedCategory, event.target.id])
     : setSelectedCategory([...selectedCategory.slice(0,index),...selectedCategory.slice(index+1)])
@@ -58,24 +56,12 @@ const AdminBookList = () => {
     setPage(int);
   }
   const getBookPage = async ()=>{
-    await fetch('http://localhost:8090/api/books/GetAllPaginatedFull',
-      { method:"POST",
-        headers: {'Content-Type': 'application/json',},
-        body: JSON.stringify({"sort": sortRule ,
-          "minPrice" : value[0],
-          "maxPrice" : value[1],
-          "page" : page - 1,
-          "size" : "20",
-          "category" : selectedCategory,
-          "search" : search})
-      }
-    )
+    await fetch('http://localhost:8090/api/books/all',{ headers: config})
     .then((response) => {
       return response.json();
     })
     .then((response) => {
-      setBookList(response.content);
-      setMaxPage(response.totalPages);
+      setBookList(response);
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
@@ -88,7 +74,15 @@ const AdminBookList = () => {
   }
 //Số trang tối đa 
   const [maxPage, setMaxPage] = useState(1);
+  const findMaxPage = (int) => {
+    setMaxPage(Math.floor((int+19)/20));
+    setPage(Math.max(1,Math.min(page, Math.floor((int+19)/20))))
+  }
 //Danh sách tất cả sách 
+  const [bookList, setBookList] = useState([]);
+  useEffect( () => {
+    getBookPage();
+  }, []);
 //Sách được click vào để xem thông tin chi tiết     
   const [selectedBook, setSelectedBook] = useState();
   useEffect (() => {
@@ -96,8 +90,7 @@ const AdminBookList = () => {
   },[])
   
   const getDetail = async ()=>{
-    if (selectedBook!=null) await fetch("http://localhost:8090/api/books/"+selectedBook.id, 
-      {headers : {'Authorization': `Bearer ${Cookies.get('authToken')}`}})
+    if (selectedBook!=null) await fetch("http://localhost:8090/api/books/"+selectedBook.id, {headers : config})
     .then((response) => {
       return response.json();
     })
@@ -121,30 +114,36 @@ const AdminBookList = () => {
   }
 //Slider xét giá
   const [value, setValue] = React.useState([0, 1000000]);
-  const [tValue, setTValue] = React.useState([0, 1000000]);
-  const handleSliderChange = (e, newTValue) => {
-    setTValue(newTValue);
-  };
-  const handleSliderCommit = (e, newValue) => {
+
+  const handleSlider = (event, newValue) => {
     setValue(newValue);
-    setPage(1);
-  }
+  };
   const handleMinSlider = (event) => {
     setValue([event.target.value === '' ? 0 : Number(event.target.value),value[1]]);
-    setTValue([event.target.value === '' ? 0 : Number(event.target.value),tValue[1]]);
   };
   const handleMaxSlider = (event) => {
     setValue([value[0],event.target.value === '' ? 0 : Number(event.target.value)]);
-    setTValue([tValue[0],event.target.value === '' ? 0 : Number(event.target.value)]);
   };
 //Tìm theo tên     
   const [search, setSearch] = useState("")
   const handleSearch = (e) => {
     setSearch(e.target.value);
   }
+//Sắp xếp 
+  const sort = (a,b) => {
+    if (sortRule==0) return a.id<b.id ? 1 : -1;
+    if (sortRule==1) return a.title>b.title ? 1 : -1;
+    if (sortRule==2) return a.price_discounted>b.price_discounted ? 1 : -1;
+    if (sortRule==3) return a.price_discounted<b.price_discounted ? 1 : -1;
+  }
 //Danh sách sau khi lọc 
   const BookList = () => {
-    return bookList.map((book) => (
+    const newList = bookList.filter((book) => (selectedCategory.includes(book.category) || selectedCategory.length == 0) 
+      && (!deleted.includes(book)) 
+      && (book.price_discounted<value[1]) && (book.price_discounted>value[0])
+      && (book.title.includes(search.toUpperCase())));
+    findMaxPage(newList.length);
+    return newList.toSorted(sort).slice((page-1)*20,page*20).map((book) => (
       <button id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm" onClick={() => handleManage(book)}>
         <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
         <h3 className="font-bold text-sm mb-1">{book.title}</h3>
@@ -153,11 +152,6 @@ const AdminBookList = () => {
       </button>
     ))
   }
-  
-  const [bookList, setBookList] = useState([]);
-  useEffect( () => {
-    getBookPage();
-  }, [value, page, selectedCategory, search, sortRule]);
   return (
     <div className="flex p-5 pl-10">
       {/* Sidebar */}
@@ -199,9 +193,8 @@ const AdminBookList = () => {
         <h2 className="font-bold text-lg mb-2 text-green-600">Giá</h2>
           <Slider
             getAriaLabel={(index) => (index === 0 ? 'Minimum price' : 'Maximum price')}
-            value={tValue}
-            onChange={handleSliderChange}
-            onChangeCommitted={handleSliderCommit}
+            value={value}
+            onChange={handleSlider}
             min={0}
             step={10000}
             max={1000000}
@@ -221,10 +214,10 @@ const AdminBookList = () => {
         <BookPopup book={selectedBook} bookPopup={bookPopup} handleBookPopup={handleBookPopup} handleDelete={handleDelete}/>
         {/* Sorting Options */}
         <div className="flex gap-2 mb-4">
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tasc")} style={(selectedSortRule=="Tasc") ? {backgroundColor : colors.greenAccent[600]} : {}}>A - Z</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tdesc")} style={(selectedSortRule=="Tdesc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Z - A</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("asc")} style={(selectedSortRule=="asc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
-          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("desc")} style={(selectedSortRule=="desc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(0)} style={(selectedSortRule==0) ? {backgroundColor : colors.greenAccent[600]} : {}}>Mặc định</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(1)} style={(selectedSortRule==1) ? {backgroundColor : colors.greenAccent[600]} : {}}>Theo tên</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(2)} style={(selectedSortRule==2) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule(3)} style={(selectedSortRule==3) ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
         </div>
         
         {/* Book List */}

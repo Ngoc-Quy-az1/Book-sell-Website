@@ -153,6 +153,7 @@
         fetch('http://localhost:8090/api/chat/admin/history', {
           method: 'POST',
           headers: {
+            "Access-Control-Allow-Origin":"*",
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ userId: parseInt(userId) })
