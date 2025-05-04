@@ -222,7 +222,7 @@ const BookDetail = () => {
               <div key={star} className="flex items-center">
                 <span className="w-12 text-sm text-gray-700">{star} star</span>
                 <div className=" h-2 bg-gray-200 rounded mx-6 w-[30rem]">
-                  <div className={`h-full bg-yellow-400 rounded w-[${(caculatePercentStar(star)*30/100).toFixed(0)}rem]`} />
+                  <div className={`h-full bg-yellow-400 rounded `} style={{ width: `${caculatePercentStar(star)}%` }}/>
                 </div>
                 <span className="text-sm text-gray-600">{caculatePercentStar(star).toFixed(0)}%</span>
               </div>
