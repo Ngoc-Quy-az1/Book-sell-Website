@@ -31,8 +31,8 @@ const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
     }).then((data) => {
       Cookies.set('authToken', data.token);
       Cookies.set('userId', data.user_id);
-      handleNotice(data.message, !data.status);
-      location.reload();
+      if (data.status) location.reload();
+      else handleNotice(data.message, !data.status);
     });
   }
 

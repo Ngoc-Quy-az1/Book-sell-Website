@@ -2,40 +2,60 @@ import React, { useState,useEffect } from "react";
 import axios from 'axios';
 import Cookies from "js.cookie";
 import { Slider, Box, IconButton } from "@mui/material";
-import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
-import { Link, redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 const userId = Cookies.get('userId');
 const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 console.log(Cookies.get('authToken'))
 const BookCategoryList = () => {
   const [sortRule, setSortRule] = useState("Tasc");
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [value, setValue] = React.useState([0, 1000000]);
+  const [tValue, setTValue] = React.useState([0, 1000000]);
+  const [maxPage, setMaxPage] = useState(1);
+  const [selectedSortRule, setSelectedSortRule] = useState("Tasc");
+  const [page, setPage] = useState(1);
+  const [bookList, setBookList] = useState([]);
+  const [search, setSearch] = useState("")
   //Lấy tất cả thể loại
   const [categories, setCategories] = useState([]);
   useEffect( () => {
     getBookCategory();
   }, [])
-
-//Thể loại đang được chọn 
-  const [selectedCategory, setSelectedCategory] = useState([]);
-  const handleChange = (event) => {
+  useEffect( () => {
+    getBookList();
+    console.log(value,page, selectedCategory, search, sortRule)
+  }, [value, page, selectedCategory, search, sortRule]);
+//Loc sach 
+  const handleCategories = (event) => {
     const index = selectedCategory.indexOf(event.target.id);
     (event.target.checked) ? setSelectedCategory([...selectedCategory, event.target.id])
     : setSelectedCategory([...selectedCategory.slice(0,index),...selectedCategory.slice(index+1)])
   }
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  }
+  const handleSortRule = (rule) => {
+    setPage(1);
+    setSortRule(rule);
+    setSelectedSortRule(rule);
+  }
 //Slider xét giá
-  const [value, setValue] = React.useState([0, 1000000]);
-
-  const handleSlider = (event, newValue) => {
-    setValue(newValue);
+  const handleSliderChange = (e, newTValue) => {
+    setTValue(newTValue);
   };
+  const handleSliderCommit = (e, newValue) => {
+    setValue(newValue);
+    setPage(1);
+  }
   const handleMinSlider = (event) => {
     setValue([event.target.value === '' ? 0 : Number(event.target.value),value[1]]);
+    setTValue([event.target.value === '' ? 0 : Number(event.target.value),tValue[1]]);
   };
   const handleMaxSlider = (event) => {
     setValue([value[0],event.target.value === '' ? 0 : Number(event.target.value)]);
+    setTValue([tValue[0],event.target.value === '' ? 0 : Number(event.target.value)]);
   };
   
   const getBookCategory = async ()=>{
@@ -50,7 +70,7 @@ const BookCategoryList = () => {
       console.error('Error fetching data:', error);
     });
   }
-  const getBookPage = async ()=>{
+  const getBookList = async ()=>{
     await fetch('http://localhost:8090/api/books/GetAllPaginatedFull',
       { method:"POST",
         headers: {'Content-Type': 'application/json',},
@@ -74,7 +94,7 @@ const BookCategoryList = () => {
       console.error('Error fetching data:', error);
     });
   }
-
+//Thêm vào giỏ hàng
   const addToCart = async (userId, bookId)=>{
     let data = {
       "userId": userId,
@@ -100,56 +120,35 @@ const BookCategoryList = () => {
       let list = Array.from({length:5}, (x,i) => page-2+i)
       return list.filter((val) => val>0 && val<=maxPage)
     }
-  //Số trang tối đa 
-    const [maxPage, setMaxPage] = useState(1);
-  //Tìm theo tên     
-    const [search, setSearch] = useState("")
-    const handleSearch = (e) => {
-      setSearch(e.target.value);
-    }
-    const showBookDetail = (id) => {
-      location.assign(`book-detail/${id}`)
-    }
   //Danh sách sau khi lọc 
     const BookList = () => {
       return bookList.map((book) => (
         <div id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm">
-          <button  onClick={() => showBookDetail(book.id)}>
+          <div>
+          <Link to={"../book-detail/"+book.id}>
             <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
             <h3 className="font-bold text-sm mb-1">{book.title}</h3>
             <div className="text-green-600 font-semibold">{book.price_discounted.toLocaleString()}đ</div>
             <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}đ</div>
             
-          </button>
+          </Link>
+          </div>
+          <div className="flex items-center justify-center">
           <button onClick={()=>{
             addToCart(userId, book.id);
           }} 
           className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600 mt-4">
             Add to cart
-          </button>
+          </button></div>
         </div>
       ))
     }
     
-  //Quy tắc sắp xếp đang được chọn    
-    const [selectedSortRule, setSelectedSortRule] = useState("Lowest Cost");
-    
-    const handleSortRule = (rule) => {
-      setPage(1);
-      setSortRule(rule);
-      setSelectedSortRule(rule);
-    }
   //Số trang hiện tại 
-    const [page, setPage] = useState(1);
     const handlePage = (int) => {
       setPage(int);
     }
     
-  const [bookList, setBookList] = useState([]);
-  useEffect( () => {
-    getBookPage();
-    console.log(value,page, selectedCategory, search, sortRule)
-  }, [value, page, selectedCategory, search, sortRule]);
   return (
     <div className="flex p-5 pl-40 pr-40">
       {/* Sidebar */}
@@ -167,21 +166,21 @@ const BookCategoryList = () => {
         <h2 className="font-bold text-lg mb-2 text-green-600">Phi hư cấu</h2>
         {categories.slice(0,10).map((category) => (
           <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
             <span>{category}</span>
           </div>
         ))}
         <h2 className="font-bold text-lg mb-2 text-green-600">Hư cấu </h2>
         {categories.slice(10,21).map((category) => (
           <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
             <span>{category}</span>
           </div>
         ))}
         <h2 className="font-bold text-lg mb-2 text-green-600">Thiếu nhi</h2>
         {categories.slice(21,25).map((category) => (
           <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
             <span>{category}</span>
           </div>
         ))}
@@ -190,8 +189,9 @@ const BookCategoryList = () => {
         <h2 className="font-bold text-lg mb-2 text-green-600">Giá</h2>
           <Slider
             getAriaLabel={(index) => (index === 0 ? 'Minimum price' : 'Maximum price')}
-            value={value}
-            onChange={handleSlider}
+            value={tValue}
+            onChange={handleSliderChange}
+            onChangeCommitted={handleSliderCommit}
             min={0}
             step={10000}
             max={1000000}

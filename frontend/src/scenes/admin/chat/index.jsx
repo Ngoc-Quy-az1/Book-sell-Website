@@ -14,8 +14,30 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
   const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [messages, setMessages] = useState([]); 
-  const [subscribed, setSubcribed] = useState([]);
-
+  const [subscribed, setSubscribed] = useState([]);
+  useEffect(() => {
+    fetch("http://localhost:8090/api/admin/users",{
+      method:"GET",
+      headers: config
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      setUserList(Response.filter((user) => !user.is_admin));
+    })
+    connectWebSocket();
+  },[])
+  useEffect(() => 
+    document.getElementById("bottom").scrollIntoView(),[messages])
+  const showMessage = (id) => {
+    setUserId(id);
+    getMessage(id);
+    if (!subscribed.includes(id)) {
+      setSubscribed(subscribed => [...subscribed, id]);
+      connectWebSocket();
+    }
+  }
   const getMessage = (userId) => {
   fetch(
     "http://localhost:8090/api/chat/admin/history",
@@ -47,37 +69,14 @@ const Chat = () => {
         }
       });
       getMessage(userId);
-    })}
+  })}
 
   
-  useEffect(() => {
-    fetch("http://localhost:8090/api/admin/users",{
-      method:"GET",
-      headers: config
-    })
-    .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      setUserList(Response.filter((user) => !user.is_admin));
-    })
-    connectWebSocket();
-  },[])
+ 
 
-  useEffect(() => 
-    document.getElementById("bottom").scrollIntoView(),[messages])
-  const showMessage = (id) => {
-    setUserId(id);
-    getMessage(id);
-    if (!subscribed.includes(id)) {
-      getSubscribed(subscribed => [...subscribed, id]);
-      connectWebSocket();
-    }
-  }
   
   const handleSendMessage = () => {
     if (!newMessage.trim()) {
-      alert("Vui lòng nhập nội dung tin nhắn!");
       return;
     }
 

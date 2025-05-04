@@ -4,7 +4,8 @@ import { FaCartShopping } from "react-icons/fa6";
 import {Bell, BellDot} from "lucide-react";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
-import Cookies from "js.cookie"
+import Cookies from "js.cookie";
+import {Link} from "react-router-dom";
 
 const Menu = [
   {
@@ -21,16 +22,12 @@ const Menu = [
 
 const DropdownLinks = [
   {
-    name: "Trending Books",
-    link: "/#",
+    name: "Books List",
+    link: "/books",
   },
   {
-    name: "Best Selling",
-    link: "/#",
-  },
-  {
-    name: "Authors",
-    link: "/#",
+    name: "Cart",
+    link: "/cart",
   },
 ];
 const options = [
@@ -173,7 +170,6 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                 {/* Simple Dropdown and Links */}
                 <li className="group relative cursor-pointer">
                   <a
-                    href="/#home"
                     className="flex h-[72px] items-center gap-[2px]"
                   >
                     Quick Links{" "}
@@ -185,12 +181,12 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                     <ul className="space-y-3">
                       {DropdownLinks.map((data) => (
                         <li key={data.name}>
-                          <a
+                          <Link
                             className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                            href={data.link}
+                            to={data.link}
                           >
                             {data.name}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>
