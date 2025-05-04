@@ -6,40 +6,28 @@ import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
 import Navbar from "../Navbar/Navbar";
 import axios from 'axios';
 import Cookies from 'js.cookie';
+import Moment from 'moment';
 
 
 const BookDetail = () => {
+  const userId = Cookies.get('userId');
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-  const [listComment, setListComment] = useState([
-    {
-      id:"1",
-      rating:2,
-      name: "Nguyen Quang",
-      content: "very good asefasefase asefasefasf",
-    },
-    {
-      id:"2",
-      rating:3,
-      name: "Nguyen Quang",
-      content: "comment",
-    },
-    {
-      id:"3",
-      rating:5,
-      name: "Nguyen Quang",
-      content: "hay",
-    },
-    
-  ]);
+  const [listComment, setListComment] = useState([]);
   const [bookDetail, setBookDetail] = useState()
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [rating, setRating] = useState(0);
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [totalComment, setTotalComment] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  let ratingArray = [0,0,0,0,0,0];
   useEffect( () => {
+    console.log(userId);
     getBookDetail();
+    getAllReview(4);
   }, []);
+
   const getBookDetail = ()=>{
     axios.get('http://localhost:8090/api/books/4',{
       headers:auth,
@@ -51,18 +39,63 @@ const BookDetail = () => {
       console.error('Error fetching data:', error);
     });
   }
+
+  const getAllReview = async (bookId)=>{
+    axios.get(`http://localhost:8090/api/users/review/${bookId}`,{
+      headers:auth,
+    })
+    .then((response) => {
+      setListComment(response.data);
+      setTotalComment(listComment.length)
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
+
+  const caculateAverageRating = ()=>{
+    let sumRating = 0;
+    for (let i=0; i<listComment.length; i++){
+      ratingArray[listComment[i].rating]++;
+      sumRating += listComment[i].rating;
+    }
+    return sumRating/listComment.length;
+  }
+
+  const caculatePercentStar = (score)=>{
+    return (ratingArray[score]/listComment.length)*100;
+  }
+
+  const postReview = async (rating, comment, bookId)=>{
+    const data = {
+      "rating": rating,
+      "comment": comment
+    };
+    await axios.post(`http://localhost:8090/api/users/review/${userId}/${bookId}`,
+      data,
+      {
+        headers: auth,
+      }
+    ).then((response)=>{
+      console.log(response.data);
+    }). catch((error)=>{
+      console.error('qqq Error fetching data:', error)
+    })
+  }
+
   const handleSetquantity=(value)=>{
     if (value < 1) return;
     setBuyQuantity(value);
   }
-  const handleSubmit = () => {
+  const handleSubmitReview = () => {
     console.log("Rating:", rating);
     console.log("Comment:", comment);
+    postReview(rating, comment, 4);
     var newRatingComment = {
-      id:"4",
+      user_id:userId,
       rating: rating,
-      name: "Nguyen quang",
-      content: comment,
+      user_name: "Nguyen quang",
+      review: comment,
     }
     setListComment([...listComment, newRatingComment])
     setIsOpenDialog(false);
@@ -101,11 +134,9 @@ const BookDetail = () => {
 
             <div className="text-2xl font-bold text-green-600">
               {(parseFloat(bookDetail.price_discounted)).toLocaleString(undefined,
-                {'minimumFractionDigits':3}
               )}₫ 
               <span className="text-base line-through text-gray-500 ml-2">
                 {(parseFloat(bookDetail.price_original)).toLocaleString(undefined,
-              {'minimumFractionDigits':3}  
               )}₫</span>
               <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
                 {Math.round( (parseFloat(bookDetail.price_original) - parseFloat(bookDetail.price_discounted))*100
@@ -182,25 +213,18 @@ const BookDetail = () => {
         <h2 className="text-lg font-bold text-gray-800 mb-4">User rating</h2>
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
-            <div className="text-5xl font-bold">0<span className="text-2xl">/5</span></div>
-            <div className="flex mt-2 text-gray-300">
-              {[...Array(5)].map((_, i) => (
-                <svg key={i} className="w-6 h-6 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.122-6.545L.487 6.91l6.564-.955L10 0l2.949 5.955 6.564.955-4.757 4.635 1.122 6.545z" />
-                </svg>
-              ))}
-            </div>
-            <p className="text-sm text-gray-500 mt-1">(0 rating)</p>
+            <div className="text-5xl font-bold">{caculateAverageRating().toFixed(1)}<span className="text-2xl">/5</span></div>
+            <p className="text-sm text-gray-500 mt-1">({listComment.length} rating)</p>
           </div>
 
           <div className="w-full md:w-2/3 space-y-2">
             {[5, 4, 3, 2, 1].map((star) => (
               <div key={star} className="flex items-center">
-                <span className="w-12 text-sm text-gray-700">{star} sao</span>
-                <div className="flex-1 h-2 bg-gray-200 rounded mx-2">
-                  <div className="h-full bg-gray-400 rounded w-0" />
+                <span className="w-12 text-sm text-gray-700">{star} star</span>
+                <div className=" h-2 bg-gray-200 rounded mx-6 w-[30rem]">
+                  <div className={`h-full bg-yellow-400 rounded w-[${(caculatePercentStar(star)*30/100).toFixed(0)}rem]`} />
                 </div>
-                <span className="text-sm text-gray-600">0%</span>
+                <span className="text-sm text-gray-600">{caculatePercentStar(star).toFixed(0)}%</span>
               </div>
             ))}
           </div>
@@ -252,7 +276,7 @@ const BookDetail = () => {
                     Cancel
                   </button>
                   <button
-                    onClick={handleSubmit}
+                    onClick={handleSubmitReview}
                     className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
                   >
                     Submit
@@ -271,19 +295,17 @@ const BookDetail = () => {
             {listComment.map((comment)=>
                <div className="border p-4 rounded-lg shadow-sm">
                <div className="flex items-center justify-between mb-2">
-                 <span className="font-semibold">{comment.name}</span>
-                 <span className="text-sm text-gray-500">2025-01-12 23:54</span>
+                 <span className="font-semibold">{comment.user_name}</span>
+                 <span className="text-sm text-gray-500">{Moment(comment.created_at).format('YYYY-MM-D, HH:mm')}</span>
                </div>
                <div className="flex items-center text-yellow-500 mb-2">
                  {Array.from({length: comment.rating}).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
                </div>
                <p className="text-gray-700">
-                 {comment.content}
+                 {comment.review}
                </p>
              </div>
             )}
-            
-
           </div>
         </div>
 
