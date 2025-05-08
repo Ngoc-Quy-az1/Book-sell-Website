@@ -13,7 +13,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin(origins = "*")
+
+//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+
 public class CartController {
 
     @Autowired

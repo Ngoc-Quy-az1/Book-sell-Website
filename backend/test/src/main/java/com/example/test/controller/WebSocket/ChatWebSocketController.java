@@ -15,6 +15,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
+//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
 public class ChatWebSocketController {
 
     @Autowired
@@ -25,7 +26,6 @@ public class ChatWebSocketController {
 
     @Autowired
     private UserService userService;
-
     // Handle private messages
     @MessageMapping("/chat.private")
     public void handlePrivateMessage(@Payload ChatMessage chatMessage) {

@@ -4,7 +4,7 @@ import { tokens } from "../../theme";
 import { useState, useEffect } from "react";
 import Cookies from "js.cookie"
 
-const BarChart = ({ isDashboard = false }) => {
+const BarChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState([]);
@@ -91,7 +91,7 @@ const BarChart = ({ isDashboard = false }) => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "country", // changed
+        legend: "Category", // changed
         legendPosition: "middle",
         legendOffset: 32,
       }}
@@ -99,9 +99,6 @@ const BarChart = ({ isDashboard = false }) => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "food", // changed
-        legendPosition: "middle",
-        legendOffset: -40,
       }}
       enableLabel={false}
       labelSkipWidth={12}

@@ -1,44 +1,65 @@
-import React from "react";
-import { useState,useEffect } from "react";
+import React, { useState,useEffect } from "react";
 import axios from 'axios';
 import Cookies from "js.cookie";
-import { Slider } from "@mui/material";
+import { Slider, Box, IconButton } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import { Link } from "react-router-dom";
 
-const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 const userId = Cookies.get('userId');
 const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 console.log(Cookies.get('authToken'))
 const BookCategoryList = () => {
-  const [totalPage, setTotalPage] = useState(1);
-  const [selectedPage, setSelectedPage] = useState(1);
+  const [sortRule, setSortRule] = useState("Tasc");
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [value, setValue] = React.useState([0, 1000000]);
+  const [tValue, setTValue] = React.useState([0, 1000000]);
+  const [maxPage, setMaxPage] = useState(1);
+  const [selectedSortRule, setSelectedSortRule] = useState("Tasc");
+  const [page, setPage] = useState(1);
+  const [bookList, setBookList] = useState([]);
+  const [search, setSearch] = useState("")
   //Lấy tất cả thể loại
   const [categories, setCategories] = useState([]);
   useEffect( () => {
     getBookCategory();
   }, [])
-
-//Thể loại đang được chọn 
-  const [selectedCategory, setSelectedCategory] = useState([]);
-  const handleChange = (event) => {
+  useEffect( () => {
+    getBookList();
+    console.log(value,page, selectedCategory, search, sortRule)
+  }, [value, page, selectedCategory, search, sortRule]);
+//Loc sach 
+  const handleCategories = (event) => {
     const index = selectedCategory.indexOf(event.target.id);
     (event.target.checked) ? setSelectedCategory([...selectedCategory, event.target.id])
     : setSelectedCategory([...selectedCategory.slice(0,index),...selectedCategory.slice(index+1)])
   }
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  }
+  const handleSortRule = (rule) => {
+    setPage(1);
+    setSortRule(rule);
+    setSelectedSortRule(rule);
+  }
 //Slider xét giá
-  const [value, setValue] = React.useState([0, 1000000]);
-
-  const handleSlider = (event, newValue) => {
-    setValue(newValue);
+  const handleSliderChange = (e, newTValue) => {
+    setTValue(newTValue);
   };
+  const handleSliderCommit = (e, newValue) => {
+    setValue(newValue);
+    setPage(1);
+  }
   const handleMinSlider = (event) => {
     setValue([event.target.value === '' ? 0 : Number(event.target.value),value[1]]);
+    setTValue([event.target.value === '' ? 0 : Number(event.target.value),tValue[1]]);
   };
   const handleMaxSlider = (event) => {
     setValue([value[0],event.target.value === '' ? 0 : Number(event.target.value)]);
+    setTValue([tValue[0],event.target.value === '' ? 0 : Number(event.target.value)]);
   };
   
   const getBookCategory = async ()=>{
-    await fetch('http://localhost:8090/api/books/AllTypeCategories', {headers: config})
+    await fetch('http://localhost:8090/api/books/AllTypeCategories', )
     .then((response) => {
       return response.json();
     })
@@ -49,44 +70,31 @@ const BookCategoryList = () => {
       console.error('Error fetching data:', error);
     });
   }
-  const [bookList, setBookList] = useState([]);
-  useEffect( () => {
-    getBookPage();
-  }, []);
-
-  const getBookPage = async ()=>{
-    await axios.get('http://localhost:8090/api/books/GetAllPaginated',{
-      headers:auth,
-    })
-    .then((response) => {
-        setBookList(response.data.content);
-        setTotalPage(response.data.totalPages);
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-    });
-  }
-
-  const onPageChange = async (page)=> {
-    await axios
-    .get(
-      'http://localhost:8090/api/books/GetAllPaginated',
-      {
-        headers:auth,
-        params: {
-          page: page,
-        }
+  const getBookList = async ()=>{
+    await fetch('http://localhost:8090/api/books/GetAllPaginatedFull',
+      { method:"POST",
+        headers: {'Content-Type': 'application/json',},
+        body: JSON.stringify({"sort": sortRule ,
+          "minPrice" : value[0],
+          "maxPrice" : value[1],
+          "page" : page - 1,
+          "size" : "20",
+          "category" : selectedCategory,
+          "search" : search})
       }
     )
     .then((response) => {
-        setBookList(response.data.content);
+      return response.json();
+    })
+    .then((response) => {
+      setBookList(response.content);
+      setMaxPage(response.totalPages);
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
     });
-    
   }
-
+//Thêm vào giỏ hàng
   const addToCart = async (userId, bookId)=>{
     let data = {
       "userId": userId,
@@ -106,28 +114,73 @@ const BookCategoryList = () => {
       console.error('Error fetching data:', error.response.data);
     });
   }
+  
+    
+    const pageIndex = () => {
+      let list = Array.from({length:5}, (x,i) => page-2+i)
+      return list.filter((val) => val>0 && val<=maxPage)
+    }
+  //Danh sách sau khi lọc 
+    const BookList = () => {
+      return bookList.map((book) => (
+        <div id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm">
+          <div>
+          <Link to={"../book-detail/"+book.id}>
+            <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
+            <h3 className="font-bold text-sm mb-1">{book.title}</h3>
+            <div className="text-green-600 font-semibold">{book.price_discounted.toLocaleString()}đ</div>
+            <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}đ</div>
+            
+          </Link>
+          </div>
+          <div className="flex items-center justify-center">
+          <button onClick={()=>{
+            addToCart(userId, book.id);
+          }} 
+          className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600 mt-4">
+            Add to cart
+          </button></div>
+        </div>
+      ))
+    }
+    
+  //Số trang hiện tại 
+    const handlePage = (int) => {
+      setPage(int);
+    }
+    
   return (
     <div className="flex p-5 pl-40 pr-40">
       {/* Sidebar */}
       <div className="w-1/4 pr-5 border-r">
+        {/*Search*/}
+        <Box
+          display="flex"
+          borderRadius="3px"
+        >
+          <input className="search-input" placeholder="Search" onChange={handleSearch}/>
+          <IconButton type="button" sx={{ pb: 2 }}>
+            <SearchIcon />
+          </IconButton>
+        </Box>
         <h2 className="font-bold text-lg mb-2 text-green-600">Phi hư cấu</h2>
         {categories.slice(0,10).map((category) => (
           <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
             <span>{category}</span>
           </div>
         ))}
         <h2 className="font-bold text-lg mb-2 text-green-600">Hư cấu </h2>
         {categories.slice(10,21).map((category) => (
           <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
             <span>{category}</span>
           </div>
         ))}
         <h2 className="font-bold text-lg mb-2 text-green-600">Thiếu nhi</h2>
         {categories.slice(21,25).map((category) => (
           <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleChange}/>
+            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
             <span>{category}</span>
           </div>
         ))}
@@ -136,8 +189,9 @@ const BookCategoryList = () => {
         <h2 className="font-bold text-lg mb-2 text-green-600">Giá</h2>
           <Slider
             getAriaLabel={(index) => (index === 0 ? 'Minimum price' : 'Maximum price')}
-            value={value}
-            onChange={handleSlider}
+            value={tValue}
+            onChange={handleSliderChange}
+            onChangeCommitted={handleSliderCommit}
             min={0}
             step={10000}
             max={1000000}
@@ -155,62 +209,32 @@ const BookCategoryList = () => {
       <div className="w-3/4">
         
         {/* Sorting Options */}
-        {/* <div className="flex gap-2 mb-4">
-          <button className="px-3 py-1 border rounded bg-gray-200">Mặc định</button>
-          <button className="px-3 py-1 border rounded">Sách mới</button>
-          <button className="px-3 py-1 border rounded">Giá thấp - cao</button>
-          <button className="px-3 py-1 border rounded">Giá cao - thấp</button>
-        </div> */}
+        <div className="flex gap-2 mb-4">
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tasc")} style={(selectedSortRule=="Tasc") ? {backgroundColor : "green"} : {}}>A - Z</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tdesc")} style={(selectedSortRule=="Tdesc") ? {backgroundColor : "green"} : {}}>Z - A</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("asc")} style={(selectedSortRule=="asc") ? {backgroundColor : "green"} : {}}>Giá thấp - cao</button>
+          <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("desc")} style={(selectedSortRule=="desc") ? {backgroundColor : "green"} : {}}>Giá cao - thấp</button>
+        </div>
         
         {/* Book List */}
         <div className="grid grid-cols-4 gap-4">
-          {bookList.map((book) => (
-            <div key={book.title} className="border p-3 rounded-lg shadow-sm">
-              <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
-              <h1 className="font-bold text-xl mb-1">{book.title}</h1>
-
-              <div className="text-xl font-bold text-green-600">
-                {(parseFloat(book.price_discounted)).toLocaleString(undefined,
-                  
-                )}₫ 
-              </div>
-              <div>
-                <span className="text-base line-through text-gray-500 ml-2">
-                  {(parseFloat(book.price_original)).toLocaleString(undefined,
-                )}₫</span>
-                <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
-                  {Math.round( (parseFloat(book.price_original) - parseFloat(book.price_discounted))*100
-                    /parseFloat(book.price_original) )} %
-                </span>
-                
-              </div>
-              <button onClick={()=>{
-                  addToCart(userId, book.id);
-                }} 
-                className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600 mt-4">
-                  Add to cart
-                </button>
-            </div>
-          ))}
+          <BookList/>
         </div>
 
         <div className="flex justify-center mt-6 space-x-2 text-gray-600">
-            <button disabled={1 === 1} onClick={() => {}} className="px-2">
+            <button disabled={page === 1} onClick={() => {handlePage(page-1)}} className="px-2">
               &#x2039;
             </button>
-            {[...Array(totalPage)].map((page, index) => (
+            {pageIndex().map((index) => (
               <button
                 key={index}
-                onClick = { async ()=>{
-                  await onPageChange(index);
-                  setSelectedPage(page);
-                }}
-                className={`px-3 py-1 rounded-full border ${selectedPage === (index+1)  ? 'text-green-600 border-green-600' : ''}`}
+                onClick = { ()=>{handlePage(index)}}
+                className={`px-3 py-1 rounded-full border `}
               >
-                {index+1}
+                {index}
               </button>
             ))}
-            <button disabled={3 === 3} onClick={() =>{}} className="px-2">
+            <button disabled={page === maxPage} onClick={() => {handlePage(page+1)}} className="px-2">
               &#x203A;
             </button>
           </div>

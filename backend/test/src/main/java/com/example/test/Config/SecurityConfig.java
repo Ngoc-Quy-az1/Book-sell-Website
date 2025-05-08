@@ -56,6 +56,7 @@ public class SecurityConfig {
                     "/api/books/GetAllPaginated/**",   // API lấy tất cả sách phân trang
                     "/api/books/AllTypeCategories",   // API lấy tất cả danh mục sách
                     "/api/books/GetAllPaginated/SearchByPrice", // API lấy tất cả danh mục sách theo ID
+                    "/api/books/GetAllPaginated1", // API lấy tất cả danh mục sách theo ID
 
                     "/api/payment/process-balance/**", // API thanh toán sử dụng tiền mặt
                     "/api/order/**" ,                  // API đặt hàng
@@ -106,7 +107,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:5173", "http://localhost:8090"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://127.0.0.1:5500"
+                , "http://localhost:5500"
+                , "http://localhost:5173"
+                , "http://localhost:8090"
+//              , "https://book-sell-website-phuc.vercel.app"
+                ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization",
