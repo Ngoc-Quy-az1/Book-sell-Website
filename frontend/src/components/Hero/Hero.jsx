@@ -5,12 +5,13 @@ import Vector from "../../assets/website/blue-pattern.png";
 
 
 const Hero = ({ handleOrderPopup }) => {
-  const [imageId, setImageId] = useState('https://bizweb.dktcdn.net/100/363/455/products/phattriennangluccamxucxahoigiu.jpg?v=1710306260350');
-  const [title, setTitle] = useState("PHÁT TRIỂN NĂNG LỰC CẢM XÚC XÃ HỘI");
+  const [imageId, setImageId] = useState('https://bizweb.dktcdn.net/100/363/455/products/an-dam-khong-nuoc-mat.jpg?v=1695032717550');
+  const [title, setTitle] = useState("ĂN DẶM KHÔNG NƯỚC Mắt");
   const [booklist, setBooklist] = useState([]);
   const [description, setDescription] = useState(
-    "Từ thời Hy Lạp cổ đại, Plato đã đề xuất một chương trình giáo dục toàn diện; đào tạo cân bằng thể chất, hội họa, toán, khoa học, nhân cách, đạo đức chứ không thiên lệch về IQ.\nThế kỷ XX, giáo dục cảm xúc xã hội hiện đại được khởi xướng lại ở nước Mỹ, tạo nên những thành công đáng chú ý cho sức khỏe tinh thần các học trò lẫn nhà trường và xã hội sau này. Và hiện nay, giáo dục cảm xúc xã hội đã trở nên quan trọng và quen thuộc ở nhiều nước trên thế giới."
+    "Thông tin chi tiết sản phẩm đang được cập nhật"
   );
+  const [author, setAuthor] = useState('nguyễn thị ninh')
 
   useEffect( () => {
     getBookLink();
@@ -54,7 +55,7 @@ const Hero = ({ handleOrderPopup }) => {
               >
                 {title}
                 <p className="bg-clip-text text-transparent bg-gradient-to-b from-primary text-right text-sm to-secondary">
-                  by Anonymous
+                  {author}
                 </p>{" "}
               </h1>
               <p
@@ -98,6 +99,7 @@ const Hero = ({ handleOrderPopup }) => {
                       );
                       setTitle(book.title);
                       setDescription(book.description);
+                      setAuthor(book.author);
                     }}
                     alt="biryani img"
                     className="max-w-[100px] h-[100px] object-contain inline-block hover:scale-110 duration-200"
