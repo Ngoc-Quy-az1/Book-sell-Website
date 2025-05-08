@@ -19,6 +19,7 @@ const BookDetail = () => {
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [totalComment, setTotalComment] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   let ratingArray = [0,0,0,0,0,0];
@@ -107,15 +108,30 @@ const BookDetail = () => {
   }
   return (
     <div className="min-h-screen bg-white flex flex-col items-center">
-      <Navbar/>
-      <div className="max-w-5xl w-full flex flex-col md:flex-row gap-8">
+      {isFullScreen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center">
+          <button
+            onClick={() => setIsFullScreen(false)}
+            className="absolute top-8 right-8 text-white text-4xl font-bold hover:text-gray-300"
+          >
+            &times;
+          </button>
+          <img
+            src={bookDetail.image}
+            alt="Full Screen Bach"
+            className="max-h-full object-contain"
+          />
+        </div>
+      )}
+      <div className="max-w-5xl w-full flex flex-col md:flex-row gap-[150px]">
         {/* Book Cover */}
         <div className="flex-shrink-0">
           {
             <img
               src={bookDetail.image}
               alt="Bach"
-              className="w-80 rounded shadow-lg"
+              className="w-80 rounded shadow-lg cursor-pointer"
+              onClick={() => setIsFullScreen(true)}
             />
           }
         </div>
@@ -164,12 +180,12 @@ const BookDetail = () => {
       </div>
 
       {/* Description and Details */}
-      <div className="max-w-5xl w-full mt-12 flex flex-col md:flex-row gap-8">
+      <div className="max-w-7xl w-full mt-12 flex flex-col md:flex-row gap-56">
         {/* Description */}
         <div className="flex-1">
-          <h2 className="text-xl font-semibold text-green-700 mb-4">Description</h2>
+          <h2 className="text-3xl font-semibold text-green-700 mb-4">Description</h2>
           {
-            <p className="mb-4">
+            <p className="mb-4 text-xl">
               {bookDetail.description}
             </p>
           }
@@ -178,29 +194,29 @@ const BookDetail = () => {
 
         {/* Detailed Info */}
         <div className="w-full md:w-1/3">
-          <h2 className="text-xl font-semibold text-green-700 mb-4">Detail</h2>
+          <h2 className="text-3xl font-semibold text-green-700 mb-4">Detail</h2>
           <div className="border rounded-lg p-4 space-y-2 text-sm text-gray-700">
-            <div className="flex justify-between">
+            <div className="flex text-xl justify-between">
               <span>Author</span>
               <span className="font-semibold">{bookDetail.author}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex text-xl justify-between">
               <span>Translator</span>
               <span className="font-semibold">{bookDetail.translator}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex text-xl justify-between">
               <span>Publisher</span>
               <span className="font-semibold">{bookDetail.publisher}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex text-xl justify-between">
               <span>Dimensions</span>
               <span className="font-semibold">{bookDetail.dimensions}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex text-xl justify-between">
               <span>Pages</span>
               <span className="font-semibold">{bookDetail.pages}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex text-xl justify-between">
               <span>Publish year</span>
               <span className="font-semibold">{bookDetail.created_at}</span>
             </div>
@@ -209,7 +225,7 @@ const BookDetail = () => {
       </div>
 
       {/* Ratings Section */}
-      <div className="max-w-5xl w-full mt-12 p-6 bg-gray-50 rounded-lg">
+      <div className="max-w-7xl w-full mt-12 p-6 bg-gray-50 rounded-lg">
         <h2 className="text-lg font-bold text-gray-800 mb-4">User rating</h2>
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
@@ -289,13 +305,14 @@ const BookDetail = () => {
         </div>
 
         {/* User Comments */}
+        <div className="h-[400px] mt-10 overflow-y-auto border rounded-lg p-4 space-y-6 shadow-inner">
         <div className="max-w-5xl w-full mt-12">
-          <h2 className="text-xl font-semibold text-green-700 mb-4">User feedback</h2>
+          <h2 className="text-3xl font-semibold text-green-700 mb-4">User feedback</h2>
           <div className="space-y-6">
             {listComment.map((comment)=>
                <div className="border p-4 rounded-lg shadow-sm">
                <div className="flex items-center justify-between mb-2">
-                 <span className="font-semibold">{comment.user_name}</span>
+                 <span className="font-semibold text-xl">{comment.user_name}</span>
                  <span className="text-sm text-gray-500">{Moment(comment.created_at).format('YYYY-MM-D, HH:mm')}</span>
                </div>
                <div className="flex items-center text-yellow-500 mb-2">
@@ -307,6 +324,7 @@ const BookDetail = () => {
              </div>
             )}
           </div>
+        </div>
         </div>
 
       </div>
