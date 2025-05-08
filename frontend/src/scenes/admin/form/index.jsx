@@ -2,7 +2,7 @@ import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Notice from "../Notice/index";
+import Notice from "../notice/index";
 import Header from "../../../components/Admin/Header";
 import { useState } from "react";
 import Cookies from "js.cookie"
