@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import UpdateBook from "./UpdateBook";
-import Notice from "../Notice/index";
+import Notice from "../notice/index";
 const BookPopup = ({ bookPopup, handleBookPopup, book, handleDelete }) => {
   const bookPopupRef = useRef();
   window.addEventListener("click", (e) => {
