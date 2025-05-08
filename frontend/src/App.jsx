@@ -8,7 +8,6 @@ import LoginPopup from "./components/LoginPopup/LoginPopup";
 import { Outlet } from "react-router-dom";
 import ChatButton from "./components/ChatButton/ChatButton.jsx";
 import Cookies from "js.cookie"
-
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
 

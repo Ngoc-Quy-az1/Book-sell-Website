@@ -61,7 +61,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
     updateBook(form);
   };
   return (
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md rounded-md duration-200 w-[500px]"
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md rounded-md duration-200 w-1/2"
       style={{
           backgroundColor: colors.primary[400],
           borderColor: colors.primary[500]

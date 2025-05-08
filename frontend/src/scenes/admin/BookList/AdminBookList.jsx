@@ -213,9 +213,9 @@ const AdminBookList = () => {
         </div>
       </div>
 
+      <BookPopup book={selectedBook} bookPopup={bookPopup} handleBookPopup={handleBookPopup} handleDelete={handleDelete}/>
     {/* Main Content */}
     <div className="w-3/4">
-      <BookPopup book={selectedBook} bookPopup={bookPopup} handleBookPopup={handleBookPopup} handleDelete={handleDelete}/>
       {/* Sorting Options */}
       <div className="flex gap-2 mb-4">
         <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tasc")} style={(selectedSortRule=="Tasc") ? {backgroundColor : colors.greenAccent[600]} : {}}>A - Z</button>

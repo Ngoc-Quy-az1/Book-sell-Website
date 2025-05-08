@@ -13,11 +13,6 @@ const Menu = [
     name: "Home",
     link: "/",
   },
-  {
-    id: 2,
-    name: "Best Seller",
-    link: "/services",
-  },
 ];
 
 const DropdownLinks = [

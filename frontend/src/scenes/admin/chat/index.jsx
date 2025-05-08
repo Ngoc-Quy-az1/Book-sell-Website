@@ -68,7 +68,6 @@ const Chat = () => {
           setMessages(messages => [...messages, messageBody])
         }
       });
-      getMessage(userId);
   })}
 
   
