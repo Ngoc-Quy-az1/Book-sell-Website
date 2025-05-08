@@ -30,6 +30,7 @@ const router = createBrowserRouter([{
     {index:true, element: <Books/>},
     {path:'books', element:<BookCategoryList/>},
     {path:'cart', element: <Cart/>},
+    {path:'placeorder', element:<PlaceOrder/>},
     {path:'user-detail/:id', element:<UserDetail/>},
     {path:'book-detail/:id', element:<BookDetail/>}
   ]
