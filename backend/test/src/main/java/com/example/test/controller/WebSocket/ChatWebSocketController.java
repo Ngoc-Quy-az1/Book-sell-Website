@@ -25,7 +25,6 @@ public class ChatWebSocketController {
 
     @Autowired
     private UserService userService;
-
     // Handle private messages
     @MessageMapping("/chat.private")
     public void handlePrivateMessage(@Payload ChatMessage chatMessage) {

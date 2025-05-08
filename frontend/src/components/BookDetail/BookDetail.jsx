@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Minus, Plus, Pen } from "lucide-react";
 import { Dialog } from "@headlessui/react";
 import { Star } from "lucide-react";
-import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
-import Navbar from "../Navbar/Navbar";
 import axios from 'axios';
+import { useParams } from "react-router-dom";
 import Cookies from 'js.cookie';
 import Moment from 'moment';
 
@@ -28,9 +27,9 @@ const BookDetail = () => {
     getBookDetail();
     getAllReview(4);
   }, []);
-
+  let {id} = useParams();
   const getBookDetail = ()=>{
-    axios.get('http://localhost:8090/api/books/4',{
+    axios.get(`http://localhost:8090/api/books/${id}`,{
       headers:auth,
     })
     .then((response) => {

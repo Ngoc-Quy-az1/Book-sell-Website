@@ -1,32 +1,20 @@
 import { Box, InputBase, useTheme } from "@mui/material";
 import { useState, useEffect } from "react";
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import Typography from "@mui/material/Typography";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SockJS from "sockjs-client/dist/sockjs";
+import Stomp from "webstomp-client";
 import { tokens } from "../../../theme";
 import axios from "axios";
 import Cookies from "js.cookie"
-const Item = ({ title, to, icon, selected, setSelected }) => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  return (
-    <MenuItem
-      active={selected === title}
-      style={{
-        color: colors.grey[100],
-      }}
-      onClick={() => setSelected(title)}
-      icon={icon}
-    >
-      <Typography>{title}</Typography>
-      <Link to={"/admin"+to} />
-    </MenuItem>
-  );
-};
 const Chat = () => {
+  const ADMIN_ID = Cookies.get("userId");
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [userList, setUserList] = useState([]);
+  const [userId, setUserId] = useState();
+  const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
+  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const [messages, setMessages] = useState([]); 
+  const [subscribed, setSubscribed] = useState([]);
   useEffect(() => {
     fetch("http://localhost:8090/api/admin/users",{
       method:"GET",
@@ -38,44 +26,62 @@ const Chat = () => {
     .then(Response => {
       setUserList(Response.filter((user) => !user.is_admin));
     })
+    connectWebSocket();
   },[])
-  const [userId, setUserId] = useState();
-  const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-  const [messages, setMessages] = useState([]);
-  const getMessage = (userId) => {
-      try {
-        fetch(
-            "http://localhost:8090/api/chat/admin/history",
-            
-            {
-              method: "POST",
-              headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`, 'Content-Type' : 'application/json'},
-              body: JSON.stringify({ "userId": userId }),
-            }).then(response => response.json())
-            .then(result => {setMessages(result); console.log(result);})
-            .catch(error => console.log('error', error));
-        } 
-
-      catch (error) {
-        console.error("Lỗi khi gọi API:", error);
-        alert("Không thể tải lịch sử chat. Vui lòng thử lại sau.");
-      }
-    };
-  
+  useEffect(() => 
+    document.getElementById("bottom").scrollIntoView(),[messages])
   const showMessage = (id) => {
     setUserId(id);
     getMessage(id);
+    if (!subscribed.includes(id)) {
+      setSubscribed(subscribed => [...subscribed, id]);
+      connectWebSocket();
+    }
   }
+  const getMessage = (userId) => {
+  fetch(
+    "http://localhost:8090/api/chat/admin/history",
+    
+    {
+      method: "POST",
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`, 'Content-Type' : 'application/json'},
+      body: JSON.stringify({ "userId": userId }),
+    }).then(response => response.json())
+    .then(result => {setMessages(result); console.log(result);})
+    .catch(error => console.log('error', error));
+  }
+
+  const connectWebSocket = () => {
+
+    const socket = new SockJS('http://localhost:8090/ws');
+    let stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+      // Subscribe kênh admin chat
+      stompClient.subscribe('/topic/admin-chat/' + ADMIN_ID, function (message) {
+        const messageBody = JSON.parse(message.body);
+        console.log(messageBody);
+
+        if (
+          (messageBody.sender.id == userId && messageBody.receiver.id == ADMIN_ID) ||
+          (messageBody.sender.id == ADMIN_ID && messageBody.receiver.id == userId)
+        ) {
+          setMessages(messages => [...messages, messageBody])
+        }
+      });
+  })}
+
+  
+ 
+
+  
   const handleSendMessage = () => {
     if (!newMessage.trim()) {
-      alert("Vui lòng nhập nội dung tin nhắn!");
       return;
     }
 
-    const apiUrl = "http://localhost:8090/api/chat/admin/send";
+    const apiUrl = "http://localhost:8090/api/chat/admin/reply";
 
-    const requestBody = { senderId: Cookies.get('userId'), message: newMessage };
+    const requestBody = { adminId: Cookies.get('userId'), userId: userId, message: newMessage };
 
     axios
       .post(apiUrl, requestBody, {

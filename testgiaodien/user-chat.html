@@ -43,10 +43,15 @@
         .message.sent {
             background-color: #e3f2fd;
             margin-left: 20px;
+            text-align: right;
         }
         .message.received {
             background-color: #f5f5f5;
             margin-right: 20px;
+            text-align: left;
+        }
+        .message.pending {
+            opacity: 0.7;
         }
         .input-section {
             display: flex;
@@ -83,6 +88,7 @@
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="chat-header">
         <h2>User Chat with Admin</h2>
@@ -91,17 +97,21 @@
             <button onclick="connectWebSocket()">Connect</button>
         </div>
     </div>
+
     <div id="userMessages" class="chat-messages"></div>
+
     <div class="input-section">
         <input type="text" id="userMessage" placeholder="Type a message...">
         <button onclick="sendMessage()">Send</button>
     </div>
+
     <div id="userStatus" class="status"></div>
 </div>
 
 <script>
     let stompClient = null;
     const ADMIN_ID = 16;
+    let tempMessageCounter = 0; // For generating unique temp message IDs
 
     function connectWebSocket() {
         const userId = document.getElementById('userId').value;
@@ -117,16 +127,19 @@
         stompClient.connect({}, function(frame) {
             showStatus('Connected to WebSocket', 'userStatus');
 
-            // Subscribe to the user chat topic
             stompClient.subscribe('/topic/user-chat/' + userId, function(message) {
                 const messageBody = JSON.parse(message.body);
 
-                // Display messages where the user is either the sender or receiver
                 if (
                     (messageBody.sender.id === parseInt(userId) && messageBody.receiver.id === ADMIN_ID) ||
                     (messageBody.sender.id === ADMIN_ID && messageBody.receiver.id === parseInt(userId))
                 ) {
                     const type = messageBody.sender.id === parseInt(userId) ? 'sent' : 'received';
+                    // Check if this message replaces a temporary one
+                    const tempMessageDiv = document.querySelector(`.message[data-temp-id][data-sender-id="${messageBody.sender.id}"][data-message="${messageBody.message}"]`);
+                    if (tempMessageDiv) {
+                        tempMessageDiv.remove(); // Remove the temporary message
+                    }
                     appendMessage(messageBody, 'userMessages', type);
                 }
             });
@@ -139,13 +152,27 @@
 
     function sendMessage() {
         const userId = document.getElementById('userId').value;
-        const message = document.getElementById('userMessage').value;
+        const messageContent = document.getElementById('userMessage').value;
 
-        if (!userId || !message) {
+        if (!userId || !messageContent) {
             showStatus('Please enter both User ID and message', 'userStatus', true);
             return;
         }
 
+        // Optimistic update: Display the message immediately
+        const tempMessageId = `temp-${tempMessageCounter++}`;
+        const tempMessage = {
+            sender: { id: parseInt(userId) },
+            receiver: { id: ADMIN_ID },
+            message: messageContent,
+            createdAt: new Date().toISOString()
+        };
+        appendMessage(tempMessage, 'userMessages', 'sent', tempMessageId);
+
+        // Clear input field
+        document.getElementById('userMessage').value = '';
+
+        // Send the message to the server
         fetch('http://localhost:8090/api/chat/admin/send', {
             method: 'POST',
             headers: {
@@ -153,16 +180,18 @@
             },
             body: JSON.stringify({
                 senderId: parseInt(userId),
-                message: message
+                message: messageContent
             })
         })
         .then(response => response.json())
-        .then(data => {
-            document.getElementById('userMessage').value = ''; // Clear input field
-            // Do not append message here; let WebSocket subscription handle it
-        })
         .catch(error => {
             showStatus('Error sending message: ' + error, 'userStatus', true);
+            // Optionally remove the temp message if the API call fails
+            const tempMessageDiv = document.querySelector(`.message[data-temp-id="${tempMessageId}"]`);
+            if (tempMessageDiv) {
+                tempMessageDiv.remove();
+                showStatus('Message failed to send', 'userStatus', true);
+            }
         });
     }
 
@@ -188,12 +217,19 @@
         });
     }
 
-    function appendMessage(message, containerId, type) {
+    function appendMessage(message, containerId, type, tempMessageId = null) {
         const container = document.getElementById(containerId);
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${type}`;
+        messageDiv.className = `message ${type}${tempMessageId ? ' pending' : ''}`;
 
-        const senderInfo = type === 'sent' ? `User ${message.sender.id}` : 'Admin';
+        // Add attributes for deduplication
+        if (tempMessageId) {
+            messageDiv.setAttribute('data-temp-id', tempMessageId);
+            messageDiv.setAttribute('data-sender-id', message.sender.id);
+            messageDiv.setAttribute('data-message', message.message);
+        }
+
+        const senderInfo = type === 'sent' ? `You` : 'Admin';
         const time = new Date(message.createdAt).toLocaleTimeString();
 
         messageDiv.innerHTML = `
@@ -211,5 +247,6 @@
         element.className = `status ${isError ? 'error' : ''}`;
     }
 </script>
+
 </body>
 </html>

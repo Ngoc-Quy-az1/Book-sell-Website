@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { FaExpand, FaCompress, FaComments } from "react-icons/fa";
-import SockJS from "sockjs-client/dist/sockjs";
-import Stomp from "webstomp-client";
 import axios from "axios";
 import Cookies from "js.cookie"
 
 
-const socket = new SockJS('http://localhost:8090/ws');  
-let stompClient = Stomp.over(socket);
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [chatMode, setChatMode] = useState("admin"); // admin, group1, group2
+  const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(Cookies.get('userId'));
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
   const userToken = localStorage.getItem("token");
@@ -19,46 +16,13 @@ const ChatButton = () => {
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
   const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
+  useEffect(() => {
+    const bottom = document.getElementById("bottom");
+    bottom.scrollTop = bottom.scrollHeight},[messages])
   // ✅ Gọi API lấy lịch sử tin nhắn
-  const [messages, setMessages] = useState([]);
   useEffect(() => {
-    
-    const bottom = document.getElementById("bottom")
-    if (bottom!=null) bottom.scrollIntoView()
-  },[messages])
-  
-  useEffect(() => {
-    fetchMessages(chatMode);
+    fetchMessages();
   }, [chatMode]);
-  useEffect(() => {
-
-    connectWebSocket();
-  }, [])
-  const ADMIN_ID = 16;  
-  const connectWebSocket = () => {
-    stompClient.connect({}, function (frame) {
-      let channel = '';
-      if (chatMode == "admin") channel = "/topic/user-chat/"+ userId;
-      else channel = '/topic/group-chat/'+ groupId;
-      // Subscribe kênh admin chat
-      stompClient.subscribe("/topic/user-chat/"+ userId, function (message) {
-        const messageBody = JSON.parse(message.body);
-        if (messageBody.chatGroup==null)
-          setMessages(messages => [...messages, messageBody])
-      });
-      stompClient.subscribe("/topic/group-chat/1", function (message) {
-        const messageBody = JSON.parse(message.body);
-          if (messageBody.chatGroup.groupId==1)
-            setMessages(messages => [...messages, messageBody]);
-      });
-      stompClient.subscribe("/topic/group-chat/2", function (message) {
-        const messageBody = JSON.parse(message.body);
-          if (messageBody.chatGroup.groupId==2)
-            setMessages(messages => [...messages, messageBody]);
-      });
-      fetchMessages();
-    })
-  }
   const fetchMessages = async () => {
     try {
       let response;
@@ -83,6 +47,7 @@ const ChatButton = () => {
           }
         );
       }
+
       console.log("Response Data:", response.data);
 
       const filteredMessages = response.data.filter((msg) => {
@@ -99,6 +64,7 @@ const ChatButton = () => {
       });
 
       console.log("Filtered Messages:", filteredMessages);
+
       setMessages(filteredMessages);
     } catch (error) {
       console.error("Lỗi khi gọi API:", error);
@@ -135,12 +101,23 @@ const ChatButton = () => {
       })
       .then((response) => {
         console.log("Response Data:", response.data);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            messageId: response.data.messageId || new Date().getTime(),
+            sender: { id: userId, name: "Bạn" },
+            message: newMessage,
+            createdAt: new Date().toISOString(),
+            groupId: chatMode == "group1" ? 1 : 2,
+          },
+        ]);
         setNewMessage("");
       })
       .catch((error) => {
         console.error("Lỗi khi gửi tin nhắn:", error);
       });
   };
+
   return (
     <div>
       {/* Nút mở chat */}
@@ -227,9 +204,6 @@ const ChatButton = () => {
                 </div>
               </div>
             ))}
-            <div style={{ float:"left", clear: "both" }}
-                 id="bottom"> 
-            </div>
           </div>
 
           {/* Nhập tin nhắn */}
@@ -239,7 +213,6 @@ const ChatButton = () => {
               className="flex-1 border rounded p-2 mr-2 text-black"
               placeholder="Nhập tin nhắn..."
               value={newMessage}
-              onKeyDown={(e) => {if (e.key==='Enter') handleSendMessage()}}
               onChange={(e) => setNewMessage(e.target.value)}
             />
             <button

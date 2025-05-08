@@ -3,7 +3,6 @@ import { Checkbox } from '@headlessui/react'
 import Book1 from "../BookCategoryList/ExampleImage/book1.jpg";
 import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
 import Book3 from "../BookCategoryList/ExampleImage/book3.png";
-import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import Cookies from 'js.cookie';
 import axios from 'axios';
@@ -160,7 +159,6 @@ export default function Cart() {
   }
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Navbar/>
       <h1 className="text-3xl font-bold text-green-600 mb-6 ml-36 mt-8">Your cart</h1>
       {(cartlist.length>0)
       ? <div className="flex flex-col content-evenly px-36 ">
