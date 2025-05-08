@@ -4,21 +4,21 @@ import Slider from "react-slick";
 const testimonialData = [
   {
     id: 1,
-    name: "Victor",
+    name: "Nguyen Long",
     text: "Great web site with so much feature",
-    img: "https://picsum.photos/101/101",
+    img: "https://static.tuoitre.vn/tto/i/s626/2016/01/05/e06f1709.jpg",
   },
   {
     id: 1,
-    name: "Satya Narayan",
-    text: "Great web site with so much feature",
+    name: "Truong Thi Linh",
+    text: "I really like this website, it have every book I need!",
     img: "https://picsum.photos/102/102",
   },
   {
     id: 1,
-    name: "Sachin Tendulkar",
-    text: "Great web site with so much feature",
-    img: "https://picsum.photos/103/103",
+    name: "Nguyen Hoang Thai",
+    text: "Beautyfull website, it help me so much with my study.",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkXLjCUDWFcnPPjxVFYFkNjAEMXvsMiBXCRw&s",
   },
 ];
 

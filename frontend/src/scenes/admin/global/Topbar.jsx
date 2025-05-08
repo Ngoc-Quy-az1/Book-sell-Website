@@ -55,9 +55,9 @@ const Topbar = ({handleNotification}) => {
         <IconButton onClick={handleNotification}>
           <NotificationsOutlinedIcon />
         </IconButton>
-        <IconButton>
+        {/* <IconButton>
           <SettingsOutlinedIcon />
-        </IconButton>
+        </IconButton> */}
         <IconButton onClick={handleShowOption}>
           <PersonOutlinedIcon />
           <div className="absolute -left-20 z-[9999] w-[100px] top-10 rounded-md bg-white p-2 border" hidden={!showOption}

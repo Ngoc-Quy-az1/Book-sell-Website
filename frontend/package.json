@@ -27,6 +27,7 @@
     "@nivo/line": "^0.88.0",
     "@nivo/pie": "^0.88.0",
     "@remix-run/node": "^2.16.5",
+    "@stomp/stompjs": "^7.1.1",
     "@tailwindcss/line-clamp": "^0.4.4",
     "10_project_biryani-shop": "file:",
     "aos": "^2.3.4",
@@ -50,7 +51,7 @@
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
     "sockjs-client": "^1.6.1",
-    "stompjs": "^2.3.3",
+    "webstomp-client": "^1.2.6",
     "yup": "^1.6.1"
   },
   "devDependencies": {

@@ -56,6 +56,7 @@ public class SecurityConfig {
                     "/api/books/GetAllPaginated/**",   // API lấy tất cả sách phân trang
                     "/api/books/AllTypeCategories",   // API lấy tất cả danh mục sách
                     "/api/books/GetAllPaginated/SearchByPrice", // API lấy tất cả danh mục sách theo ID
+                    "/api/books/GetAllPaginated1", // API lấy tất cả danh mục sách theo ID
 
                     "/api/payment/process-balance/**", // API thanh toán sử dụng tiền mặt
                     "/api/order/**" ,                  // API đặt hàng

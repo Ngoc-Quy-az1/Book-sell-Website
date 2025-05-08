@@ -27,7 +27,7 @@ export default Notification = ({notification, handleNotification}) => {
     })
   }
   const clearAll = () => {
-    notice.map((message) => {
+    notice.forEach((message) => {
       if (!message.is_read) markAsRead(message.id);
     }
     )
@@ -37,6 +37,11 @@ export default Notification = ({notification, handleNotification}) => {
         method: "PUT", headers:config
     }) .then((response) => {
       if (!response.ok) console.error("Fail");
+      const id = notice.indexOf(notice.find((e) => e.id == msgId));
+      let t = notice;
+      t[id].is_read = true;
+      console.log(t);
+      setNotice(t);
     }).then((data) => {
     });
   }
@@ -78,7 +83,7 @@ export default Notification = ({notification, handleNotification}) => {
                 onClick={(() => markAsRead(msg.id))}
               >
                 {msg.message}
-                {msg.is_read ? "" : <Box className="flex-1 w-[10px] h-[10px] p-1 rounded-lg" 
+                {msg.is_read ? <></> : <Box className="flex-1 w-[10px] h-[10px] p-1 rounded-lg" 
                   backgroundColor="blue" 
                   display="flex"/>}
               </Box>
