@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
-@CrossOrigin(origins = "*")
+
+//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+
 public class BookController {
 
     @Autowired

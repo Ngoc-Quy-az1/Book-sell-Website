@@ -15,10 +15,11 @@ export default function OrderItem({
   const [bookList, setBooklist] = useState([]);
 
   const handleClick = async () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     if (isCollapsed) {
       try {
         const response = await axios.get(
-          `http://localhost:8090/api/order/orderDetails?orderID=${orderId}`,
+          `${apiUrl}/api/order/orderDetails?orderID=${orderId}`,
           { headers: auth }
         );
         setBooklist(response.data);

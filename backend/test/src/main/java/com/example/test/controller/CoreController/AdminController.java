@@ -20,7 +20,9 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/admin")
-// @CrossOrigin(origins = "*")
+
+//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+
 public class AdminController {
 
     @Autowired

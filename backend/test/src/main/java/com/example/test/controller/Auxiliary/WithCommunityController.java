@@ -72,6 +72,9 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/chat/community")
+
+//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+
 public class WithCommunityController {
 
     @Autowired
