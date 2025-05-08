@@ -26,7 +26,7 @@ import UserDetail from "./components/UserDetail/UserDetail.jsx";
 
 const router = createBrowserRouter([{
   path: '/',
-  element: <App />,
+  element: <App/>,
   children:[
     {index:true, element: <Home/>},
     {path:'books', element:<BookCategoryList/>},
