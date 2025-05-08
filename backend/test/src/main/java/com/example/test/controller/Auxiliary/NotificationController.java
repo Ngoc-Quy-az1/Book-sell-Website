@@ -10,6 +10,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notification")
+
+//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+
 public class NotificationController {
 
     @Autowired

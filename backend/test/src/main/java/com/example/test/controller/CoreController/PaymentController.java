@@ -12,6 +12,9 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/payment")
 @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"})
+
+//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+
 public class PaymentController {
 
     @Autowired
