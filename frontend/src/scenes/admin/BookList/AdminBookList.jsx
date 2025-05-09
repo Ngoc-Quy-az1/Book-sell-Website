@@ -7,9 +7,10 @@ import BookPopup from "./BookPopup";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
 import Cookies from "js.cookie";
+import { CheckToken } from "../../../Service";
 
 //Lấy Cookie 
-console.log(Cookies.get('authToken'))
+console.log(CheckToken())
 
 const AdminBookList = () => {
   const theme = useTheme();
@@ -40,7 +41,7 @@ const AdminBookList = () => {
   
   const getBookCategory = async ()=>{
     await fetch('http://localhost:8090/api/books/AllTypeCategories', 
-      {headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}})
+      {headers: {'Authorization': `Bearer ${CheckToken()}`}})
     .then((response) => {
       return response.json();
     })
@@ -121,7 +122,7 @@ const AdminBookList = () => {
   
   const getDetail = async ()=>{
     if (selectedBook!=null) await fetch("http://localhost:8090/api/books/"+selectedBook.id, 
-      {headers : {'Authorization': `Bearer ${Cookies.get('authToken')}`}})
+      {headers : {'Authorization': `Bearer ${CheckToken()}`}})
     .then((response) => {
       return response.json();
     })

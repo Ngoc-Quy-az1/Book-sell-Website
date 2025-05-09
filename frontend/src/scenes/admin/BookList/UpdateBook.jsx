@@ -6,6 +6,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Admin/Header";
 import { ColorModeContext,tokens } from "../../../theme";
 import Cookies from "js.cookie"
+import { CheckToken } from "../../../Service";
 
 const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, handleDelete }) => {
   useEffect(() => {
@@ -32,7 +33,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
       method:"PUT",      
       headers: {      
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('authToken')}`
+        'Authorization': `Bearer ${CheckToken()}`
         },
       body:JSON.stringify(form)
     }) .then((response) => {
@@ -46,7 +47,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
   const deleteBook = (id) =>{
     fetch("http://localhost:8090/api/books/delete/"+id,{
       method:"DELETE",      
-      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+      headers: {'Authorization': `Bearer ${CheckToken()}`}
     }) .then((response) => {
       if (!response.ok) return response.text();
     }).then((data) => {

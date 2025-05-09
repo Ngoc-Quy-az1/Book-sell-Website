@@ -3,6 +3,11 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Formik } from "formik";
 import {  TextField } from "@mui/material";
 import * as yup from "yup";
+
+const slotProp={
+                input:{className:"input"},
+                inputLabel:{className:"input-label"}
+              }
 const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -54,7 +59,7 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
             <TextField id="name" 
               type="text" 
-              className="input" 
+              slotProps={slotProp} 
               onBlur={handleBlur}
               label="Username"
               onChange={handleChange}
@@ -64,7 +69,7 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
               helperText={touched.name && errors.name}/>
             <TextField id="firstName" 
               type="text" 
-              className="input" 
+              slotProps={slotProp} 
               onBlur={handleBlur}
               label="First Name"
               onChange={handleChange}
@@ -74,7 +79,7 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
               helperText={touched.firstName && errors.firstName}/>
             <TextField id="lastName" 
               type="text" 
-              className="input" 
+              slotProps={slotProp} 
               onBlur={handleBlur}
               label="Last Name"
               onChange={handleChange}
@@ -84,7 +89,7 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
               helperText={touched.lastName && errors.lastName}/>   
             <TextField id="address" 
               type="text" 
-              className="input" 
+              slotProps={slotProp} 
               onBlur={handleBlur}
               label="Address"
               onChange={handleChange}
@@ -94,7 +99,7 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
               helperText={touched.address && errors.address}/>           
             <TextField id="mail" 
               type="text" 
-              className="input" 
+              slotProps={slotProp} 
               onBlur={handleBlur}
               label="Email"
               onChange={handleChange}
@@ -104,7 +109,7 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
               helperText={touched.mail && errors.mail}/>
             <TextField id="phone" 
               type="text" 
-              className="input" 
+              slotProps={slotProp} 
               onBlur={handleBlur}
               label="Phone Number"
               onChange={handleChange}
@@ -115,11 +120,12 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
             <div className="relative">
             <TextField id="password" 
               type={showPassword ? "text" : "password"} 
-              className="input"
+              slotProps={slotProp}
               onBlur={handleBlur}
               label="Password"
               onChange={handleChange}
               value={values.password}
+              sx={{width:"100%"}}
               name="password"
               error={!!touched.password && !!errors.password}
               helperText={touched.password && errors.password}/>

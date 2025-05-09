@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js.cookie"
 import qrImage from "../../assets/qr_checkout.png";
+import { CheckToken } from "../../Service";
 
 const getColorFromName = (name) => {
   const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
@@ -38,7 +39,7 @@ const UserDetail = () => {
     axios
       .get(`${apiUrl}/api/users/user-detail/${userId}`, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('authToken')}`,
+          Authorization: `Bearer ${CheckToken()}`,
         },
       })
       .then((response) => {
@@ -68,7 +69,7 @@ const UserDetail = () => {
     axios
       .put(`${apiUrl}/api/users/update/${userId}`, updatedData, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('authToken')}`,
+          Authorization: `Bearer ${CheckToken()}`,
         },
       })
       .then((response) => {

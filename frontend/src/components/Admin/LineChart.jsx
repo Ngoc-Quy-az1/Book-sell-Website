@@ -4,6 +4,7 @@ import { tokens } from "../../theme";
 import { useEffect, useState } from "react";
 import { mockLineData } from "./mockData";
 import Cookies from "js.cookie"
+import { CheckToken } from "../../Service";
 
 const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   const theme = useTheme();
@@ -12,7 +13,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   useEffect(() => {
     getData()
   }, [])
-  const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
+  const config = {"Authorization": `Bearer ${CheckToken()}`};
   const getData = () => {
     return fetch("http://localhost:8090/api/admin/revenue/by-category",{
       headers:config

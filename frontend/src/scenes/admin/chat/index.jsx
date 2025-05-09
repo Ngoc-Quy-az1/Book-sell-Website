@@ -5,6 +5,7 @@ import Stomp from "webstomp-client";
 import { tokens } from "../../../theme";
 import axios from "axios";
 import Cookies from "js.cookie"
+import { CheckToken } from "../../../Service";
 const Chat = () => {
   const ADMIN_ID = Cookies.get("userId");
   const theme = useTheme();
@@ -12,13 +13,12 @@ const Chat = () => {
   const [userList, setUserList] = useState([]);
   const [userId, setUserId] = useState();
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [messages, setMessages] = useState([]); 
   const [subscribed, setSubscribed] = useState([]);
   useEffect(() => {
     fetch("http://localhost:8090/api/admin/users",{
       method:"GET",
-      headers: config
+      headers: {'Authorization': `Bearer ${CheckToken()}`}
     })
     .then(Response => {
       return Response.json();
@@ -44,7 +44,7 @@ const Chat = () => {
     
     {
       method: "POST",
-      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`, 'Content-Type' : 'application/json'},
+      headers: {'Authorization': `Bearer ${CheckToken()}`, 'Content-Type' : 'application/json'},
       body: JSON.stringify({ "userId": userId }),
     }).then(response => response.json())
     .then(result => {setMessages(result); console.log(result);})
@@ -85,7 +85,7 @@ const Chat = () => {
 
     axios
       .post(apiUrl, requestBody, {
-        headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
+        headers: {'Authorization': `Bearer ${CheckToken()}`},
       })
       .then((response) => {
         setMessages((prevMessages) => [

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Checkbox } from '@headlessui/react'
-import Book1 from "../BookCategoryList/ExampleImage/book1.jpg";
-import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
-import Book3 from "../BookCategoryList/ExampleImage/book3.png";
 import Footer from "../Footer/Footer";
 import Cookies from 'js.cookie';
 import axios from 'axios';
+import { CheckToken } from "../../Service";
 
 export default function Cart() {
-  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`,}
+  const auth = {'Authorization': `Bearer ${CheckToken()}`,}
   const userId = Cookies.get('userId');
   const [showVoucher, setShowVoucher] = useState(false);
   const [showInvalidVoucher, setShowInvalidVoucher] = useState(false);

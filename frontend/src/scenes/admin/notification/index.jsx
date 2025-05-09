@@ -5,6 +5,7 @@ import { Box, useTheme } from "@mui/material";
 import axios from "axios";
 import Cookies from "js.cookie"
 import { tokens } from "../../../theme";
+import { CheckToken } from "../../../Service";
 export default Notification = ({notification, handleNotification}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -13,11 +14,10 @@ export default Notification = ({notification, handleNotification}) => {
   useEffect(() => {
     handleNotice();
   },[])
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
   const handleNotice = () => {
     fetch("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
-        headers:config
+        headers:{'Authorization': `Bearer ${CheckToken()}`}
     })
     .then(Response => {
       return Response.json();
@@ -34,7 +34,7 @@ export default Notification = ({notification, handleNotification}) => {
   }
   const markAsRead = (msgId) => {
     fetch("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{
-        method: "PUT", headers:config
+        method: "PUT", headers:{'Authorization': `Bearer ${CheckToken()}`}
     }) .then((response) => {
       if (!response.ok) console.error("Fail");
       const id = notice.indexOf(notice.find((e) => e.id == msgId));

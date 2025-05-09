@@ -4,10 +4,9 @@ import Cookies from "js.cookie";
 import { Slider, Box, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
+import { CheckToken } from "../../Service";
 
 const userId = Cookies.get('userId');
-const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-console.log(Cookies.get('authToken'))
 const BookCategoryList = () => {
   const [sortRule, setSortRule] = useState("Tasc");
   const [selectedCategory, setSelectedCategory] = useState([]);
@@ -104,7 +103,7 @@ const BookCategoryList = () => {
     await axios.post('http://localhost:8090/api/cart/add',
       data,
       {
-        headers:auth,
+        headers:{'Authorization': `Bearer ${CheckToken()}`},
       }
     )
     .then((response) => {

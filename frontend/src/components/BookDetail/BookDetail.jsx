@@ -6,11 +6,12 @@ import axios from 'axios';
 import { useParams } from "react-router-dom";
 import Cookies from 'js.cookie';
 import Moment from 'moment';
+import { CheckToken } from "../../Service";
 
 
 const BookDetail = () => {
   const userId = Cookies.get('userId');
-  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const auth = {'Authorization': `Bearer ${CheckToken()}`}
   const [listComment, setListComment] = useState([]);
   const [bookDetail, setBookDetail] = useState()
   const [isOpenDialog, setIsOpenDialog] = useState(false);

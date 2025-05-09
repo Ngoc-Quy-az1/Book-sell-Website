@@ -7,6 +7,7 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import Cookies from "js.cookie"
+import { CheckToken } from "../../../Service";
 
 const Topbar = ({handleNotification}) => {
   const theme = useTheme();
@@ -21,9 +22,9 @@ const Topbar = ({handleNotification}) => {
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('authToken')}`
+        'Authorization': `Bearer ${CheckToken()}`
         },
-      body: JSON.stringify({"token": `${Cookies.get('authToken')}`})
+      body: JSON.stringify({"token": `${CheckToken()}`})
     }) .then((response) => {
       return response.json();
     }).then((data) => {

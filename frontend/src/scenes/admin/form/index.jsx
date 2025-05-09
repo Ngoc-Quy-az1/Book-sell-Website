@@ -6,6 +6,7 @@ import Notice from "../notice/index";
 import Header from "../../../components/Admin/Header";
 import { useState } from "react";
 import Cookies from "js.cookie"
+import { CheckToken } from "../../../Service";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -28,7 +29,7 @@ const Form = () => {
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('authToken')}`
+        'Authorization': `Bearer ${CheckToken()}`
         },
       body:JSON.stringify(form)
     }) .then((response) => {

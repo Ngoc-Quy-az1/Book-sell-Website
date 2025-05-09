@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaExpand, FaCompress, FaComments } from "react-icons/fa";
 import axios from "axios";
 import Cookies from "js.cookie"
+import { CheckToken } from "../../Service";
 
 
 const ChatButton = () => {
@@ -14,7 +15,6 @@ const ChatButton = () => {
   const userToken = localStorage.getItem("token");
   const toggleChat = () => setIsOpen(!isOpen);
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
   useEffect(() => {
     const bottom = document.getElementById("bottom");
@@ -31,7 +31,7 @@ const ChatButton = () => {
           "http://localhost:8090/api/chat/admin/history",
           { userId: userId },
           {
-            headers: config,
+            headers: {'Authorization': `Bearer ${CheckToken()}`},
           }
         );
       } else if (chatMode == "group1" || chatMode == "group2") {
@@ -43,7 +43,7 @@ const ChatButton = () => {
           "http://localhost:8090/api/chat/community/history",
           { groupId: groupId },
           {
-            headers: config,
+            headers: {'Authorization': `Bearer ${CheckToken()}`},
           }
         );
       }
@@ -96,7 +96,7 @@ const ChatButton = () => {
     axios
       .post(apiUrl, requestBody, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('authToken')}`,
+          Authorization: `Bearer ${CheckToken()}`,
         },
       })
       .then((response) => {

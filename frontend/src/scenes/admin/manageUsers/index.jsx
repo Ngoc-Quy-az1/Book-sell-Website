@@ -13,8 +13,7 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
-import Cookies from "js.cookie"
-const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+import { CheckToken } from "../../../Service";
 
 // Function chính
 const ManageUsers = () => {
@@ -38,7 +37,7 @@ const ManageUsers = () => {
   const getUser = () =>{
     fetch("http://localhost:8090/api/admin/users",{
       method:"GET",
-      headers: config
+      headers: {'Authorization': `Bearer ${CheckToken()}`}
     })
     .then(Response => {
       return Response.json();
@@ -53,7 +52,7 @@ const ManageUsers = () => {
     selectedRows.forEach(UserId => {
     fetch("http://localhost:8090/api/admin/deleteUsers/" + UserId,{
       method:"DELETE",
-      headers: config
+      headers: {'Authorization': `Bearer ${CheckToken()}`}
     })});
   }
 
@@ -64,7 +63,7 @@ const ManageUsers = () => {
     fetch("http://localhost:8090/api/admin/updateUsers/" + user.id,{method:"PUT",
       headers: {      
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${Cookies.get('authToken')}`
+      'Authorization': `Bearer ${CheckToken()}`
       },
       body:JSON.stringify(user)
     }).then((response) => {

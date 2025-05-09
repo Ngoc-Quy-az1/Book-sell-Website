@@ -7,6 +7,10 @@ import { TextField } from "@mui/material";
 import * as yup from "yup";
 import { redirect } from "react-router-dom";
 import Cookies from "js.cookie"
+const slotProp={
+                input:{className:"input"},
+                inputLabel:{className:"input-label"}
+              }
 
 const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,6 +35,7 @@ const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
     }).then((data) => {
       Cookies.set('authToken', data.token);
       Cookies.set('userId', data.user_id);
+      Cookies.set('refreshToken', data.token);
       if (data.status) location.reload();
       else handleNotice(data.message, !data.status);
     });
@@ -55,13 +60,11 @@ const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
         handleSubmit,
       }) => (
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-          <div>
-   
             <div className="relative">
               <IoPersonCircleOutline size={30} className=" absolute top-1/2 -translate-y-1/2" />
               <TextField id="input" 
               type="text" 
-              className="input" 
+              slotProps={slotProp}
               onBlur={handleBlur}
               label="Phone or Email"
               sx={{ marginLeft: "30px", width:"90%"}}
@@ -71,13 +74,11 @@ const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
               error={!!touched.input && !!errors.input}
               helperText={touched.input && errors.input}/>
             </div>
-          </div>
-          <div>
             <div className="relative py-3">
             <MdOutlineVpnKey size={30} className=" absolute top-1/2 -translate-y-1/2"/>
             <TextField id="password" 
               type={showPassword ? "text" : "password"}
-              className="input" 
+              slotProps={slotProp} 
               onBlur={handleBlur}
               label="password"
               sx={{ marginLeft: "30px", width:"90%"}}
@@ -97,7 +98,6 @@ const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
                   onClick={() => setShowPassword(!showPassword)}
                 />
               )}
-            </div>
           </div>
         <div className="flex justify-center">
           <button className="primary-btn" type="submit"

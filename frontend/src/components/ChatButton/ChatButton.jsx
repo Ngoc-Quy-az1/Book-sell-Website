@@ -4,6 +4,8 @@ import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import axios from "axios";
 import Cookies from "js.cookie"
+import { CheckToken } from "../../Service";
+import { Check } from "lucide-react";
 
 
 const socket = new SockJS('http://localhost:8090/ws');  
@@ -17,7 +19,6 @@ const ChatButton = () => {
   const userToken = localStorage.getItem("token");
   const toggleChat = () => setIsOpen(!isOpen);
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
   // ✅ Gọi API lấy lịch sử tin nhắn
   const [messages, setMessages] = useState([]);
@@ -67,7 +68,7 @@ const ChatButton = () => {
           "http://localhost:8090/api/chat/admin/history",
           { userId: userId },
           {
-            headers: config,
+            headers: {'Authorization': `Bearer ${CheckToken()}`},
           }
         );
       } else if (chatMode == "group1" || chatMode == "group2") {
@@ -79,7 +80,7 @@ const ChatButton = () => {
           "http://localhost:8090/api/chat/community/history",
           { groupId: groupId },
           {
-            headers: config,
+            headers: {'Authorization': `Bearer ${CheckToken()}`},
           }
         );
       }
@@ -130,7 +131,7 @@ const ChatButton = () => {
     axios
       .post(apiUrl, requestBody, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('authToken')}`,
+          Authorization: `Bearer ${CheckToken()}`,
         },
       })
       .then((response) => {

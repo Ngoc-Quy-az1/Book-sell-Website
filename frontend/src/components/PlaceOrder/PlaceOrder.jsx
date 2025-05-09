@@ -5,10 +5,11 @@ import OrderItem from "./OrderItem";
 import { selectClasses } from "@mui/material";
 import Moment from 'moment';
 import qrImage from "../../assets/qr_checkout.png"; // Import QR image
+import { CheckToken } from "../../Service";
 
 export default function PlaceOrder() {
   const userId = Cookies.get('userId');
-  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const auth = {'Authorization': `Bearer ${CheckToken()}`}
   const [selectedOrder, setSelectedOrder] = useState(-1);
   const [orderList, setOrderList] = useState([]);
   const [activeSection, setActiveSection] = useState(null); // Manage payment section visibility

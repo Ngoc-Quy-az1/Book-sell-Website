@@ -6,6 +6,7 @@ import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
 import Cookies from "js.cookie";
 import {Link} from "react-router-dom";
+import { CheckToken } from "../../Service";
 
 const Menu = [
   {
@@ -25,52 +26,6 @@ const DropdownLinks = [
     link: "/cart",
   },
 ];
-const options = [
-  {
-    name: "Trending Books",
-    link: "/#",
-  },
-  {
-    name: "Best Selling",
-    link: "/#",
-  },
-  {
-    name: "Authors",
-    link: "/#",
-  },
-];
-const notiList = [
-  {
-    id:"1",
-    name: "Nguyen Quang",
-    content: "Plese read this notification",
-  },
-  {
-    id:"2",
-    name: "Nguyen Quang",
-    content: "Plese read this notification",
-  },
-  {
-    id:"3",
-    name: "Nguyen Quang",
-    content: "Plese read this notification",
-  },
-  {
-    id:"4",
-    name: "Nguyen Quang",
-    content: "Plese read this notification",
-  },
-  {
-    id:"5",
-    name: "Nguyen Quang",
-    content: "Plese read this notification",
-  },
-  {
-    id:"6",
-    name: "Nguyen Quang",
-    content: "Plese read this notification",
-  },
-];
 
 const getColorFromName = (name) => {
   const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
@@ -88,14 +43,50 @@ const generateAvatar = (name) => {
   return `https://ui-avatars.com/api/?name=${initials}&background=${bgColor}&color=fff`;
 };
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
+  
+  const [notice, setNotice] = useState([]);
+  useEffect(() => {
+    handleNotice();
+  },[])
+
+  const handleNotice = () => {
+    if (Cookies.get("authToken")!=null)
+    fetch("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
+        headers:{'Authorization': `Bearer ${CheckToken()}`}
+    })
+    .then(Response => {
+      return Response.json();
+    }) 
+    .then(Response => {
+      setNotice(Response);
+    console.log(Response)
+    })
+  }
+  const clearAll = () => {
+    notice.forEach((message) => {
+      if (!message.is_read) markAsRead(message.id);
+    }
+    )
+  }
+  const markAsRead = (msgId) => {
+    fetch("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{
+        method: "PUT", headers:{'Authorization': `Bearer ${CheckToken()}`}
+    }) .then((response) => {
+      if (!response.ok) console.error("Fail");
+      const id = notice.indexOf(notice.find((e) => e.id == msgId));
+      let t = notice;
+      t[id].is_read = true;
+      setNotice(t);
+    });
+  }
   const handleSignOut = () =>{
     fetch("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),{
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('authToken')}`
+        'Authorization': `Bearer ${CheckToken()}`
         },
-      body: JSON.stringify({"token": `${Cookies.get('authToken')}`})
+      body: JSON.stringify({"token": `${CheckToken()}`})
     }) .then((response) => {
       return response.json();
     }).then((data) => {
@@ -109,18 +100,17 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   }
   const [user, setUser] = useState({'full_name':""});
   useEffect(() => {
+    if (Cookies.get("authToken")!=null)
     fetch("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
   {
-    headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+    headers: {'Authorization': `Bearer ${CheckToken()}`}
   })
     .then((response) => {
       return response.json();
     }).then((data) => {
       setUser(data);
-      console.log(data);
     })},[]
   )
-  const [haveNoti, setHaveNoti] = useState(true);
   const [showNoti, setShowNoti] = useState(false);
   const [showOption, setShowOption] = useState(false);
   const dropdownRef = useRef(null);
@@ -172,8 +162,8 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                       <FaCaretDown className="transition-all duration-200 group-hover:rotate-180" />
                     </span>
                   </a>
-                  <div className="absolute -left-9 z-[9999] hidden w-[150px] rounded-md bg-white p-2 text-black group-hover:block  ">
-                    <ul className="space-y-3">
+                  <div className="absolute -left-9 z-[9999] hidden w-[150px] rounded-md bg-white dark:bg-black p-2 text-black group-hover:block  ">
+                    <ul className="space-y-3 dark:text-white">
                       {DropdownLinks.map((data) => (
                         <li key={data.name}>
                           <Link
@@ -197,23 +187,34 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
               </button>
               <div className="flex justify-end relative " ref={dropdownRef}>
               
-              {(Cookies.get('authToken')) ? 
+              {CheckToken() ? 
               <>
                 <button className="mr-6"
                   onClick={() => setShowNoti(!showNoti)}
                 >
-                  {haveNoti?<BellDot color="#3e9392" size={28} />:<Bell color="#3e9392" size={28} />}
+                    <BellDot color="#3e9392" size={28} />
                 </button>
                 {showNoti && (
-                  <div className="absolute right-0 mt-10 w-96 bg-white border border-gray-200 rounded shadow-lg z-10 max-h-80 overflow-y-auto">
+                  <div className="absolute items-center right-0 mt-10 w-96 bg-white dark:bg-black border border-gray-200 rounded shadow-lg z-10 max-h-80 overflow-y-auto">
+                    <div className="flex justify-center">
+                      <button onClick={clearAll}> 
+                        <div
+                            className="flex items-center ml-auto p-2 rounded-lg mb-2 border"
+                          >
+                          Mark All as read
+                        </div>
+                      </button>
+                    </div>
                     {/* Dropdown items */}
-                    {notiList.map((noti) => (
+                    {notice.toReversed().map((noti) => (
                       <div
                         key={noti.id}
-                        className="flex flex-col px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        className="border flex flex-col px-4 py-2 hover:bg-gray-100 cursor-pointer bg-white dark:bg-black hover:dark:bg-gray"
+                        onClick={() => markAsRead(noti.id)}
                       >
-                        <p>{noti.name}</p>
-                        <div>{noti.content}</div>
+                        <div className="flex ml-auto p-2 rounded-lg inline-block mb-2 items-center">{noti.message}
+                          {noti.is_read ? <></> : <p className="flex-1 w-[8px] h-[8px] ml-3 p-1 rounded-lg bg-[blue]" ></p>}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -223,7 +224,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                   src={generateAvatar(user.full_name || user.name)}
                   alt="Avatar"
                   className=" rounded-full border-4 border-indigo-500 shadow-lg"/>
-                  <div className="absolute -left-9 z-[9999] w-[150px] rounded-md bg-white p-2 text-black group-hover:block  " hidden={!showOption}>
+                  <div className="absolute -left-9 z-[9999] w-[150px] rounded-md bg-white dark:bg-black dark:text-white  p-2 text-black group-hover:block  " hidden={!showOption}>
                       <ul className="space-y-3">
                           <li >
                             <a

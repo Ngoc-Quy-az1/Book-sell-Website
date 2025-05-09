@@ -1,22 +1,19 @@
 import { Box, Typography, useTheme, TextField } from "@mui/material";
 import { tokens } from "../../../theme";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import PaidIcon from '@mui/icons-material/Paid';
-import EmailIcon from "@mui/icons-material/Email";
 import PersonIcon from "@mui/icons-material/Person";
 import Header from "../../../components/Admin/Header";
-import LineChart from "../../../components/Admin/LineChart";
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import BarChart from "../../../components/Admin/BarChart";
 import StatBox from "../../../components/Admin/StatBox";
 import ProgressCircle from "../../../components/Admin/ProgressCircle";
 import { useState,useEffect } from "react";
-import Cookies from 'js.cookie';
+import { CheckToken } from "../../../Service";
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+  const auth = {'Authorization': `Bearer ${CheckToken()}`}
   const [countUsers, getCountUsers] = useState();
   useEffect(() => {
     handleCountUser();
@@ -226,7 +223,7 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                {(totalRevenue*1000).toLocaleString()} Coins
+                {totalRevenue} Coins
               </Typography>
             </Box>
           </Box>

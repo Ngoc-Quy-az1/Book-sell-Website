@@ -2,7 +2,7 @@ import { useTheme } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { tokens } from "../../theme";
 import { useState, useEffect } from "react";
-import Cookies from "js.cookie"
+import { CheckToken } from "../../Service";
 
 const BarChart = () => {
   const theme = useTheme();
@@ -11,7 +11,7 @@ const BarChart = () => {
   useEffect(() => {
     getData()
   }, [])
-  const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
+  const config = {"Authorization": `Bearer ${CheckToken()}`};
   const getData = () => {
     return fetch("http://localhost:8090/api/admin/revenue/by-category",{
       headers:config

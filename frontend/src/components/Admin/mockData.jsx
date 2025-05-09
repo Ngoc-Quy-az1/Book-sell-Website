@@ -1,13 +1,13 @@
 import { tokens } from "../../theme";
 import { useEffect, useState } from "react";
-import Cookies from 'js.cookie'
+import { CheckToken } from "../../Service";
 export const mockLineData = () => {
   const [data, setData] = useState([]);
   useEffect (() => {
     getData();
   },[]);
     const getData = () => {
-      const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
+      const config = {"Authorization": `Bearer ${CheckToken()}`};
       return fetch("http://localhost:8090/api/admin/revenue/by-category",{headers:config}) 
       .then((response) => {
         return response.json();

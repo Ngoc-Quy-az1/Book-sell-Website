@@ -7,7 +7,7 @@ import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import { Outlet } from "react-router-dom";
 import ChatButton from "./components/ChatButton/ChatButton.jsx";
-import Cookies from "js.cookie"
+import { CheckToken } from "./Service.jsx";
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
 
@@ -37,7 +37,7 @@ const App = () => {
       {/* <BookCategoryList/> */}
       {/* <Cart/> */}
         <Outlet/>
-      { (Cookies.get('authToken'))?
+      { (CheckToken())?
       <>
         <ChatButton />
       </>
