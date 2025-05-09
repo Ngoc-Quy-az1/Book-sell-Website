@@ -2,7 +2,7 @@ package com.example.test.controller.CoreController;
 
 import com.example.test.Entity.User;
 import com.example.test.Entity.chatEntity.GroupJoinRequest;
-import com.example.test.Repository.DeletedTokenRepository;
+import com.example.test.Repository.Token.DeletedTokenRepository;
 import com.example.test.Service.AdminService;
 import com.example.test.Service.JwtService;
 
@@ -36,7 +36,7 @@ public class AdminController {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
-    
+
         // Bây giờ token đã sạch, mới dùng để check DB
         if (deletedTokenRepository.existsByToken(token)) {
             return false;
@@ -54,13 +54,13 @@ public class AdminController {
      * URL: http://localhost:8090/api/admin/users
      * Response: Danh sách tất cả người dùng trong hệ thống
      * [
-     *   {
-     *     "id": 14,
-     *     "name": "Nguyen A",
-     *     "email": "nguyena@example.com",
-     *     "membershipLevel": "SILVER",
-     *     "balance": 30000.00
-     *   }
+     * {
+     * "id": 14,
+     * "name": "Nguyen A",
+     * "email": "nguyena@example.com",
+     * "membershipLevel": "SILVER",
+     * "balance": 30000.00
+     * }
      * ]
      */
 
@@ -94,21 +94,21 @@ public class AdminController {
      * Method: GET
      * URL: http://localhost:8090/api/admin/users/{userId}
      * Response: Thông tin chi tiết của người dùng hoặc 404 Not Found
-    {
-    "name": "linh",
-    "phone": "12091212",
-    "password": "$2a$10$MlvLoIecFw2/2SmV/ucnveW8G4dV35Ohsfwtzj2aw7FQ2sazLc5be",
-    "mail": "mahndugn2@gmail.com",
-    "is_admin": false,
-    "full_name": null,
-    "address": "123 Nguyen Trai, Ha Noi",
-    "points": 16,
-    "balance": 1.0,
-    "membershipLevel": "Platinum",
-    "is_login": true,
-    "id": 2,
-    "admin": false
-}
+     * {
+     * "name": "linh",
+     * "phone": "12091212",
+     * "password": "$2a$10$MlvLoIecFw2/2SmV/ucnveW8G4dV35Ohsfwtzj2aw7FQ2sazLc5be",
+     * "mail": "mahndugn2@gmail.com",
+     * "is_admin": false,
+     * "full_name": null,
+     * "address": "123 Nguyen Trai, Ha Noi",
+     * "points": 16,
+     * "balance": 1.0,
+     * "membershipLevel": "Platinum",
+     * "is_login": true,
+     * "id": 2,
+     * "admin": false
+     * }
      */
     @GetMapping("/users/{userId}")
     public ResponseEntity<User> getUserById(@RequestHeader("Authorization") String token, @PathVariable int userId) {
@@ -128,29 +128,29 @@ public class AdminController {
      * URL: http://localhost:8090/api/admin/createUsers
      * Request body: Thông tin người dùng cần tạo
      * {
-     *   "name": "Nguyen A",
-     *   "mail": "nguyena@example.com",
-     *   "password": "password123",
-     *   "phone": "0936795792",
-     *   "full_name": "Nguyen Van A",
-     *   "address": "123 ABC Street"
+     * "name": "Nguyen A",
+     * "mail": "nguyena@example.com",
+     * "password": "password123",
+     * "phone": "0936795792",
+     * "full_name": "Nguyen Van A",
+     * "address": "123 ABC Street"
      * }
      * Response: Thông tin người dùng đã được tạo
      * {
-    "name": "Nguyen A3",
-    "phone": "09367957292",
-    "password": "$2a$10$MgvrjICNtzlHXcLhO9cVpOjhCYIPrIZSPMv1z6zCOllU0LyhrQ8ni",
-    "mail": "nguyena1@example.com",
-    "is_admin": false,
-    "full_name": "Nguyen Van A",
-    "address": "123 ABC Street",
-    "points": 0,
-    "balance": 0.0,
-    "membershipLevel": "Silver",
-    "is_login": false,
-    "id": 23,
-    "admin": false
-    }
+     * "name": "Nguyen A3",
+     * "phone": "09367957292",
+     * "password": "$2a$10$MgvrjICNtzlHXcLhO9cVpOjhCYIPrIZSPMv1z6zCOllU0LyhrQ8ni",
+     * "mail": "nguyena1@example.com",
+     * "is_admin": false,
+     * "full_name": "Nguyen Van A",
+     * "address": "123 ABC Street",
+     * "points": 0,
+     * "balance": 0.0,
+     * "membershipLevel": "Silver",
+     * "is_login": false,
+     * "id": 23,
+     * "admin": false
+     * }
      */
     @PostMapping("/createUsers")
     public ResponseEntity<?> createUser(@RequestHeader("Authorization") String token, @RequestBody User userDto) {
@@ -177,15 +177,15 @@ public class AdminController {
      * URL: http://localhost:8090/api/admin/updateUsers/{userId}
      * Request body: Thông tin cần cập nhật
      * {
-     *   "name": "Nguyen A Updated",
-     *   "email": "nguyena.new@example.com"
+     * "name": "Nguyen A Updated",
+     * "email": "nguyena.new@example.com"
      * }
      * Response: Thông báo kết quả cập nhật
      */
     @PutMapping("/updateUsers/{userId}")
-    public ResponseEntity<String> updateUser(@RequestHeader("Authorization") String token, 
-                                           @PathVariable int userId, 
-                                           @RequestBody User userDetails) {
+    public ResponseEntity<String> updateUser(@RequestHeader("Authorization") String token,
+            @PathVariable int userId,
+            @RequestBody User userDetails) {
         if (!isAdmin(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -204,8 +204,8 @@ public class AdminController {
      * Response: Thông báo kết quả xóa
      */
     @DeleteMapping("/deleteUsers/{userId}")
-    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String token, 
-                                                            @PathVariable int userId) {
+    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String token,
+            @PathVariable int userId) {
         if (!isAdmin(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -299,12 +299,12 @@ public class AdminController {
      * URL: http://localhost:8090/api/admin/users/top-spenders
      * Response: Danh sách người dùng và tổng chi tiêu
      * [
-     *   {
-     *     "userId": 14,
-     *     "name": "Nguyen A",
-     *     "email": "nguyena@example.com",
-     *     "totalSpent": 5000000.00
-     *   }
+     * {
+     * "userId": 14,
+     * "name": "Nguyen A",
+     * "email": "nguyena@example.com",
+     * "totalSpent": 5000000.00
+     * }
      * ]
      */
     @GetMapping("/users/top-spenders")
@@ -314,7 +314,7 @@ public class AdminController {
         }
         List<Object[]> results = adminService.getTopSpendingUsers();
         List<Map<String, Object>> response = new ArrayList<>();
-        
+
         for (Object[] result : results) {
             Map<String, Object> userData = new HashMap<>();
             userData.put("userId", result[0]);
@@ -323,7 +323,7 @@ public class AdminController {
             userData.put("totalSpent", result[3]);
             response.add(userData);
         }
-        
+
         return ResponseEntity.ok(response);
     }
 
@@ -333,21 +333,22 @@ public class AdminController {
      * URL: http://localhost:8090/api/admin/revenue/by-category
      * Response: Danh sách doanh số theo thể loại
      * [
-     *   {
-     *     "category": "Tiểu thuyết",
-     *     "totalSold": 50,
-     *     "totalRevenue": 5000000.00
-     *   }
+     * {
+     * "category": "Tiểu thuyết",
+     * "totalSold": 50,
+     * "totalRevenue": 5000000.00
+     * }
      * ]
      */
     @GetMapping("/revenue/by-category")
-    public ResponseEntity<List<Map<String, Object>>> getRevenueByCategory(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<Map<String, Object>>> getRevenueByCategory(
+            @RequestHeader("Authorization") String token) {
         if (!isAdmin(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         List<Object[]> results = adminService.getRevenueByCategory();
         List<Map<String, Object>> response = new ArrayList<>();
-        
+
         for (Object[] result : results) {
             Map<String, Object> categoryData = new HashMap<>();
             categoryData.put("category", result[0]);
@@ -355,11 +356,11 @@ public class AdminController {
             categoryData.put("totalRevenue", result[2]);
             response.add(categoryData);
         }
-        
+
         return ResponseEntity.ok(response);
     }
 
-    //Api lấy danh sách yêu cầu tham gia nhóm chat
+    // Api lấy danh sách yêu cầu tham gia nhóm chat
     // http://localhost:8090/api/admin/chat-requests
     @GetMapping("/chat-requests")
     public ResponseEntity<?> getChatRequests(@RequestHeader("Authorization") String token) {

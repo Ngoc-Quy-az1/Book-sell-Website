@@ -11,7 +11,6 @@ public class DiscountCodesNumberCode {
     @Column(name = "code_id")
     private int codeId;
 
-    @Id
     @Column(name = "number_code")
     private int numberCode;
 

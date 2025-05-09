@@ -10,6 +10,7 @@ import com.example.test.DTO.Login_logout_register.Respose.registerResponseDTO;
 import com.example.test.DTO.ReviewDTO.Response.ReviewDTO;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
+import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Service.JwtService;
 import com.example.test.Service.MailService;
 import com.example.test.Service.UserService;
@@ -25,11 +26,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api/users")
 public class userController {
-
 
     @Autowired
     private UserService userService;
@@ -40,115 +39,113 @@ public class userController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     @Autowired
     private MailService mailService;
 
-
-
-// http://localhost:8090/api/users/register
-//    {
-//         "name" : "linh",
-//         "phone": "12091212",
-//          "mail": "121341@gmail.com",
-//          "password" : "12345",
-//          "full_name": "Ngocquy",
-//          "address" : "Hai Ba Trung"
-//    }
+    // http://localhost:8090/api/users/register
+    // {
+    // "name" : "linh",
+    // "phone": "12091212",
+    // "mail": "121341@gmail.com",
+    // "password" : "12345",
+    // "full_name": "Ngocquy",
+    // "address" : "Hai Ba Trung"
+    // }
     @PostMapping("/register")
-    public boolean register(@RequestBody registerDTO user)
-    {
-        if (!userService.isExistUser(user)){
+    public boolean register(@RequestBody registerDTO user) {
+        if (!userService.isExistUser(user)) {
             return true;
         }
         return false;
     }
 
-
-//  http://localhost:8090/api/users/verify?mail=quy160104@gmail.com
-//    {
-//        "code" : "123123"
-//    }
+    // http://localhost:8090/api/users/verify?mail=quy160104@gmail.com
+    // {
+    // "code" : "123123"
+    // }
     @PostMapping("/verify")
     public registerResponseDTO verify(@RequestParam(name = "mail") String mail,
-                                      @RequestBody Map<String, String> body)
-    {
+            @RequestBody Map<String, String> body) {
         String code = body.get("code");
         return userService.verify(mail, code);
     }
 
-    //      localhost:8090/api/users/login
+    // localhost:8090/api/users/login
     // {
-    //     "mail": "Phamthuy20102006@gmail.com",
-    //     "password": "12345"
+    // "mail": "Phamthuy20102006@gmail.com",
+    // "password": "12345"
     // }
     // hoặc
     // {
-    //     "phone":"0987654321",
-    //     "password":"12345"
+    // "phone":"0987654321",
+    // "password":"12345"
     // }
     @PostMapping("/login")
-    public ResponseLogInDTO login(@RequestBody logInDTO infor)
-    {
+    public ResponseLogInDTO login(@RequestBody logInDTO infor) {
         return userService.logIn(infor);
     }
 
-    //Bổ sung thông tin về người dùng sau khi đã đăng kí thành công 
+    // Bổ sung thông tin về người dùng sau khi đã đăng kí thành công
     // {
-    //     "full_name": "Nguyen Van A",
-    //     "address": "123 Nguyen Trai, Ha Noi"
+    // "full_name": "Nguyen Van A",
+    // "address": "123 Nguyen Trai, Ha Noi"
     // }
-    
+
     @PutMapping("/update/{userId}")
     public User updateUser(@PathVariable Integer userId, @RequestBody MoreRegisterDTO moreRegisterDTO) {
 
         return userService.updateUserInfo(userId, moreRegisterDTO);
     }
 
-    //Quy đổi số tiền người dùng nạp về xu cho tài khoản người dùng(10000vnd = 1 xu)
+    // Quy đổi số tiền người dùng nạp về xu cho tài khoản người dùng(10000vnd = 1
+    // xu)
 
-    // http://localhost:8090/api/users/update/balance/6?money=1000000
+    // http://localhost:8090/api/users/update/balance/6
     @PostMapping("/update/balance/{userId}")
-    public User updateBalance(@PathVariable Integer userId, @RequestParam double money) {
-        return userService.updateBalance(userId, money);
+    public Map<String, Object> updateBalance(@PathVariable Integer userId) {
+        return userService.updateBalance(userId);
     }
 
-    //logout
+    // logout
     // http://localhost:8090/api/users/logout/6
 
-// {
-// "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdXkxNjAxMDQxQGdtYWlsLmNvbSIsImlhdCI6MTY5MjA2NTY0MCwiZXhwIjoxNjkyMDY5MjQwfQ.4v3a7bq8gk1j4f3c1e7d8f8e8f8e8f8e8f8e8f8e8f8e"
-// }
+    // {
+    // "token":
+    // "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdXkxNjAxMDQxQGdtYWlsLmNvbSIsImlhdCI6MTY5MjA2NTY0MCwiZXhwIjoxNjkyMDY5MjQwfQ.4v3a7bq8gk1j4f3c1e7d8f8e8f8e8f8e8f8e8f8e8f8e"
+    // "refreshToken":
+    // "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdXkxNjAxMDQxQGdtYWlsLmNvbSIsImlhdCI6MTY5MjA2NTY0MCwiZXhwIjoxNjkyMDY5MjQwfQ.4v3a7bq8gk1j4f3c1e7d8f8e8f8e8f8e8f8e8f8e8f8e"
+    // }
 
     @PostMapping("/logout/{userId}")
     public boolean logout(@PathVariable Integer userId, @RequestBody LogOutDTO logOutDTO) {
         String token = logOutDTO.getToken();
-        return userService.logOut(userId, token);
+        String refreshToken = logOutDTO.getRefreshToken();
+        return userService.logOut(userId, token, refreshToken);
     }
 
-    //Quên mật khẩu
+    // Quên mật khẩu
     // http://localhost:8090/api/users/forgotpassword
     // {
-    //     "infor":"quy160104@gmail.com",
-    //     "password": "123456"
+    // "infor":"quy160104@gmail.com",
+    // "password": "123456"
     // }
 
     @PostMapping("/forgotpassword")
     public String forgetPass(@RequestBody Map<String, String> body) {
         String password = body.get("password");
         String infor = body.get("infor");
-        if(userService.forgetPass(infor, password)){
+        if (userService.forgetPass(infor, password)) {
             return "ok";
-        }else{
+        } else {
             return "Không tìm thấy tài khoản nào với email này";
         }
     }
-    //Xác nhận code để đổi mật khẩu
+    // Xác nhận code để đổi mật khẩu
     // http://localhost:8090/api/users/confirmcode
     // {
-    //      "infor": "quy160104@gmail.com"
-    //      "password": "123456",
-    //     "code": "123456"
+    // "infor": "quy160104@gmail.com"
+    // "password": "123456",
+    // "code": "123456"
     // }
 
     @PostMapping("/confirmcode")
@@ -156,29 +153,30 @@ public class userController {
         String infor = body.get("infor");
         String password = body.get("password");
         String code = body.get("code");
-        if(userService.confirmCode(infor,password,code)){
+        if (userService.confirmCode(infor, password, code)) {
             return "ok";
-        }else{
+        } else {
             return "Mã xác nhận không đúng";
         }
     }
 
-    //Get all review of a book
+    // Get all review of a book
     // http://localhost:8090/api/users/review/2
     @GetMapping("/review/{bookId}")
     public List<ReviewDTO> getAllReview(@PathVariable Integer bookId) {
         return userService.getAllReviews(bookId);
     }
 
-    //Add review for a book
+    // Add review for a book
     // http://localhost:8090/api/users/review/2/1
     // {
-    //     "rating": "5",
-    //     "comment": "I like this book"
-    //   }
-      
+    // "rating": "5",
+    // "comment": "I like this book"
+    // }
+
     @PostMapping("/review/{userId}/{bookId}")
-    public boolean review(@PathVariable Integer userId, @PathVariable Integer bookId, @RequestBody Map<String, String> body) {
+    public boolean review(@PathVariable Integer userId, @PathVariable Integer bookId,
+            @RequestBody Map<String, String> body) {
         return userService.review(userId, bookId, body);
     }
 
@@ -187,16 +185,16 @@ public class userController {
      * Method: GET
      * URL: http://localhost:8090/api/users/{userId}/discount-codes
      * Headers:
-     *   Authorization: Bearer {your_jwt_token}
+     * Authorization: Bearer {your_jwt_token}
      * Response (200 OK):
      * [
-     *   {
-     *     "code": "OFFC5Y2R",
-     *     "discountPercentage": 30.00,
-     *     "expirationDate": "2025-12-31",
-     *     "numberCode": 123456789
-     *   },
-     *   ...
+     * {
+     * "code": "OFFC5Y2R",
+     * "discountPercentage": 30.00,
+     * "expirationDate": "2025-12-31",
+     * "numberCode": 123456789
+     * },
+     * ...
      * ]
      * Error Response (403 Forbidden): Nếu người dùng không có quyền xem
      * Error Response (404 Not Found): Nếu userId không tồn tại
@@ -218,7 +216,8 @@ public class userController {
         }
     }
 
-    //thêm api trả về các trường cần thiết của trang user-detail như full_name, username, email, address, phone, balance, points, membership_level
+    // thêm api trả về các trường cần thiết của trang user-detail như full_name,
+    // username, email, address, phone, balance, points, membership_level
     // http://localhost:8090/api/users/user-detail/{userId}
 
     @GetMapping("/user-detail/{userId}")
@@ -228,6 +227,23 @@ public class userController {
             return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    // API lấy token mới khi acess token hết hạn
+    // http://localhost:8090/api/users/refresh-token
+    // {
+    // "userId": 1,
+    // "refreshToken":
+    // "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdXkxNjAxMDQxQGdtYWlsLmNvbSIsImlhdCI6MTY5MjA2NTY0MCwiZXhwIjoxNjkyMDY5MjQwfQ.4v3a7bq8gk1j4f3c1e7d8f8e8f8e8f8e8f8e8f8e8f8e"
+    // }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<String> refreshToken(@RequestBody Map<String, String> body) {
+        String refreshToken = body.get("refreshToken");
+        if (jwtService.isRefreshTokenValid(refreshToken, Integer.parseInt(body.get("userId")))) {
+            return ResponseEntity.ok(jwtService.regenerateAccessToken(refreshToken));
+        } else {
+            return ResponseEntity.status(401).body("Invalid refresh token");
         }
     }
 }

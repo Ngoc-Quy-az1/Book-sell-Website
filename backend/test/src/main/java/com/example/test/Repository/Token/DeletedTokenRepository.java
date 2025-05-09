@@ -1,4 +1,4 @@
-package com.example.test.Repository;
+package com.example.test.Repository.Token;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

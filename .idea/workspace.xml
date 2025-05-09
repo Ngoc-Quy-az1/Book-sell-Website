@@ -5,9 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8031be70-935c-46e0-988c-2ff35a8962c5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/DTO/Login_logout_register/Request/LogOutDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/DTO/Login_logout_register/Request/LogOutDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/DTO/Login_logout_register/Respose/ResponseLogInDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/DTO/Login_logout_register/Respose/ResponseLogInDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Repository/DeletedTokenRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Repository/DiscountCodeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Repository/DiscountCodesNumberCodeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Repository/UserRepo/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Repository/UserRepo/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/JwtService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/OrderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/PaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/Service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/AdminController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/userController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/java/com/example/test/controller/CoreController/userController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/test/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,6 +33,13 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -32,8 +56,9 @@
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/DELL/Downloads/demo (1)",
     "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2"
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "MavenSettings"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
