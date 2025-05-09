@@ -19,8 +19,7 @@ public class CorsConfig {
         config.addAllowedOrigin("http://127.0.0.1:5500");
         config.addAllowedOrigin("http://localhost:8090");
 
-        //Gắn link vercel vào đây
-        //config.addAllowedOrigin("https://book-sell-website-phuc.vercel.app");
+        config.addAllowedOrigin("https://book-sell-website.vercel.app");
         
         config.addAllowedHeader("*");
         

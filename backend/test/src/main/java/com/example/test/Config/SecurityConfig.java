@@ -112,7 +112,7 @@ public class SecurityConfig {
                 , "http://localhost:5500"
                 , "http://localhost:5173"
                 , "http://localhost:8090"
-//              , "https://book-sell-website-phuc.vercel.app"
+                , "https://book-sell-website.vercel.app"
                 ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
