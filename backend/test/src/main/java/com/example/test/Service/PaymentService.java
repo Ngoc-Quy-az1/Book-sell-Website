@@ -6,11 +6,12 @@ import com.example.test.Entity.PurchaseStatus;
 import com.example.test.Entity.User;
 import com.example.test.Entity.DiscountCode;
 import com.example.test.Entity.DiscountCodesNumberCode;
+import com.example.test.Repository.Discount.DiscountCodeRepository;
+import com.example.test.Repository.Discount.DiscountCodesNumberCodeRepository;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
 import com.example.test.Repository.UserRepo.NotificationRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
-import com.example.test.Repository.DiscountCodeRepository;
-import com.example.test.Repository.DiscountCodesNumberCodeRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,25 +36,25 @@ public class PaymentService {
 
     @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
-    
+
     @Autowired
     private UserRepository userRepository;
-    
+
     @Value("${spring.mail.username}")
     private String emailUsername;
-    
+
     @Value("${spring.mail.password}")
     private String emailPassword;
 
     @Autowired
     private NotificationRepository notificationRepository;
-    
+
     @Autowired
     private DiscountCodeRepository discountCodeRepository;
 
     @Autowired
     private DiscountCodesNumberCodeRepository discountCodesNumberCodeRepository;
-    
+
     private static final double XU_TO_VND_RATE = 1000.0; // 1 xu = 1000 VND
 
     /**
@@ -63,7 +64,7 @@ public class PaymentService {
         try {
             List<PurchaseHistory> pendingOrders = purchaseHistoryRepository.findByStatus(PurchaseStatus.Pending);
             List<Map<String, Object>> result = new ArrayList<>();
-            
+
             for (PurchaseHistory order : pendingOrders) {
                 Map<String, Object> orderDetails = new HashMap<>();
                 orderDetails.put("orderId", order.getOrderId());
@@ -72,7 +73,7 @@ public class PaymentService {
                 orderDetails.put("createdAt", order.getCreatedAt().toString());
                 result.add(orderDetails);
             }
-            
+
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,7 +82,8 @@ public class PaymentService {
     }
 
     /**
-     * Process new bank transfer from email and update order status for multiple orders
+     * Process new bank transfer from email and update order status for multiple
+     * orders
      */
     @Transactional
     public Map<String, Object> processNewBankTransfer(List<Integer> orderIds, Integer userId) {
@@ -90,19 +92,19 @@ public class PaymentService {
             List<PurchaseHistory> orders = new ArrayList<>();
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-            
+
             for (Integer orderId : orderIds) {
                 PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
-                
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+
                 if (order.getStatus() != PurchaseStatus.Pending) {
                     throw new RuntimeException("Đơn hàng #" + orderId + " không ở trạng thái chờ thanh toán");
                 }
-                
+
                 if (!order.getUserId().equals(userId)) {
                     throw new RuntimeException("Đơn hàng #" + orderId + " không thuộc về người dùng này");
                 }
-                
+
                 totalAmount = totalAmount.add(order.getTotalAmount());
                 orders.add(order);
             }
@@ -114,22 +116,25 @@ public class PaymentService {
 
             String amountStr = transactionDetails.get("amount");
             BigDecimal transactionAmount = new BigDecimal(amountStr);
-            
+
             if (transactionAmount.compareTo(totalAmount) < 0) {
-                return createResponse(false, "Số tiền chuyển khoản (" + amountStr + " VND) không đủ để thanh toán tổng đơn hàng (" + totalAmount + " VND)"+ ". Hãy chuyển thêm "+ (totalAmount.subtract(transactionAmount)) + " VND nữa để hoàn tất thanh toán.");
+                return createResponse(false,
+                        "Số tiền chuyển khoản (" + amountStr + " VND) không đủ để thanh toán tổng đơn hàng ("
+                                + totalAmount + " VND)" + ". Hãy chuyển thêm "
+                                + (totalAmount.subtract(transactionAmount)) + " VND nữa để hoàn tất thanh toán.");
             }
 
-            if(transactionAmount.compareTo(totalAmount) > 0) {
+            if (transactionAmount.compareTo(totalAmount) > 0) {
                 BigDecimal excessAmount = transactionAmount.subtract(totalAmount); // Tính số tiền thừa
-                int excessXu = excessAmount.divide(BigDecimal.valueOf(100), BigDecimal.ROUND_DOWN).intValue(); 
+                int excessXu = excessAmount.divide(BigDecimal.valueOf(100), BigDecimal.ROUND_DOWN).intValue();
                 user.setBalance(user.getBalance() + excessXu); // Cộng xu vào tài khoản người dùng
-                
+
                 for (PurchaseHistory order : orders) {
                     order.setStatus(PurchaseStatus.Completed);
                     purchaseHistoryRepository.save(order);
                     assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
                 }
-                
+
                 Map<String, Object> result = new HashMap<>();
                 result.put("success", true);
                 result.put("message", "Bạn đã thanh toán thành công " + orders.size() + " đơn hàng" +
@@ -146,10 +151,11 @@ public class PaymentService {
                 purchaseHistoryRepository.save(order);
                 assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
             }
-            
+
             Notification notification = new Notification();
             notification.setUser(user);
-            notification.setMessage("Thanh toán thành công đơn hàng mã " + orderIds + " bằng chuyển khoản lúc " + new Date());
+            notification.setMessage(
+                    "Thanh toán thành công đơn hàng mã " + orderIds + " bằng chuyển khoản lúc " + new Date());
             notification.setCreatedAt(new Date());
             notification.setRead(false);
             notificationRepository.save(notification);
@@ -181,16 +187,16 @@ public class PaymentService {
 
             for (Integer orderId : orderIds) {
                 PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
-                
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+
                 if (order.getStatus() != PurchaseStatus.Pending) {
                     throw new RuntimeException("Đơn hàng #" + orderId + " không ở trạng thái chờ thanh toán");
                 }
-                
+
                 if (!order.getUserId().equals(userId)) {
                     throw new RuntimeException("Đơn hàng #" + orderId + " không thuộc về người dùng này");
                 }
-                
+
                 totalAmount = totalAmount.add(order.getTotalAmount());
                 orders.add(order);
             }
@@ -198,7 +204,8 @@ public class PaymentService {
             double requiredXu = totalAmount.doubleValue() / XU_TO_VND_RATE;
 
             if (user.getBalance() < requiredXu) {
-                throw new RuntimeException("Số dư xu không đủ. Cần " + requiredXu + " xu, hiện có " + user.getBalance() + " xu");
+                throw new RuntimeException(
+                        "Số dư xu không đủ. Cần " + requiredXu + " xu, hiện có " + user.getBalance() + " xu");
             }
 
             user.setBalance(user.getBalance() - requiredXu);
@@ -223,7 +230,7 @@ public class PaymentService {
             result.put("message", "Thanh toán thành công " + orders.size() + " đơn hàng bằng " + requiredXu + " xu");
             result.put("orderIds", orderIds);
             result.put("totalAmount", totalAmount);
-            result.put("remainingBalance", user.getBalance());         
+            result.put("remainingBalance", user.getBalance());
             return result;
 
         } catch (Exception e) {
@@ -237,7 +244,7 @@ public class PaymentService {
      */
     public Map<String, String> readRecentEmails() throws MessagingException, IOException {
         System.out.println("Starting email check with username: " + emailUsername);
-        
+
         Properties props = new Properties();
         props.put("mail.store.protocol", "imaps");
         props.put("mail.imaps.host", "imap.gmail.com");
@@ -247,7 +254,7 @@ public class PaymentService {
 
         Session session = Session.getInstance(props, null);
         Store store = session.getStore();
-        
+
         try {
             store.connect("imap.gmail.com", emailUsername, emailPassword);
             System.out.println("Connected to email server");
@@ -257,7 +264,7 @@ public class PaymentService {
 
             int totalMessages = inbox.getMessageCount();
             System.out.println("Total messages in inbox: " + totalMessages);
-            
+
             int startMessage = Math.max(1, totalMessages - 10);
             Message[] messages = inbox.getMessages(startMessage, totalMessages);
             System.out.println("Fetched " + messages.length + " recent messages");
@@ -268,34 +275,46 @@ public class PaymentService {
                 String subject = message.getSubject();
                 System.out.println("Checking message from: " + from + ", subject: " + subject);
 
-                if (from.toLowerCase().contains("sacombank") || 
-                    (subject != null && subject.toUpperCase().contains("SACOMBANK"))) {
-                    
+                if (from.toLowerCase().contains("sacombank") ||
+                        (subject != null && subject.toUpperCase().contains("SACOMBANK"))) {
+
                     String content = getEmailContent(message);
                     System.out.println("Email content: " + content);
-                    
+
                     Map<String, String> transactionDetails = new HashMap<>();
 
                     Pattern amountPattern = Pattern.compile("\\+\\s*([\\d,]+)\\s*VND");
                     Matcher amountMatcher = amountPattern.matcher(content);
-                    
+
+                    Pattern phonePattern = Pattern.compile("\\b0\\d{9,10}\\b");
+                    Matcher phoneMatcher = phonePattern.matcher(content);
+
                     if (amountMatcher.find()) {
                         String amountStr = amountMatcher.group(1).replace(",", "");
-                        System.out.println("Found transaction amount: " + amountStr);
-                        transactionDetails.put("amount", amountStr);
-                        
-                        Pattern datePattern = Pattern.compile("(\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2})");
-                        Matcher dateMatcher = datePattern.matcher(content);
-                        if (dateMatcher.find()) {
-                            transactionDetails.put("date", dateMatcher.group(1));
+
+                        if (phoneMatcher.find()) {
+                            String phone = phoneMatcher.group(0);
+
+                            transactionDetails.put("amount", amountStr);
+                            transactionDetails.put("phone", phone);
+
+                            Pattern datePattern = Pattern.compile("(\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2})");
+                            Matcher dateMatcher = datePattern.matcher(content);
+                            if (dateMatcher.find()) {
+                                transactionDetails.put("date", dateMatcher.group(1));
+                            }
+
+                            return transactionDetails;
+                        } else {
+                            System.out.println("Không tìm thấy số điện thoại hợp lệ (10–11 số) trong nội dung email.");
                         }
-                        
-                        return transactionDetails;
                     }
                 }
             }
+
             System.out.println("No matching Sacombank emails found");
             return null;
+
         } finally {
             try {
                 store.close();
@@ -315,15 +334,15 @@ public class PaymentService {
         } else if (content instanceof MimeMultipart) {
             MimeMultipart multipart = (MimeMultipart) content;
             StringBuilder result = new StringBuilder();
-            
+
             for (int i = 0; i < multipart.getCount(); i++) {
                 BodyPart bodyPart = multipart.getBodyPart(i);
                 if (bodyPart.getContentType().toLowerCase().startsWith("text/html")) {
                     String html = (String) bodyPart.getContent();
                     String text = html.replaceAll("<[^>]*>", "")
-                                    .replaceAll("&nbsp;", " ")
-                                    .replaceAll("\\s+", " ")
-                                    .trim();
+                            .replaceAll("&nbsp;", " ")
+                            .replaceAll("\\s+", " ")
+                            .trim();
                     result.append(text);
                 }
             }
@@ -369,28 +388,38 @@ public class PaymentService {
             try {
                 final String finalDiscountCode = discountCodeToAssign; // Biến final
                 DiscountCode discount = discountCodeRepository.findByCode(finalDiscountCode)
-                    .orElseThrow(() -> new RuntimeException("Discount code " + finalDiscountCode + " not found"));
+                        .orElseThrow(() -> new RuntimeException("Discount code " + finalDiscountCode + " not found"));
 
-                DiscountCodesNumberCode userDiscount = new DiscountCodesNumberCode();
-                userDiscount.setCodeId(discount.getCodeId());
-                userDiscount.setUserId(user.getID());
-                userDiscount.setNumberCode((int) (System.currentTimeMillis() % Integer.MAX_VALUE)); 
-                userDiscount.setDiscountCode(discount); 
-                userDiscount.setUser(user);
-                discountCodesNumberCodeRepository.save(userDiscount);
-                
+                // Check if the discount code is already assigned to the user
+                DiscountCodesNumberCode existingDiscount = discountCodesNumberCodeRepository
+                        .findByUserIdAndDiscountCode_CodeId(user.getID(), discount.getCodeId());
+                if (existingDiscount != null) {
+                    existingDiscount.setNumberCode(existingDiscount.getNumberCode() + 1);
+                    discountCodesNumberCodeRepository.save(existingDiscount);
+                } else {
+                    DiscountCodesNumberCode userDiscount = new DiscountCodesNumberCode();
+                    userDiscount.setCodeId(discount.getCodeId());
+                    userDiscount.setUserId(user.getID());
+                    userDiscount.setNumberCode(1);
+                    userDiscount.setDiscountCode(discount);
+                    userDiscount.setUser(user);
+                    discountCodesNumberCodeRepository.save(userDiscount);
+                }
+
                 logger.info("Successfully assigned discount code {} to user: {}", finalDiscountCode, user.getID());
 
                 Notification notification = new Notification();
                 notification.setUser(user);
-                notification.setMessage("Chúc mừng! Bạn đã nhận được mã giảm giá " + discount.getDiscountPercentage() + "% (" + discount.getCode() + ") cho đơn hàng tiếp theo.");
+                notification.setMessage("Chúc mừng! Bạn đã nhận được mã giảm giá " + discount.getDiscountPercentage()
+                        + "% (" + discount.getCode() + ") cho đơn hàng tiếp theo.");
                 notification.setCreatedAt(new Date());
                 notification.setRead(false);
                 notificationRepository.save(notification);
 
             } catch (Exception e) {
-                logger.error("Error assigning discount code {} to user {}: {}", discountCodeToAssign, user.getID(), e.getMessage(), e);
+                logger.error("Error assigning discount code {} to user {}: {}", discountCodeToAssign, user.getID(),
+                        e.getMessage(), e);
             }
         }
     }
-} 
+}
