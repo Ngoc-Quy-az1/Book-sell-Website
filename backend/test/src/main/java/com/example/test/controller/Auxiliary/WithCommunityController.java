@@ -72,8 +72,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/chat/community")
-
-//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+@CrossOrigin(origins = "https://book-sell-website-5g6x.onrender.com")
 
 public class WithCommunityController {
 
