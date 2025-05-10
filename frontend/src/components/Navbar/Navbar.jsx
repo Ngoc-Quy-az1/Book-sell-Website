@@ -89,7 +89,8 @@ const generateAvatar = (name) => {
 };
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   const handleSignOut = () =>{
-    fetch("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),{
+    const apiUrl = import.meta.env.VITE_API_URL;
+    fetch(`${apiUrl}/api/users/logout/`+Cookies.get("userId"),{
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json',
@@ -109,7 +110,8 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   }
   const [user, setUser] = useState({'full_name':""});
   useEffect(() => {
-    fetch("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
+    const apiUrl = import.meta.env.VITE_API_URL;
+    fetch(`${apiUrl}/api/users/user-detail/`+Cookies.get("userId"),
   {
     headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   })

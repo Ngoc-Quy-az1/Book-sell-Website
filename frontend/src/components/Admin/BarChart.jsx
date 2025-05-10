@@ -8,12 +8,13 @@ const BarChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     getData()
   }, [])
   const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
   const getData = () => {
-    return fetch("http://localhost:8090/api/admin/revenue/by-category",{
+    return fetch(`${apiUrl}/api/admin/revenue/by-category`,{
       headers:config
     }) 
     .then((response) => {

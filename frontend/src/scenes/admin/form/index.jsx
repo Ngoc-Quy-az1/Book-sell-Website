@@ -12,6 +12,7 @@ const Form = () => {
   const [notice, setNotice] = useState(false);
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL;
   const showNotice = () => {
     setNotice(!notice);
     setTimeout(() => {setNotice()},3000)
@@ -24,7 +25,7 @@ const Form = () => {
 
   //Đẩy DL lên Database 
   const createUser = (form) =>{
-    fetch("http://localhost:8090/api/admin/createUsers",{
+    fetch(`${apiUrl}/api/admin/createUsers`,{
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json',

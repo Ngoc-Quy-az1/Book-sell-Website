@@ -14,7 +14,8 @@ const SignUp = ( {handleSignUp, handleVerify, handleMail, handleNotice } ) => {
 
   //Đẩy DL lên Database 
   const createUser = (form) =>{
-    fetch("http://localhost:8090/api/users/register",{
+    const apiUrl = import.meta.env.VITE_API_URL;
+    fetch(`${apiUrl}/api/users/register`,{
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json'

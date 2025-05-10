@@ -13,11 +13,12 @@ const Topbar = ({handleNotification}) => {
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const [showOption, setShowOption] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
   const handleShowOption = () => {
     setShowOption(!showOption);
   }
   const handleSignOut = () =>{
-    fetch("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),{
+    fetch(`${apiUrl}/api/users/logout/`+Cookies.get("userId"),{
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json',

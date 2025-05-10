@@ -10,6 +10,7 @@ import axios from 'axios';
 export default function Cart() {
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`,}
   const userId = Cookies.get('userId');
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [showVoucher, setShowVoucher] = useState(false);
   const [showInvalidVoucher, setShowInvalidVoucher] = useState(false);
   const [voucherCode, setVoucherCode] = useState("");
@@ -27,7 +28,7 @@ export default function Cart() {
     }, []);
 
   const getCartList = async(userId)=>{
-    await axios.get(`http://localhost:8090/api/cart/user/${userId}`,{
+    await axios.get(`${apiUrl}/api/cart/user/${userId}`,{
       headers:auth,
     })
     .then((response) => {
@@ -45,7 +46,7 @@ export default function Cart() {
       "bookId": bookId,
       "quantity": quantity,
     };
-    await axios.put(`http://localhost:8090/api/cart/update-quantity`,
+    await axios.put(`${apiUrl}/api/cart/update-quantity`,
     data,
     {   
       headers: auth,
@@ -59,7 +60,7 @@ export default function Cart() {
   };
 
   const deleteCartBookBackend = async (userId, bookId)=>{
-    await axios.delete(`http://localhost:8090/api/cart/${userId}/${bookId}`,
+    await axios.delete(`${apiUrl}/api/cart/${userId}/${bookId}`,
     //data,
     {   
       headers: auth,
@@ -73,7 +74,7 @@ export default function Cart() {
   }
 
   const getVoucherList = async(userId)=>{
-    await axios.get(`http://localhost:8090/api/users/${userId}/discount-codes`,{
+    await axios.get(`${apiUrl}/api/users/${userId}/discount-codes`,{
       headers:auth,
     })
     .then((response) => {
@@ -146,7 +147,7 @@ export default function Cart() {
       "userId": userId,
       "bookIds": tempList,
     };
-    await axios.post('http://localhost:8090/api/order/create',
+    await axios.post(`${apiUrl}/api/order/create`,
       data,
       {
         headers: auth,

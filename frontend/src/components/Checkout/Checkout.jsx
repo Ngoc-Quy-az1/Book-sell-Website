@@ -8,7 +8,7 @@ const Checkout = () => {
   const [paymentResult, setPaymentResult] = useState({ qr: "", coin: "" }); // Kết quả thanh toán
   const [order, setOrder] = useState(null); // Lưu thông tin đơn hàng
   const [orderId, setOrderId] = useState(1); // Lưu orderId, mặc định là 1 để test
-
+  const apiUrl = import.meta.env.VITE_API_URL; // Lấy URL API từ biến môi trường
   const userId = Cookies.get("userId"); // Lấy userId từ cookie
 
   // Hiển thị phần tương ứng
@@ -21,7 +21,7 @@ const Checkout = () => {
     const fetchOrder = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8090/api/payment/pending-orders",
+          `${apiUrl}/api/payment/pending-orders`,
           {
             headers: {
               Authorization: `Bearer ${Cookies.get("authToken")}`, // Thêm header Authorization
@@ -49,7 +49,7 @@ const Checkout = () => {
   const checkPayment = async (method) => {
     try {
       const response = await axios.get(
-        `http://localhost:8090/api/payment/check-status/${orderId}`,
+        `${apiUrl}/api/payment/check-status/${orderId}`,
         {
           headers: {
             Authorization: `Bearer ${Cookies.get("authToken")}`,
@@ -82,7 +82,7 @@ const Checkout = () => {
   const payWithBalance = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8090/api/payment/pay-with-balance",
+        `${apiUrl}/api/payment/pay-with-balance`,
         {
           orderIds: [orderId], // Lấy từ biến orderId
           userId: userId, // Lấy từ cookie

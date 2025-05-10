@@ -18,12 +18,13 @@ const Dashboard = () => {
   const colors = tokens(theme.palette.mode);
   const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
   const [countUsers, getCountUsers] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     handleCountUser();
   },[])
   const handleCountUser = () =>{
     
-    fetch("http://localhost:8090/api/admin/users/count",{
+    fetch(`${apiUrl}/api/admin/users/count`,{
       method:"GET",
       headers:auth
     })
@@ -40,7 +41,7 @@ const Dashboard = () => {
   })
   const handleCountBook = () =>{
     
-    fetch("http://localhost:8090/api/books/all",{
+    fetch(`${apiUrl}/api/books/all`,{
       method:"GET",
       headers:auth
     })
@@ -59,7 +60,7 @@ const Dashboard = () => {
   },[])
   const handleCountSales = () =>{
     
-    fetch("http://localhost:8090/api/admin/orders/count",{
+    fetch(`${apiUrl}/api/admin/orders/count`,{
       method:"GET",
       headers:auth
     })
@@ -77,7 +78,7 @@ const Dashboard = () => {
   },[])
   const handleTotalRevenue = () =>{
     
-    fetch("http://localhost:8090/api/admin/revenue/total",{
+    fetch(`${apiUrl}/api/admin/revenue/total`,{
       method:"GET",
       headers:auth
     })
@@ -94,7 +95,7 @@ const Dashboard = () => {
   },[])
   const handleMessage = () =>{
     
-    fetch("http://localhost:8090/api/admin/revenue/total",{
+    fetch(`${apiUrl}/api/admin/revenue/total`,{
       method:"GET",
       headers:auth
     })

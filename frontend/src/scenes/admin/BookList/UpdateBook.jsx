@@ -8,14 +8,13 @@ import { ColorModeContext,tokens } from "../../../theme";
 import Cookies from "js.cookie"
 
 const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, handleDelete }) => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
   },[])
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-
   const isNonMobile = useMediaQuery("(min-width:600px)");
-
   const [updateInformation, getUpdateImformation] = useState(true);
   const handleUpdate = () => {
     getUpdateImformation(!updateInformation);
@@ -28,7 +27,8 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
   }
   //Đẩy DL lên Database 
   const updateBook = (form) =>{
-    fetch("http://localhost:8090/api/books/update/"+form.id,{
+
+    fetch(`${apiUrl}/api/books/update/`+form.id,{
       method:"PUT",      
       headers: {      
         'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
     });
   }
   const deleteBook = (id) =>{
-    fetch("http://localhost:8090/api/books/delete/"+id,{
+    fetch(`${apiUrl}/api/books/delete/`+id,{
       method:"DELETE",      
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     }) .then((response) => {
