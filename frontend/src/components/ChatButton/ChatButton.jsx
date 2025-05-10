@@ -5,8 +5,8 @@ import Stomp from "webstomp-client";
 import axios from "axios";
 import Cookies from "js.cookie"
 
-
-const socket = new SockJS('http://localhost:8090/ws');  
+const apiUrl = import.meta.env.VITE_API_URL;
+const socket = new SockJS(`${apiUrl}/ws`);
 let stompClient = Stomp.over(socket);
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +64,7 @@ const ChatButton = () => {
       let response;
       if (chatMode == "admin") {
         response = await axios.post(
-          "http://localhost:8090/api/chat/admin/history",
+          `${apiUrl}/api/chat/admin/history`,
           { userId: userId },
           {
             headers: config,
@@ -76,7 +76,7 @@ const ChatButton = () => {
         console.log("Group ID:", groupId);
 
         response = await axios.post(
-          "http://localhost:8090/api/chat/community/history",
+          `${apiUrl}/api/chat/community/history`,
           { groupId: groupId },
           {
             headers: config,
@@ -117,10 +117,10 @@ const ChatButton = () => {
       return;
     }
   
-    const apiUrl =
+    const apiUrl1 =
       chatMode === "admin"
-        ? "http://localhost:8090/api/chat/admin/send"
-        : "http://localhost:8090/api/chat/community/send";
+        ? `${apiUrl}/api/chat/admin/send`
+        : `${apiUrl}/api/chat/community/send`;
   
     const requestBody =
       chatMode === "admin"
@@ -128,7 +128,7 @@ const ChatButton = () => {
         : { senderId: userId, message: newMessage, groupId: chatMode == "group1" ? 1 : 2 };
   
     axios
-      .post(apiUrl, requestBody, {
+      .post(apiUrl1, requestBody, {
         headers: {
           Authorization: `Bearer ${Cookies.get('authToken')}`,
         },
@@ -156,7 +156,7 @@ const ChatButton = () => {
         <div
           className={`fixed ${isFullscreen
               ? "top-16 left-0 w-full h-[calc(80%)]"
-              : "bottom-16 right-5 w-80"
+              : "bottom-16 right-5 w-80 lg:w-[30rem] lg:bottom-10 lg:right-10 lg:rounded-lg"
             } bg-white p-4 rounded-lg shadow-lg border transition-all flex flex-col`}
         >
           {/* Header */}
@@ -199,7 +199,7 @@ const ChatButton = () => {
           </div>
 
           {/* Tin nhắn */}
-          <div className="flex-1 overflow-y-auto border p-3 rounded mb-4 max-h-[60vh] space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+          <div className="flex-1 overflow-y-auto border p-3 rounded mb-4 max-h-[60vh] space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 lg:max-h-[70vh]">
             {messages.map((msg) => (
               <div
                 key={msg.messageId}
@@ -236,7 +236,7 @@ const ChatButton = () => {
           <div className="flex items-center">
             <input
               type="text"
-              className="flex-1 border rounded p-2 mr-2 text-black"
+              className="flex-1 border rounded p-2 mr-2 text-black lg:mr-4 lg:rounded-lg"
               placeholder="Nhập tin nhắn..."
               value={newMessage}
               onKeyDown={(e) => {if (e.key==='Enter') handleSendMessage()}}
@@ -244,7 +244,7 @@ const ChatButton = () => {
             />
             <button
               onClick={handleSendMessage}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 lg:px-6 lg:py-3 lg:rounded-lg"
             >
               Gửi
             </button>
