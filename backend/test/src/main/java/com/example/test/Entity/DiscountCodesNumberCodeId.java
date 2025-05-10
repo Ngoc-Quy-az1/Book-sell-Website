@@ -12,9 +12,6 @@ public class DiscountCodesNumberCodeId implements Serializable {
     @Column(name = "code_id")
     private int codeId;
 
-    @Column(name = "number_code")
-    private int numberCode;
-
     @Column(name = "user_id")
     private int userId;
 
@@ -23,7 +20,6 @@ public class DiscountCodesNumberCodeId implements Serializable {
 
     public DiscountCodesNumberCodeId(int codeId, int numberCode, int userId) {
         this.codeId = codeId;
-        this.numberCode = numberCode;
         this.userId = userId;
     }
 
@@ -33,14 +29,6 @@ public class DiscountCodesNumberCodeId implements Serializable {
 
     public void setCodeId(int codeId) {
         this.codeId = codeId;
-    }
-
-    public int getNumberCode() {
-        return numberCode;
-    }
-
-    public void setNumberCode(int numberCode) {
-        this.numberCode = numberCode;
     }
 
     public int getUserId() {
@@ -53,14 +41,16 @@ public class DiscountCodesNumberCodeId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         DiscountCodesNumberCodeId that = (DiscountCodesNumberCodeId) o;
-        return codeId == that.codeId && numberCode == that.numberCode && userId == that.userId;
+        return codeId == that.codeId && userId == that.userId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(codeId, numberCode, userId);
+        return Objects.hash(codeId, userId);
     }
-} 
+}
