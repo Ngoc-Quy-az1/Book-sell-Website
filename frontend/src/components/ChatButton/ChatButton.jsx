@@ -23,9 +23,11 @@ const ChatButton = () => {
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     
-    const bottom = document.getElementById("bottom")
-    if (bottom!=null) bottom.scrollIntoView()
-  },[messages])
+    const bottom = document.getElementById("bottom");
+    if (bottom) {
+      bottom.scrollIntoView({ behavior: "smooth" }); // Added smooth scrolling
+    }
+  }, [messages])
   
   useEffect(() => {
     fetchMessages(chatMode);
@@ -155,9 +157,10 @@ const ChatButton = () => {
       {isOpen && (
         <div
           className={`fixed ${isFullscreen
-              ? "top-16 left-0 w-full h-[calc(80%)]"
-              : "bottom-16 right-5 w-80 lg:w-[30rem] lg:bottom-10 lg:right-10 lg:rounded-lg"
-            } bg-white p-4 rounded-lg shadow-lg border transition-all flex flex-col`}
+              ? "top-16 left-0 w-full h-[calc(90%)]"
+              : "bottom-[4.5rem] right-5 w-[20rem] lg:w-[24rem] lg:bottom-[4.5rem] lg:right-5 h-[70vh]" // Minimized mode: 50vh
+            } bg-white p-4 rounded-lg shadow-none border transition-all flex flex-col justify-between`}
+          style={{ overflow: "hidden" }}
         >
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
@@ -199,7 +202,7 @@ const ChatButton = () => {
           </div>
 
           {/* Tin nhắn */}
-          <div className="flex-1 overflow-y-auto border p-3 rounded mb-4 max-h-[60vh] space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 lg:max-h-[70vh]">
+          <div className={`flex-1 overflow-y-auto border p-3 rounded mb-4 ${isFullscreen ? "max-h-[80vh]" : "max-h-[50vh]"} space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200`}>
             {messages.map((msg) => (
               <div
                 key={msg.messageId}
@@ -227,9 +230,7 @@ const ChatButton = () => {
                 </div>
               </div>
             ))}
-            <div style={{ float:"left", clear: "both" }}
-                 id="bottom"> 
-            </div>
+            <div id="bottom" style={{ clear: "both" }}></div> {/* Ensure proper scroll target */}
           </div>
 
           {/* Nhập tin nhắn */}
@@ -239,12 +240,13 @@ const ChatButton = () => {
               className="flex-1 border rounded p-2 mr-2 text-black lg:mr-4 lg:rounded-lg"
               placeholder="Nhập tin nhắn..."
               value={newMessage}
-              onKeyDown={(e) => {if (e.key==='Enter') handleSendMessage()}}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage() }}
               onChange={(e) => setNewMessage(e.target.value)}
             />
             <button
               onClick={handleSendMessage}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 lg:px-6 lg:py-3 lg:rounded-lg"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 lg:px-6 lg:py-2 lg:rounded-lg flex-shrink-0"
+              style={{ height: "100%" }} // Ensure button matches input height
             >
               Gửi
             </button>
