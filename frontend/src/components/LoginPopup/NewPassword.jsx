@@ -20,8 +20,8 @@ const NewPassword = ( {handleNewPassword, handleNotice } ) => {
   //Đẩy DL lên Database   
   const updateUser = (user) => {
     let res = "";
-    
-    fetch("http://localhost:8090/api/admin/updateUsers/" + user.id,{method:"PUT",
+    const apiUrl = import.meta.env.VITE_API_URL;
+    fetch(`${apiUrl}/api/admin/updateUsers/` + user.id,{method:"PUT",
       headers: {      
       'Content-Type': 'application/json'
       },

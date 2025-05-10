@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import OTPInput from "react-otp-input";
 const Verify = ( {handleVerify, mail, handleNotice, forgotPassword} ) => {
   const [code, setCode] = useState('','','','','','');
+  const apiUrl = import.meta.env.VITE_API_URL;
   const selectUrl = () => {
-    if (forgotPassword) return "http://localhost:8090/api/users/confirmcode";
-    else return "http://localhost:8090/api/users/verify?mail="+mail.mail;
+    if (forgotPassword) return `${apiUrl}/api/users/confirmcode`;
+    else return `${apiUrl}/api/users/verify?mail=`+mail.mail;
   }
 
   const check = () => {

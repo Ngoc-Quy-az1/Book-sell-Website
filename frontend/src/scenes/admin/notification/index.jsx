@@ -10,13 +10,14 @@ export default Notification = ({notification, handleNotification}) => {
   const colors = tokens(theme.palette.mode);
   const [isOpen, setIsOpen] = useState(false);
   const [notice, setNotice] = useState([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     handleNotice();
   },[])
   const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
   const handleNotice = () => {
-    fetch("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
+    fetch(`${apiUrl}/api/notification/show?userId=`+Cookies.get("userId"), {
         headers:config
     })
     .then(Response => {
@@ -33,7 +34,7 @@ export default Notification = ({notification, handleNotification}) => {
     )
   }
   const markAsRead = (msgId) => {
-    fetch("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{
+    fetch(`${apiUrl}/api/notification/mark-read?notificationId=`+msgId,{
         method: "PUT", headers:config
     }) .then((response) => {
       if (!response.ok) console.error("Fail");

@@ -21,6 +21,7 @@ const BookDetail = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [totalComment, setTotalComment] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
+  const apiUrl = import.meta.env.VITE_API_URL;
   let ratingArray = [0,0,0,0,0,0];
   useEffect( () => {
     console.log(userId);
@@ -29,7 +30,7 @@ const BookDetail = () => {
   }, []);
   let {id} = useParams();
   const getBookDetail = ()=>{
-    axios.get(`http://localhost:8090/api/books/${id}`,{
+    axios.get(`${apiUrl}/api/books/${id}`,{
       headers:auth,
     })
     .then((response) => {
@@ -41,7 +42,7 @@ const BookDetail = () => {
   }
 
   const getAllReview = async (bookId)=>{
-    axios.get(`http://localhost:8090/api/users/review/${bookId}`,{
+    axios.get(`${apiUrl}/api/users/review/${bookId}`,{
       headers:auth,
     })
     .then((response) => {
@@ -71,7 +72,7 @@ const BookDetail = () => {
       "rating": rating,
       "comment": comment
     };
-    await axios.post(`http://localhost:8090/api/users/review/${userId}/${bookId}`,
+    await axios.post(`${apiUrl}/api/users/review/${userId}/${bookId}`,
       data,
       {
         headers: auth,

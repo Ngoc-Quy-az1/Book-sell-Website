@@ -15,7 +15,8 @@ const ForgotPassword = ( {handleForgotPassword, handleNotice, handleVerify, hand
   };
     //Đẩy DL lên Database 
   const changePassword = (form) =>{
-    fetch("http://localhost:8090/api/users/forgotpassword",{
+    const apiUrl = import.meta.env.VITE_API_URL;
+    fetch(`${apiUrl}/api/users/forgotpassword`,{
       method:"POST",      
       headers: {      
         'Content-Type': 'application/json'
