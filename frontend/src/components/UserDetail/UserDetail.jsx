@@ -27,9 +27,9 @@ const UserDetail = () => {
   const [customCoins, setCustomCoins] = useState(""); // State for custom coin input
 
   const rechargeOptions = [
-    { amount: 100000, coins: 109 },
-    { amount: 200000, coins: 222 },
-    { amount: 500000, coins: 599 },
+    { amount: 100000, coins: 100, voucher: "Giảm 10%" },
+    { amount: 200000, coins: 200, voucher: "Giảm 20%" },
+    { amount: 500000, coins: 500, voucher: "Giảm 30%" },
   ];
 
   useEffect(() => {
@@ -270,6 +270,7 @@ const UserDetail = () => {
                 >
                   <p className="text-lg font-bold">{option.amount.toLocaleString()} VND</p>
                   <p className="text-sm text-gray-600">Nhận {option.coins} Xu</p>
+                  <p className="text-xs text-gray-500">Nhận 1 Voucher {option.voucher}</p>
                 </button>
               ))}
             </div>

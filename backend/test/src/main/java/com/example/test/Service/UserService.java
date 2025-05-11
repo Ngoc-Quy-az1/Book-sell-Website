@@ -318,7 +318,9 @@ public class UserService {
 
             // Hằng số tỉ lệ
             final int VND_TO_XU_RATE = 1000;
-            final int DISCOUNT_THRESHOLD_VND = 100000;
+            final int DISCOUNT_THRESHOLD_VND_1 = 100000;
+            final int DISCOUNT_THRESHOLD_VND_2 = 200000;
+            final int DISCOUNT_THRESHOLD_VND_5 = 500000;
 
             // Chuyển VND sang xu
             double xuAmount = transactionAmount.doubleValue() / VND_TO_XU_RATE;
@@ -337,9 +339,73 @@ public class UserService {
             notificationRepository.save(notification);
 
             // Tặng mã giảm giá nếu đủ điều kiện
-            if (transactionAmount.doubleValue() >= DISCOUNT_THRESHOLD_VND) {
+            if (transactionAmount.doubleValue() >= DISCOUNT_THRESHOLD_VND_5) {
                 try {
                     DiscountCode discount = discountCodeRepository.findByCode("OFFC5Y2R")
+                            .orElseThrow(() -> new RuntimeException("Discount code OFFC5Y2R not found"));
+
+                    DiscountCodesNumberCode existingDiscount = discountCodesNumberCodeRepository
+                            .findByUserIdAndDiscountCode_CodeId(user.getID(), discount.getCodeId());
+
+                    if (existingDiscount != null) {
+                        existingDiscount.setNumberCode(existingDiscount.getNumberCode() + 1);
+                        discountCodesNumberCodeRepository.save(existingDiscount);
+                    } else {
+                        DiscountCodesNumberCode userDiscount = new DiscountCodesNumberCode();
+                        userDiscount.setCodeId(discount.getCodeId());
+                        userDiscount.setUserId(user.getID());
+                        userDiscount.setNumberCode(1);
+                        userDiscount.setDiscountCode(discount);
+                        userDiscount.setUser(user);
+                        discountCodesNumberCodeRepository.save(userDiscount);
+                    }
+
+                    Notification discountNotification = new Notification();
+                    discountNotification.setUser(user);
+                    discountNotification.setMessage(
+                            String.format("Chúc mừng! Bạn đã nhận được mã giảm giá %d%% (%s) cho đơn hàng tiếp theo.",
+                                    discount.getDiscountPercentage(), discount.getCode()));
+                    discountNotification.setCreatedAt(new Date());
+                    discountNotification.setRead(false);
+                    notificationRepository.save(discountNotification);
+                } catch (Exception e) {
+                    logger.severe("Lỗi khi tặng mã giảm giá: " + e.getMessage());
+                }
+            } else if(transactionAmount.doubleValue() >= DISCOUNT_THRESHOLD_VND_2) {
+                try {
+                    DiscountCode discount = discountCodeRepository.findByCode("DEAL7TQK")
+                            .orElseThrow(() -> new RuntimeException("Discount code OFFC5Y2R not found"));
+
+                    DiscountCodesNumberCode existingDiscount = discountCodesNumberCodeRepository
+                            .findByUserIdAndDiscountCode_CodeId(user.getID(), discount.getCodeId());
+
+                    if (existingDiscount != null) {
+                        existingDiscount.setNumberCode(existingDiscount.getNumberCode() + 1);
+                        discountCodesNumberCodeRepository.save(existingDiscount);
+                    } else {
+                        DiscountCodesNumberCode userDiscount = new DiscountCodesNumberCode();
+                        userDiscount.setCodeId(discount.getCodeId());
+                        userDiscount.setUserId(user.getID());
+                        userDiscount.setNumberCode(1);
+                        userDiscount.setDiscountCode(discount);
+                        userDiscount.setUser(user);
+                        discountCodesNumberCodeRepository.save(userDiscount);
+                    }
+
+                    Notification discountNotification = new Notification();
+                    discountNotification.setUser(user);
+                    discountNotification.setMessage(
+                            String.format("Chúc mừng! Bạn đã nhận được mã giảm giá %d%% (%s) cho đơn hàng tiếp theo.",
+                                    discount.getDiscountPercentage(), discount.getCode()));
+                    discountNotification.setCreatedAt(new Date());
+                    discountNotification.setRead(false);
+                    notificationRepository.save(discountNotification);
+                } catch (Exception e) {
+                    logger.severe("Lỗi khi tặng mã giảm giá: " + e.getMessage());
+                }
+            } else if(transactionAmount.doubleValue() >= DISCOUNT_THRESHOLD_VND_1) {
+                try {
+                    DiscountCode discount = discountCodeRepository.findByCode("SALE9X3G")
                             .orElseThrow(() -> new RuntimeException("Discount code OFFC5Y2R not found"));
 
                     DiscountCodesNumberCode existingDiscount = discountCodesNumberCodeRepository
