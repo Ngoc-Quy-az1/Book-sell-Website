@@ -7,14 +7,15 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import Notice from "../../../components/Notice";
+import Cookies from "js.cookie";
 import {
   GridRowModes,
   DataGrid,
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
-import Cookies from "js.cookie"
-const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+import "../../../CheckToken";
+import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 // Function chính
@@ -36,42 +37,34 @@ const ManageUsers = () => {
   useEffect(() => {
     getUser();
   },[])
-  const getUser = () =>{
-    fetch(`${apiUrl}/api/admin/users`,{
-      method:"GET",
-      headers: config
+  const getUser = async () =>{
+    await axios.get(`${apiUrl}/api/admin/users`,{
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      getListUsers(Response);
+      getListUsers(Response.data);
     })
   }
 
   //Xóa người dùng
   const handleDeleteUsers = (selectedRows) => {
-    selectedRows.forEach(UserId => {
-    fetch(`${apiUrl}/api/admin/deleteUsers/` + UserId,{
-      method:"DELETE",
-      headers: config
+    selectedRows.forEach(async UserId => {
+    await axios.delete(`${apiUrl}/api/admin/deleteUsers/` + UserId,{
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })});
   }
 
   //Update người dùng
-  const updateUsers = (user) => {
+  const updateUsers = async (user) => {
     let res = "";
     
-    fetch(`${apiUrl}/api/admin/updateUsers/` + user.id,{method:"PUT",
+    await axios.put(`${apiUrl}/api/admin/updateUsers/` + user.id,user,{
       headers: {      
-      'Content-Type': 'application/json',
       'Authorization': `Bearer ${Cookies.get('authToken')}`
       },
-      body:JSON.stringify(user)
-    }).then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
+    })
+    .then((response) => {
+      if (response.data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
       else {res="Account Successfully Updated"; setError(false)}
       setMessage(res); 
       showNotice();
@@ -205,7 +198,7 @@ const ManageUsers = () => {
       field: "actions",
       type: 'actions',
       headerName: 'actions',
-      width: 100,
+      width: 80,
       cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -254,7 +247,9 @@ const ManageUsers = () => {
       <Box
         m="40px 0 0 0"
         height="75vh"
+        width="100%"
         sx={{
+          overflowX: 'auto',
           "& .MuiDataGrid-root": {
             border: "none",
             zIndex: 0

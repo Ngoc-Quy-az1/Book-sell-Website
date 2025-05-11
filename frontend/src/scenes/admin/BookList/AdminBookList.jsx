@@ -7,6 +7,7 @@ import BookPopup from "./BookPopup";
 import { useTheme } from "@emotion/react";
 import { tokens } from "../../../theme";
 import Cookies from "js.cookie";
+import "../../../CheckToken";
 
 //Lấy Cookie 
 console.log(Cookies.get('authToken'))
@@ -157,100 +158,106 @@ const AdminBookList = () => {
   }
   
   return (
-    <div className="flex p-5 pl-10">
-      {/* Sidebar */}
-      <div className="w-1/4 pr-5 border-r">
-        {/*Search*/}
-        <Box
-          display="flex"
-          backgroundColor={colors.primary[900]}
-          borderRadius="3px"
-        >
-          <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" onChange={handleSearch}/>
-          <IconButton type="button" sx={{ p: 1 }}>
-            <SearchIcon />
-          </IconButton>
-        </Box>
-        {/*Thể loại */}
-        <h2 className="font-bold text-lg mb-2 text-green-600">Phi hư cấu</h2>
-        {categories.slice(0,10).map((category) => (
-          <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
-            <span>{category}</span>
-          </div>
-        ))}
-        <h2 className="font-bold text-lg mb-2 text-green-600">Hư cấu </h2>
-        {categories.slice(10,21).map((category) => (
-          <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
-            <span>{category}</span>
-          </div>
-        ))}
-        <h2 className="font-bold text-lg mb-2 text-green-600">Thiếu nhi</h2>
-        {categories.slice(21,25).map((category) => (
-          <div key={category} className="flex items-center mb-2">
-            <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
-            <span>{category}</span>
-          </div>
-        ))}
-        {/*Slider giá */}
-        <h2 className="font-bold text-lg mb-2 text-green-600">Giá</h2>
-          <Slider
-            getAriaLabel={(index) => (index === 0 ? 'Minimum price' : 'Maximum price')}
-            value={tValue}
-            onChange={handleSliderChange}
-            onChangeCommitted={handleSliderCommit}
-            min={0}
-            step={10000}
-            max={1000000}
-            color={colors.primary[100]}
-            valueLabelDisplay="auto"
-          />
-        <div className="flex items-center mb-2 justify-center"> Giá tối thiểu: 
-          <input value={value[0]} onChange={handleMinSlider} style={{marginLeft:"5px", backgroundColor:colors.primary[900]}}></input>
-        </div>
-        <div className="flex items-center mb-2 justify-center"> Giá tối đa:  
-          <input value={value[1]} onChange={handleMaxSlider} style={{marginLeft:"10px", backgroundColor:colors.primary[900]}}></input>
-        </div>
+  <div className="flex flex-col lg:flex-row p-5 lg:pl-10">
+  {/* Sidebar */}
+  <div className="w-full lg:w-1/4 pr-0 lg:pr-5 border-r mb-5 lg:mb-0">
+    {/*Search*/}
+    <Box
+      display="flex"
+      backgroundColor={colors.primary[900]}
+      borderRadius="3px"
+    >
+      <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" onChange={handleSearch}/>
+      <IconButton type="button" sx={{ p: 1 }}>
+        <SearchIcon />
+      </IconButton>
+    </Box>
+    
+    {/*Thể loại*/}
+    <h2 className="font-bold text-lg mb-2 text-green-600">Phi hư cấu</h2>
+    {categories.slice(0,10).map((category) => (
+      <div key={category} className="flex items-center mb-2">
+        <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
+        <span>{category}</span>
       </div>
+    ))}
+    <h2 className="font-bold text-lg mb-2 text-green-600">Hư cấu </h2>
+    {categories.slice(10,21).map((category) => (
+      <div key={category} className="flex items-center mb-2">
+        <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
+        <span>{category}</span>
+      </div>
+    ))}
+    <h2 className="font-bold text-lg mb-2 text-green-600">Thiếu nhi</h2>
+    {categories.slice(21,25).map((category) => (
+      <div key={category} className="flex items-center mb-2">
+        <input type="checkbox" className="mr-2" id={category} onChange={handleCategories}/>
+        <span>{category}</span>
+      </div>
+    ))}
 
-      <BookPopup book={selectedBook} bookPopup={bookPopup} handleBookPopup={handleBookPopup} handleDelete={handleDelete}/>
-    {/* Main Content */}
-    <div className="w-3/4">
-      {/* Sorting Options */}
-      <div className="flex gap-2 mb-4">
-        <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tasc")} style={(selectedSortRule=="Tasc") ? {backgroundColor : colors.greenAccent[600]} : {}}>A - Z</button>
-        <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tdesc")} style={(selectedSortRule=="Tdesc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Z - A</button>
-        <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("asc")} style={(selectedSortRule=="asc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
-        <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("desc")} style={(selectedSortRule=="desc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
-      </div>
-      
-      {/* Book List */}
-      <div className={`grid grid-cols-4 gap-4`}>
-        <BookList/>
-        
-      </div>
-      <div className="flex justify-center mt-6 space-x-2">
-          <button disabled={page === 1} onClick={() => {handlePage(page-1)}} className="px-2">
-            &#x2039;
-          </button>
-          {/*Page*/}
-          {pageIndex().map((index) => (
-            <button
-              key={index}
-              onClick = { ()=>{handlePage(index)}}
-              className={`px-3 py-1 rounded-full border`}
-              style={index==page ? {backgroundColor:colors.greenAccent[700]}: {}}
-            >
-              {index}
-            </button>
-          ))}
-          <button disabled={page === maxPage} onClick={() => {handlePage(page+1)}} className="px-2">
-            &#x203A;
-          </button>
-        </div>
-      </div>
+    {/*Slider giá*/}
+    <h2 className="font-bold text-lg mb-2 text-green-600">Giá</h2>
+    <Slider
+      getAriaLabel={(index) => (index === 0 ? 'Minimum price' : 'Maximum price')}
+      value={tValue}
+      onChange={handleSliderChange}
+      onChangeCommitted={handleSliderCommit}
+      min={0}
+      step={10000}
+      max={1000000}
+      color={colors.primary[100]}
+      valueLabelDisplay="auto"
+    />
+    <div className="flex items-center mb-2 justify-center"> 
+      Giá tối thiểu: 
+      <input value={value[0]} onChange={handleMinSlider} className="ml-2 p-1 w-full rounded bg-gray-100" />
     </div>
+    <div className="flex items-center mb-2 justify-center"> 
+      Giá tối đa:  
+      <input value={value[1]} onChange={handleMaxSlider} className="ml-2 p-1 w-full rounded bg-gray-100" />
+    </div>
+  </div>
+
+  <BookPopup book={selectedBook} bookPopup={bookPopup} handleBookPopup={handleBookPopup} handleDelete={handleDelete}/>
+
+  {/* Main Content */}
+  <div className="w-full lg:w-3/4">
+    {/* Sorting Options */}
+    <div className="flex flex-wrap gap-2 mb-4">
+      <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tasc")} style={(selectedSortRule=="Tasc") ? {backgroundColor : colors.greenAccent[600]} : {}}>A - Z</button>
+      <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("Tdesc")} style={(selectedSortRule=="Tdesc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Z - A</button>
+      <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("asc")} style={(selectedSortRule=="asc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá thấp - cao</button>
+      <button className="px-3 py-1 border rounded" onClick={() => handleSortRule("desc")} style={(selectedSortRule=="desc") ? {backgroundColor : colors.greenAccent[600]} : {}}>Giá cao - thấp</button>
+    </div>
+
+    {/* Book List */}
+    <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4`}>
+      <BookList />
+    </div>
+
+    {/* Pagination */}
+    <div className="flex justify-center mt-6 space-x-2">
+      <button disabled={page === 1} onClick={() => {handlePage(page-1)}} className="px-2">
+        &#x2039;
+      </button>
+      {pageIndex().map((index) => (
+        <button
+          key={index}
+          onClick={() => {handlePage(index)}}
+          className={`px-3 py-1 rounded-full border`}
+          style={index == page ? {backgroundColor: colors.greenAccent[700]} : {}}
+        >
+          {index}
+        </button>
+      ))}
+      <button disabled={page === maxPage} onClick={() => {handlePage(page+1)}} className="px-2">
+        &#x203A;
+      </button>
+    </div>
+  </div>
+</div>
+
   );
 };
 

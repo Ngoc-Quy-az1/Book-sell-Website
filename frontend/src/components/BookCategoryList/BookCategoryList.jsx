@@ -5,10 +5,9 @@ import { FaBars } from 'react-icons/fa';
 import { Slider, Box, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
+import "../../CheckToken";
 
 const userId = Cookies.get('userId');
-const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-console.log(Cookies.get('authToken'))
 const BookCategoryList = () => {
   const [sortRule, setSortRule] = useState("Tasc");
   const [selectedCategory, setSelectedCategory] = useState([]);
@@ -107,7 +106,7 @@ const BookCategoryList = () => {
     await axios.post(`${apiUrl}/api/cart/add`,
       data,
       {
-        headers:auth,
+        headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
       }
     )
     .then((response) => {

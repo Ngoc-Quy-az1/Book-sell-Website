@@ -6,6 +6,8 @@ import Notice from "../notice/index";
 import Header from "../../../components/Admin/Header";
 import { useState } from "react";
 import Cookies from "js.cookie"
+import "../../../CheckToken";
+import axios from "axios";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -24,21 +26,21 @@ const Form = () => {
   };
 
   //Đẩy DL lên Database 
-  const createUser = (form) =>{
-    fetch(`${apiUrl}/api/admin/createUsers`,{
-      method:"POST",      
+  const createUser = async (form) =>{
+    await axios.post(`${apiUrl}/api/admin/createUsers`,form,{
       headers: {      
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${Cookies.get('authToken')}`
         },
-      body:JSON.stringify(form)
-    }) .then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {setMessage(data); setError(true)}// this will be a string
-      else {setMessage("Account Successfully Created"); setError(false)}
+    })
+    .then(() => {
+      setMessage("Account Successfully Created"); setError(false);
       showNotice();
-    });
+    })
+    .catch((response) => {
+      console.log(response.response.data)
+      setMessage(response.response.data); setError(true)
+      showNotice();
+    })
   }
   return (
     <Box m="20px">

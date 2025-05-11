@@ -4,6 +4,7 @@ import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import axios from "axios";
 import Cookies from "js.cookie"
+import "../../CheckToken.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const socket = new SockJS(`${apiUrl}/ws`);
@@ -17,7 +18,6 @@ const ChatButton = () => {
   const userToken = localStorage.getItem("token");
   const toggleChat = () => setIsOpen(!isOpen);
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
   // ✅ Gọi API lấy lịch sử tin nhắn
   const [messages, setMessages] = useState([]);
@@ -69,7 +69,7 @@ const ChatButton = () => {
           `${apiUrl}/api/chat/admin/history`,
           { userId: userId },
           {
-            headers: config,
+            headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
           }
         );
       } else if (chatMode == "group1" || chatMode == "group2") {
@@ -81,7 +81,7 @@ const ChatButton = () => {
           `${apiUrl}/api/chat/community/history`,
           { groupId: groupId },
           {
-            headers: config,
+            headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
           }
         );
       }

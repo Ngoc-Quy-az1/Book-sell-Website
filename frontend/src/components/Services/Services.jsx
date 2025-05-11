@@ -11,6 +11,7 @@ const Services = ({ handleOrderPopup }) => {
     }, []);
   const getBookLink = async ()=>{
     const apiUrl = import.meta.env.VITE_API_URL;
+    console.log(apiUrl);
     await axios.get(`${apiUrl}/api/books/GetAllPaginated?page=3&size=3`)
     .then((response) => {
         setBooklist(response.data.content);

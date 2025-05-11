@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Checkbox } from '@headlessui/react'
-import Book1 from "../BookCategoryList/ExampleImage/book1.jpg";
-import Book2 from "../BookCategoryList/ExampleImage/book2.jpg";
-import Book3 from "../BookCategoryList/ExampleImage/book3.png";
 import Footer from "../Footer/Footer";
 import Cookies from 'js.cookie';
 import axios from 'axios';
+import "../../CheckToken";
 
 export default function Cart() {
-  const auth = {'Authorization': `Bearer ${Cookies.get('authToken')}`,}
   const userId = Cookies.get('userId');
   const apiUrl = import.meta.env.VITE_API_URL;
   const [showVoucher, setShowVoucher] = useState(false);
@@ -29,7 +25,7 @@ export default function Cart() {
 
   const getCartList = async(userId)=>{
     await axios.get(`${apiUrl}/api/cart/user/${userId}`,{
-      headers:auth,
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         setCartlist(response.data);
@@ -49,7 +45,7 @@ export default function Cart() {
     await axios.put(`${apiUrl}/api/cart/update-quantity`,
     data,
     {   
-      headers: auth,
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         console.log(response.data);
@@ -63,7 +59,7 @@ export default function Cart() {
     await axios.delete(`${apiUrl}/api/cart/${userId}/${bookId}`,
     //data,
     {   
-      headers: auth,
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         console.log(response.data);
@@ -75,7 +71,7 @@ export default function Cart() {
 
   const getVoucherList = async(userId)=>{
     await axios.get(`${apiUrl}/api/users/${userId}/discount-codes`,{
-      headers:auth,
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         setVoucherList(response.data);
@@ -150,7 +146,7 @@ export default function Cart() {
     await axios.post(`${apiUrl}/api/order/create`,
       data,
       {
-        headers: auth,
+        headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
       }
     ).then((response)=>{
       console.log(response.data);

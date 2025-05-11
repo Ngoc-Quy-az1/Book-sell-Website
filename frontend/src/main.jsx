@@ -15,6 +15,7 @@ import Calendar from "./scenes/admin/calendar/calendar";
 import BookCategoryList from "./components/BookCategoryList/BookCategoryList.jsx";
 import AdminBookList from "./scenes/admin/BookList/AdminBookList.jsx";
 import Books from "./components/BooksSlider/Books.jsx";
+import "./CheckToken.jsx";
 
 // Import css files
 import "slick-carousel/slick/slick.css";

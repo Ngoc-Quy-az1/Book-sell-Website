@@ -6,6 +6,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Admin/Header";
 import { ColorModeContext,tokens } from "../../../theme";
 import Cookies from "js.cookie"
+import "../../../CheckToken";
+import axios from "axios";
 
 const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, handleDelete }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -26,32 +28,30 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
     handleDelete(book);
   }
   //Đẩy DL lên Database 
-  const updateBook = (form) =>{
+  const updateBook = async (form) =>{
 
-    fetch(`${apiUrl}/api/books/update/`+form.id,{
-      method:"PUT",      
+    await axios.put(`${apiUrl}/api/books/update/`+form.id,form,{
       headers: {      
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${Cookies.get('authToken')}`
-        },
-      body:JSON.stringify(form)
-    }) .then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {setMessage(data); setError(true)}// this will be a string
+        }
+    })
+    .then((response) => {
+      if (response.data!=undefined) {setMessage(response.data); setError(true)}// this will be a string
       else {setMessage("Updated!"); setError(false)}
       showNotice();
     });
   }
-  const deleteBook = (id) =>{
-    fetch(`${apiUrl}/api/books/delete/`+id,{
-      method:"DELETE",      
+  const deleteBook = async (id) =>{
+    await axios.delete(`${apiUrl}/api/books/delete/`+id,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-    }) .then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {setMessage(data); setError(true)}// this will be a string
-      else {setMessage("Book Removed!"); setError(false)}
+    })
+    .then((response) => {
+      setMessage("Updated!"); setError(false)
+      showNotice();
+    })
+    .catch((response) => {
+      setMessage(response.response.data);
+      setError(true);
       showNotice();
     });
   }
