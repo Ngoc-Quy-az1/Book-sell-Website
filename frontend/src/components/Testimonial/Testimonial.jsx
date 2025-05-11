@@ -5,7 +5,7 @@ const testimonialData = [
   {
     id: 1,
     name: "Nguyen Long",
-    text: "Great web site with so much feature",
+    text: "Great web site with so much feature. Really love this site.",
     img: "https://static.tuoitre.vn/tto/i/s626/2016/01/05/e06f1709.jpg",
   },
   {

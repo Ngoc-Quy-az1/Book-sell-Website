@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from "react";
 import axios from 'axios';
 import Cookies from "js.cookie";
+import { FaBars } from 'react-icons/fa';
 import { Slider, Box, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
@@ -24,6 +25,7 @@ const BookCategoryList = () => {
   useEffect( () => {
     getBookCategory();
   }, [])
+ const [sidebarOpen, setSidebarOpen] = useState(false);
   useEffect( () => {
     getBookList();
     console.log(value,page, selectedCategory, search, sortRule)
@@ -124,23 +126,24 @@ const BookCategoryList = () => {
   //Danh sách sau khi lọc 
     const BookList = () => {
       return bookList.map((book) => (
-        <div id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm">
+        <div id={book.id} key={book.title} className="border p-3 rounded-lg shadow-sm flex flex-col justify-between h-full">
           <div>
           <Link to={"../book-detail/"+book.id}>
             <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
-            <h3 className="font-bold text-sm mb-1">{book.title}</h3>
+            <h3 className="font-bold text-sm mb-1 line-clamp-2  overflow-hidden">{book.title}</h3>
             <div className="text-green-600 font-semibold">{book.price_discounted.toLocaleString()}đ</div>
             <div className="text-gray-400 line-through text-sm">{book.price_original.toLocaleString()}đ</div>
             
           </Link>
           </div>
-          <div className="flex items-center justify-center">
-          <button onClick={()=>{
-            addToCart(userId, book.id);
-          }} 
-          className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600 mt-4">
-            Add to cart
-          </button></div>
+          <div className="mt-auto flex items-center justify-centerr">
+            <button onClick={()=>{
+              addToCart(userId, book.id);
+            }} 
+            className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 mt-4 w-full">
+              Add to cart
+            </button>
+          </div> 
         </div>
       ))
     }
@@ -151,11 +154,26 @@ const BookCategoryList = () => {
     }
     
   return (
-    <div className="flex p-5 pl-40 pr-40">
+    <div className="flex flex-col md:flex-row p-5">
+      {/* Menu button */}
+      <div className="flex md:hidden justify-between items-center mb-4">
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-2xl">
+          <FaBars />
+        </button>
+      </div>
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-40" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <div className="w-1/4 pr-5 border-r">
-        {/*Search*/}
-        <Box
+      <div  className={`fixed top-0 left-0 h-full w-3/4 max-w-xs bg-white p-5 z-50 transform transition-transform duration-300 ease-in-out
+       
+       ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-1/4 md:max-w-none md:block md:border-r`}>
+         <div className="flex justify-end mb-4 md:hidden">
+          <button onClick={() => setSidebarOpen(false)} className="text-red-500 text-lg font-bold">✕</button>
+        </div>
+         <Box
           display="flex"
           borderRadius="3px"
         >
@@ -199,7 +217,7 @@ const BookCategoryList = () => {
             valueLabelDisplay="auto"
           />
         <div className="flex items-center mb-2 justify-center"> Giá tối thiểu: 
-          <input value={value[0]} className="search-input" onChange={handleMinSlider} style={{marginLeft:"5px", }}></input>
+          <input value={value[0]} className="search-input ml-2" onChange={handleMinSlider} style={{marginLeft:"5px", }}></input>
         </div>
         <div className="flex items-center mb-2 justify-center"> Giá tối đa:  
           <input value={value[1]} className="search-input" onChange={handleMaxSlider} style={{marginLeft:"10px", }}></input>

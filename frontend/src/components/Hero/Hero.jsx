@@ -2,12 +2,14 @@ import React from "react";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import Vector from "../../assets/website/blue-pattern.png";
+import { Link } from "react-router-dom";
 
 
 const Hero = ({ handleOrderPopup }) => {
   const [imageId, setImageId] = useState('https://bizweb.dktcdn.net/100/363/455/products/an-dam-khong-nuoc-mat.jpg?v=1695032717550');
   const [title, setTitle] = useState("ĂN DẶM KHÔNG NƯỚC Mắt");
   const [booklist, setBooklist] = useState([]);
+  const [bookId, setBookId] = useState('3');
   const [description, setDescription] = useState(
     "Thông tin chi tiết sản phẩm đang được cập nhật"
   );
@@ -39,14 +41,14 @@ const Hero = ({ handleOrderPopup }) => {
   return (
       <div
         className="min-h-[550px] sm:min-h-[650px] bg-gray-100 flex justify-center items-center dark:bg-gray-950 dark:text-white duration-200"
-        style={bgImage}
+     
       >
         <div className="container pb-8 sm:pb-0">
           <div className="grid grid-cols-1 sm:grid-cols-2">
             {/* text content section */}
             <div
               data-aos-once="true"
-              className="flex flex-col justify-center gap-4 pt-12 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
+              className="flex flex-col justify-center gap-8 pt-12 sm:pt-0 text-center sm:text-left order-2 sm:order-1"
             >
               <h1
                 data-aos="zoom-out"
@@ -55,7 +57,7 @@ const Hero = ({ handleOrderPopup }) => {
                 className="text-5xl sm:text-6xl lg:text-7xl font-bold"
               >
                 {title}
-                <p className="bg-clip-text text-transparent bg-gradient-to-b from-primary text-right text-sm to-secondary">
+                <p className="bg-clip-text text-transparent bg-gradient-to-b from-primary text-right text-xl to-secondary">
                   {author}
                 </p>{" "}
               </h1>
@@ -63,18 +65,20 @@ const Hero = ({ handleOrderPopup }) => {
                 data-aos="slide-up"
                 data-aos-duration="500"
                 data-aos-delay="100"
-                className="text-sm line-clamp-3"
+                className="text-xl line-clamp-3"
                 
               >
                 {description}
               </p>
               <div>
-                <button
-                  onClick={handleOrderPopup}
-                  className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
-                >
-                  Order Now
-                </button>
+                 <Link to={"../book-detail/"+bookId}>
+                  <button
+                    onClick={handleOrderPopup}
+                    className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-4 rounded-full"
+                  >
+                    Order Now
+                  </button>
+                </Link>
               </div>
             </div>
             {/* Image section */}
@@ -101,6 +105,7 @@ const Hero = ({ handleOrderPopup }) => {
                       setTitle(book.title);
                       setDescription(book.description);
                       setAuthor(book.author);
+                      setBookId(book.id);
                     }}
                     alt="biryani img"
                     className="max-w-[100px] h-[100px] object-contain inline-block hover:scale-110 duration-200"

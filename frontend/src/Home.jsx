@@ -14,7 +14,7 @@ const Home = () => {
       <Services />
       <Books/>
       <Banner />
-      <AppStore />
+      {/* <AppStore /> */}
       <Testimonial />
     </div>
   );
