@@ -96,6 +96,49 @@ const UserDetail = () => {
     setSelectedRecharge({ amount, coins: customCoins });
   };
 
+  const handleRechargeConfirmation = async () => {
+    if (!selectedRecharge) {
+      alert("Vui lòng chọn gói nạp hoặc nhập số xu hợp lệ!");
+      return;
+    }
+
+    const userId = Cookies.get('userId');
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/users/update/balance/${userId}`,
+        {
+          amount: selectedRecharge.amount,
+          coins: selectedRecharge.coins,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get('authToken')}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert(`✅ ${response.data.message}`);
+        setUser((prevUser) => ({
+          ...prevUser,
+          balance: response.data.newBalance,
+        }));
+        setSelectedRecharge(null); // Reset selected recharge
+        setShowRechargeOptions(false); // Hide recharge options
+      } else {
+        alert(`⚠️ ${response.data.message}`);
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(`⚠️ ${error.response.data.message}`);
+      } else {
+        alert("⚠️ Không thể thực hiện giao dịch. Vui lòng thử lại sau.");
+      }
+    }
+  };
+
   if (!user) {
     return <div className="text-center mt-10">Đang tải thông tin người dùng...</div>;
   }
@@ -260,10 +303,10 @@ const UserDetail = () => {
                   Bạn sẽ nhận được {selectedRecharge.coins} Xu
                 </p>
                 <button
-                  onClick={() => alert("Đang kiểm tra giao dịch...")}
+                  onClick={handleRechargeConfirmation}
                   className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm sm:text-base"
                 >
-                  Check Giao Dịch
+                  Xác Nhận Giao Dịch
                 </button>
               </div>
             )}

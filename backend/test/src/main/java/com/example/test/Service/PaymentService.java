@@ -98,11 +98,11 @@ public class PaymentService {
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
 
                 if (order.getStatus() != PurchaseStatus.Pending) {
-                    throw new RuntimeException("Đơn hàng" + orderId + " không ở trạng thái chờ thanh toán");
+                    throw new RuntimeException("Đơn hàng " + orderId + " không ở trạng thái chờ thanh toán");
                 }
 
                 if (!order.getUserId().equals(userId)) {
-                    throw new RuntimeException("Đơn hàng" + orderId + " không thuộc về người dùng này");
+                    throw new RuntimeException("Đơn hàng " + orderId + " không thuộc về người dùng này");
                 }
 
                 totalAmount = totalAmount.add(order.getTotalAmount());

@@ -83,7 +83,6 @@ public class SecurityConfig {
                     "/api/users/logout/**",
                     "/api/users/review/**",
                     "/api/cart/**",
-                    // "/api/chat/admin/**",
                     "/api/users/{userId}/discount-codes",
                     "/api/users/logout/{userId}"
                 ).authenticated()
