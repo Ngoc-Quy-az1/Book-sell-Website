@@ -23,6 +23,7 @@ import "slick-carousel/slick/slick-theme.css";
 import BookDetail from "./components/BookDetail/BookDetail.jsx";
 import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
 import UserDetail from "./components/UserDetail/UserDetail.jsx";
+import { Car } from "lucide-react";
 
 
 const router = createBrowserRouter([{
