@@ -4,10 +4,18 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import com.example.test.Entity.RefreshToken;
+import com.example.test.Repository.Token.RefreshTokenRepository;
+import com.example.test.Repository.UserRepo.UserRepository;
+
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +24,17 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private static final long JWT_EXPIRATION = 86400000; 
+    private static final long JWT_EXPIRATION = 1000 * 60 * 15;
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -30,14 +48,15 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         String role = userDetails.getAuthorities().stream()
-            .map(auth -> auth.getAuthority())
-            .findFirst()
-            .orElse("ROLE_USER");
+                .map(auth -> auth.getAuthority())
+                .findFirst()
+                .orElse("ROLE_USER");
         claims.put("role", role);
         return generateToken(claims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -78,7 +97,50 @@ public class JwtService {
             Claims claims = extractAllClaims(token);
             return claims.get("role", String.class);
         } catch (Exception e) {
-            return "ROLE_USER"; 
+            return "ROLE_USER";
         }
     }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        String role = userDetails.getAuthorities().stream()
+                .map(auth -> auth.getAuthority())
+                .findFirst()
+                .orElse("ROLE_USER");
+        claims.put("role", role);
+
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(token);
+        refreshToken.setUserId(userRepository.findIdByUsername(userDetails.getUsername()));
+        refreshToken.setExpiryDate(LocalDateTime.now().plusDays(7));
+        refreshToken.setStatus(true);
+
+        refreshTokenRepository.save(refreshToken);
+
+        return token;
+    }
+
+    // Kiểm tra tính hợp lệ của Refresh Token
+    public boolean isRefreshTokenValid(String refreshToken, int userId) {
+        final String tokenUsername = extractUsername(refreshToken);
+        String username = userRepository.findNameByUserID(userId);
+        return (tokenUsername.equals(username)) && !isTokenExpired(refreshToken);
+    }
+
+    public String regenerateAccessToken(String refreshToken) {
+        Claims claims = extractAllClaims(refreshToken);
+        String username = claims.getSubject();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        return generateToken(userDetails);
+    }
+
 }
