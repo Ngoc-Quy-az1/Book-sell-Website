@@ -10,7 +10,7 @@ export default function OrderItem({
   onClickFunc,
   status,
 }) {
-  const auth = { Authorization: `Bearer ${Cookies.get("Cookies.get('authToken')")}` };
+  const auth = { Authorization: `Bearer ${Cookies.get("authToken")}` };
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [bookList, setBooklist] = useState([]);
 
