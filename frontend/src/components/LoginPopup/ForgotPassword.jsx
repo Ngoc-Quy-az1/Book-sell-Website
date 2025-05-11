@@ -3,6 +3,11 @@ import { Formik } from "formik";
 import { TextField } from "@mui/material";
 import { FaEye,FaEyeSlash } from "react-icons/fa6";
 import * as yup from "yup";
+
+const slotProp={
+                input:{className:"input"},
+                inputLabel:{className:"input-label"}
+              }
 const ForgotPassword = ( {handleForgotPassword, handleNotice, handleVerify, handleMail } ) => {
   
     const [showPassword1, setShowPassword1] = useState(false);
@@ -57,7 +62,7 @@ const ForgotPassword = ( {handleForgotPassword, handleNotice, handleVerify, hand
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <TextField id="infor" 
             type="text" 
-            className="input" 
+            slotProps={slotProp} 
             onBlur={handleBlur}
             label="Email or Phone Number"
             onChange={handleChange}
@@ -68,12 +73,13 @@ const ForgotPassword = ( {handleForgotPassword, handleNotice, handleVerify, hand
           <div className="relative">
             <TextField id="password" 
               type={showPassword1 ? "text" : "password"} 
-              className="input"
+              slotProps={slotProp}
               onBlur={handleBlur} 
               label="New Password"
               onChange={handleChange}
               value={values.password}
               name="password"
+              sx={{width:"100%"}}
               error={!!touched.password && !!errors.password}
               helperText={touched.password && errors.password}/>
             {showPassword1 ? (
@@ -91,12 +97,13 @@ const ForgotPassword = ( {handleForgotPassword, handleNotice, handleVerify, hand
           <div className="relative">
           <TextField id="password2" 
             type={showPassword2 ? "text" : "password"} 
-            className="input"
+            slotProps={slotProp}
             onBlur={handleBlur}
             label="Confirm Password"
             onChange={handleChange}
             value={values.password2}
             name="password2"
+            sx={{width:"100%"}}
             error={!!touched.password2 && !!errors.password2}
             helperText={touched.password2 && errors.password2}/>
           {showPassword2 ? (

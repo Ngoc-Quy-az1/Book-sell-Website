@@ -48,6 +48,7 @@ public class SecurityConfig {
                     "/api/users/verify",               // API xác thực email
                     "api/users/forgotpassword",        // API quên mật khẩu
                     "api/users/confirmcode"  ,          // API xác thực mã quên mật khẩu
+                    "/api/users/refresh-token",
 
                     "/api/books/search/**",            // API tìm kiếm sách
                     "/api/books/categories/**",        // API danh mục sách

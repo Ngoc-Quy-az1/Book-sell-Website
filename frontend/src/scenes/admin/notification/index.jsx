@@ -5,6 +5,7 @@ import { Box, useTheme } from "@mui/material";
 import axios from "axios";
 import Cookies from "js.cookie"
 import { tokens } from "../../../theme";
+import "../../../CheckToken";
 export default Notification = ({notification, handleNotification}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -14,17 +15,14 @@ export default Notification = ({notification, handleNotification}) => {
   useEffect(() => {
     handleNotice();
   },[])
-  const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
 
-  const handleNotice = () => {
-    fetch(`${apiUrl}/api/notification/show?userId=`+Cookies.get("userId"), {
-        headers:config
+  const handleNotice = async () => {
+    await axios.get(`${apiUrl}/api/notification/show?userId=`+Cookies.get("userId"), {
+        headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      setNotice(Response);
+      console.log(Response.data)
+      setNotice(Response.data);
     })
   }
   const clearAll = () => {
@@ -33,17 +31,15 @@ export default Notification = ({notification, handleNotification}) => {
     }
     )
   }
-  const markAsRead = (msgId) => {
-    fetch(`${apiUrl}/api/notification/mark-read?notificationId=`+msgId,{
-        method: "PUT", headers:config
-    }) .then((response) => {
-      if (!response.ok) console.error("Fail");
+  const markAsRead = async (msgId) => {
+    await axios.put(`${apiUrl}/api/notification/mark-read?notificationId=`+msgId,{},{
+       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
+    }) .then(() => {
       const id = notice.indexOf(notice.find((e) => e.id == msgId));
       let t = notice;
       t[id].is_read = true;
       console.log(t);
       setNotice(t);
-    }).then((data) => {
     });
   }
   return (

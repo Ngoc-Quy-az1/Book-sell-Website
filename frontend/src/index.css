@@ -74,10 +74,10 @@ html {
     @apply w-full border border-gray-300 dark:border-gray-500 dark:bg-gray-800 px-2 py-1 mb-4;
   }
   .input{
-    @apply w-full border rounded-full border-gray-300 dark:border-gray-500 dark:bg-gray-800 ;
+    @apply w-full border rounded-full border-gray-300 dark:border-gray-500 dark:bg-gray-800 dark:text-white;
   }
   .input-label {
-    @apply  block pb-1 ;
+    @apply  dark:text-white;
   }
 }
 @layer components {

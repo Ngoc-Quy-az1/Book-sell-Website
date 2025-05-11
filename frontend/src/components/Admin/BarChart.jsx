@@ -2,7 +2,8 @@ import { useTheme } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { tokens } from "../../theme";
 import { useState, useEffect } from "react";
-import Cookies from "js.cookie"
+import Cookies from "js.cookie";
+import axios from "axios";
 
 const BarChart = () => {
   const theme = useTheme();
@@ -12,15 +13,12 @@ const BarChart = () => {
   useEffect(() => {
     getData()
   }, [])
-  const config = {"Authorization": `Bearer ${Cookies.get('authToken')}`};
-  const getData = () => {
-    return fetch(`${apiUrl}/api/admin/revenue/by-category`,{
-      headers:config
-    }) 
-    .then((response) => {
-      return response.json();
-    }).then((data) => {    
-      setData(data.slice(0,5));
+  const getData = async () => {
+    return await axios.get(`${apiUrl}/api/admin/revenue/by-category`,{
+      headers:{"Authorization": `Bearer ${Cookies.get('authToken')}`}
+    })
+    .then(response => {    
+      setData(response.data.slice(0,5));
     });
   }
   return (

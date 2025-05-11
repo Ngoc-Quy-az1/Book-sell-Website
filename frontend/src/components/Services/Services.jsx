@@ -2,7 +2,7 @@ import React from "react";
 import { FaStar } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import axios from 'axios';
-
+import { Link } from "react-router-dom";
 
 const Services = ({ handleOrderPopup }) => {
   const [booklist, setBooklist] = useState([]);
@@ -11,6 +11,7 @@ const Services = ({ handleOrderPopup }) => {
     }, []);
   const getBookLink = async ()=>{
     const apiUrl = import.meta.env.VITE_API_URL;
+    console.log(apiUrl);
     await axios.get(`${apiUrl}/api/books/GetAllPaginated?page=3&size=3`)
     .then((response) => {
         setBooklist(response.data.content);
@@ -59,12 +60,14 @@ const Services = ({ handleOrderPopup }) => {
                   <p className="text-gray-500 group-hover:text-white duration-high text-sm line-clamp-2">
                     {book.description}
                   </p>
-                  <button
-                    className="bg-primary hover:scale-105 duration-300 text-white py-1 px-4 rounded-full mt-4 group-hover:bg-white group-hover:text-primary"
-                    onClick={handleOrderPopup}
-                  >
-                    Order Now
-                  </button>
+                  <Link to={"../book-detail/"+book.id}>
+                    <button
+                      className="bg-primary hover:scale-105 duration-300 text-white py-1 px-4 rounded-full mt-4 group-hover:bg-white group-hover:text-primary"
+                      onClick={handleOrderPopup}
+                    >
+                      Order Now
+                    </button>
+                   </Link>
                 </div>
               </div>
             ))}
