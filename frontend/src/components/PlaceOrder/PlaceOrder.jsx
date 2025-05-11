@@ -40,31 +40,86 @@ export default function PlaceOrder() {
   const checkPayment = async (method) => {
     const apiUrl = import.meta.env.VITE_API_URL;
     try {
-      const response = await axios.get(
-        `${apiUrl}/api/payment/check-status/${orderList[selectedOrder].orderId}`,
-        { headers: auth }
-      );
-      if (response.data.status === "Completed") {
-        setPaymentResult((prev) => ({
-          ...prev,
-          [method]: "✅ Payment successful! Thank you.",
-        }));
-        // Update order status to "Completed"
-        const updatedOrderList = orderList.map((order, index) =>
-          index === selectedOrder ? { ...order, status: "Completed" } : order
+      let response;
+      if (method === "qr") {
+        response = await axios.post(
+          `${apiUrl}/api/payment/check-transfer`,
+          {
+            orderIds: [orderList[selectedOrder].orderId],
+            userId: userId,
+          },
+          { headers: auth }
         );
-        setOrderList(updatedOrderList);
+
+        if (response.data.success) {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: "✅ Payment successful! Thank you.",
+          }));
+          // Update order status to "Completed"
+          const updatedOrderList = orderList.map((order, index) =>
+            index === selectedOrder ? { ...order, status: "Completed" } : order
+          );
+          setOrderList(updatedOrderList);
+        } else if (response.data.message.startsWith("Lỗi xử lý")) {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: "⚠️ Payment has already been completed.",
+          }));
+        } else if (response.data.message.startsWith("Số tiền chuyển khoản")) {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: "⚠️ Insufficient transfer amount.",
+          }));
+        }
+      } else {
+        response = await axios.get(
+          `${apiUrl}/api/payment/check-status/${orderList[selectedOrder].orderId}`,
+          { headers: auth }
+        );
+
+        if (response.data.status === "Completed") {
+          setPaymentResult((prev) => ({
+            ...prev,
+            [method]: "✅ Payment successful! Thank you.",
+          }));
+          // Update order status to "Completed"
+          const updatedOrderList = orderList.map((order, index) =>
+            index === selectedOrder ? { ...order, status: "Completed" } : order
+          );
+          setOrderList(updatedOrderList);
+        } else {
+          setPaymentResult((prev) => ({
+            ...prev,
+            [method]: "⚠️ Order not yet paid.",
+          }));
+        }
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400 && method === "qr") {
+        const errorMessage = error.response.data.message;
+        if (errorMessage.startsWith("Lỗi xử lý")) {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: "⚠️ Payment has already been completed.",
+          }));
+        } else if (errorMessage.startsWith("Số tiền chuyển khoản")) {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: "⚠️ Insufficient transfer amount.",
+          }));
+        } else {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: "⚠️ Unable to process payment.",
+          }));
+        }
       } else {
         setPaymentResult((prev) => ({
           ...prev,
-          [method]: "⚠️ Order not yet paid.",
+          [method]: "⚠️ Unable to check payment status.",
         }));
       }
-    } catch (error) {
-      setPaymentResult((prev) => ({
-        ...prev,
-        [method]: "⚠️ Unable to check payment status.",
-      }));
     }
   };
 
@@ -143,7 +198,7 @@ export default function PlaceOrder() {
           : <div>
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 lg:mb-6">
                 <h3 className="text-lg lg:text-2xl font-bold text-gray-800">
-                  Order #{orderList[selectedOrder].orderId}
+                  Order {orderList[selectedOrder].orderId}
                 </h3>
                 <span className={`text-base lg:text-lg font-semibold ${orderList[selectedOrder].status === 'Pending' ? 'text-red-500' : 'text-green-500'}`}>
                   {orderList[selectedOrder].status}
