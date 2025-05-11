@@ -54,22 +54,22 @@ export default function PlaceOrder() {
         if (response.data.success) {
           setPaymentResult((prev) => ({
             ...prev,
-            qr: "✅ Payment successful! Thank you.",
+            qr: `✅ ${response.data.message}`,
           }));
           // Update order status to "Completed"
           const updatedOrderList = orderList.map((order, index) =>
             index === selectedOrder ? { ...order, status: "Completed" } : order
           );
           setOrderList(updatedOrderList);
-        } else if (response.data.message.startsWith("Lỗi xử lý")) {
+        } else if (response.data.message.startsWith("Lỗi xử lý thanh toán")) {
           setPaymentResult((prev) => ({
             ...prev,
-            qr: "⚠️ Payment has already been completed.",
+            qr: `⚠️ ${response.data.message}`,
           }));
         } else if (response.data.message.startsWith("Số tiền chuyển khoản")) {
           setPaymentResult((prev) => ({
             ...prev,
-            qr: "⚠️ Insufficient transfer amount.",
+            qr: `⚠️ ${response.data.message}`,
           }));
         }
       } else {
@@ -98,15 +98,15 @@ export default function PlaceOrder() {
     } catch (error) {
       if (error.response && error.response.status === 400 && method === "qr") {
         const errorMessage = error.response.data.message;
-        if (errorMessage.startsWith("Lỗi xử lý")) {
+        if (errorMessage.startsWith("Lỗi xử lý thanh toán")) {
           setPaymentResult((prev) => ({
             ...prev,
-            qr: "⚠️ Payment has already been completed.",
+            qr: `⚠️ ${errorMessage}`,
           }));
         } else if (errorMessage.startsWith("Số tiền chuyển khoản")) {
           setPaymentResult((prev) => ({
             ...prev,
-            qr: "⚠️ Insufficient transfer amount.",
+            qr: `⚠️ ${errorMessage}`,
           }));
         } else {
           setPaymentResult((prev) => ({
