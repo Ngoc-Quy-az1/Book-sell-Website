@@ -120,7 +120,7 @@ const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
           className="text-center text-sm my-3 hover:text-blue-700 cursor-pointer text-shadow"
           onClick={handleSignUp}
         >
-          No Account? Signup here
+          Signup here
         </p>
       </div>
   );

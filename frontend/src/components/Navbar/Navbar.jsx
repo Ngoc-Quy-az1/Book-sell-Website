@@ -28,6 +28,7 @@ const DropdownLinks = [
   },
 ];
 
+  const apiUrl = import.meta.env.VITE_API_URL;
 const getColorFromName = (name) => {
   const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
   const hash = Array.from(name || "").reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -52,14 +53,14 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
 
   const fetchData = async () => {
     if (Cookies.get("authToken")!=null)
-    await axios.get("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
+    await axios.get(`${apiUrl}/api/users/user-detail/${Cookies.get("userId")}`,
   {
     headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     }).then(response => {
       setUser(response.data);
     });
     if (Cookies.get("authToken")!=null)
-    await axios.get("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
+    await axios.get(`${apiUrl}/api/notification/show?userId=${Cookies.get("userId")}`, {
         headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
@@ -74,7 +75,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     )
   }
   const markAsRead = (msgId) => {
-    axios.put("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{},{
+    axios.put(`${apiUrl}/api/notification/mark-read?notificationId=${msgId}`,{},{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     }) .then(() => {
       const id = notice.indexOf(notice.find((e) => e.id == msgId));
@@ -84,7 +85,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     });
   }
   const handleSignOut = async () =>{
-    axios.post("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),
+    axios.post(`${apiUrl}/api/users/logout/${Cookies.get("userId")}`,
     {token: `${Cookies.get('authToken')}`},
     {
       headers: {      

@@ -24,7 +24,7 @@ export default function Cart() {
     }, []);
 
   const getCartList = async(userId)=>{
-    await axios.get(`http://localhost:8090/api/cart/user/${userId}`,{
+    await axios.get(`${apiUrl}/api/cart/user/${userId}`,{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
@@ -70,7 +70,7 @@ export default function Cart() {
   }
 
   const getVoucherList = async(userId)=>{
-    await axios.get(`http://localhost:8090/api/users/${userId}/discount-codes`,{
+    await axios.get(`${apiUrl}/api/users/${userId}/discount-codes`,{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {

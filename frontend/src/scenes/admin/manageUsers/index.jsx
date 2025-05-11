@@ -198,7 +198,7 @@ const ManageUsers = () => {
       field: "actions",
       type: 'actions',
       headerName: 'actions',
-      width: 100,
+      width: 80,
       cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -247,7 +247,9 @@ const ManageUsers = () => {
       <Box
         m="40px 0 0 0"
         height="75vh"
+        width="100%"
         sx={{
+          overflowX: 'auto',
           "& .MuiDataGrid-root": {
             border: "none",
             zIndex: 0

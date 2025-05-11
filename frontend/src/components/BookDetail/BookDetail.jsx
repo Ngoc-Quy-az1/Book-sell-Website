@@ -30,8 +30,7 @@ const BookDetail = () => {
   }, []);
   let {id} = useParams();
   const getBookDetail = ()=>{
-    axios.get(`http://localhost:8090/api/books/${id}`,{
-      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
+    axios.get(`${apiUrl}/api/books/${id}`,{
     })
     .then((response) => {
       setBookDetail(response.data);
@@ -42,7 +41,7 @@ const BookDetail = () => {
   }
 
   const getAllReview = async (bookId)=>{
-    axios.get(`http://localhost:8090/api/users/review/${bookId}`,{
+    axios.get(`${apiUrl}/api/users/review/${bookId}`,{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {

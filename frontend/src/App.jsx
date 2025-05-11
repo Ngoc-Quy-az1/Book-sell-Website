@@ -31,7 +31,7 @@ const App = () => {
   }, []);
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
-      {/*Cookies.remove("Cookies.get('authToken')")}
+      {/*Cookies.remove('authToken')}
       {Cookies.remove("userId")*/}
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       {/* <BookCategoryList/> */}

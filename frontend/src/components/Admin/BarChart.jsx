@@ -14,7 +14,7 @@ const BarChart = () => {
     getData()
   }, [])
   const getData = async () => {
-    return await axios.get("http://localhost:8090/api/admin/revenue/by-category",{
+    return await axios.get(`${apiUrl}/api/admin/revenue/by-category`,{
       headers:{"Authorization": `Bearer ${Cookies.get('authToken')}`}
     })
     .then(response => {    
