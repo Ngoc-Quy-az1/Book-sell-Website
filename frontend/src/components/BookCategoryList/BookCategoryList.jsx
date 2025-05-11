@@ -2,6 +2,7 @@ import React from "react";
 import { useState,useEffect } from "react";
 import axios from 'axios';
 import Cookies from "js.cookie";
+import { FaBars } from 'react-icons/fa';
 import { Slider } from "@mui/material";
 
 const config = {'Authorization': `Bearer ${Cookies.get('authToken')}`}
@@ -16,6 +17,8 @@ const BookCategoryList = () => {
   useEffect( () => {
     getBookCategory();
   }, [])
+
+const [sidebarOpen, setSidebarOpen] = useState(false);
 
 //Thể loại đang được chọn 
   const [selectedCategory, setSelectedCategory] = useState([]);
@@ -107,9 +110,25 @@ const BookCategoryList = () => {
     });
   }
   return (
-    <div className="flex p-5 pl-40 pr-40">
+    <div className="flex flex-col md:flex-row p-5">
+      {/* Menu button */}
+      <div className="flex md:hidden justify-between items-center mb-4">
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-2xl">
+          <FaBars />
+        </button>
+      </div>
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-40" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <div className="w-1/4 pr-5 border-r">
+      <div  className={`fixed top-0 left-0 h-full w-3/4 max-w-xs bg-white p-5 z-50 transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-1/4 md:max-w-none md:block md:border-r`}>
+         <div className="flex justify-end mb-4 md:hidden">
+          <button onClick={() => setSidebarOpen(false)} className="text-red-500 text-lg font-bold">✕</button>
+        </div>
+        
         <h2 className="font-bold text-lg mb-2 text-green-600">Phi hư cấu</h2>
         {categories.slice(0,10).map((category) => (
           <div key={category} className="flex items-center mb-2">
@@ -144,7 +163,7 @@ const BookCategoryList = () => {
             valueLabelDisplay="auto"
           />
         <div className="flex items-center mb-2 justify-center"> Giá tối thiểu: 
-          <input value={value[0]} className="search-input" onChange={handleMinSlider} style={{marginLeft:"5px", }}></input>
+          <input value={value[0]} className="search-input ml-2" onChange={handleMinSlider} style={{marginLeft:"5px", }}></input>
         </div>
         <div className="flex items-center mb-2 justify-center"> Giá tối đa:  
           <input value={value[1]} className="search-input" onChange={handleMaxSlider} style={{marginLeft:"10px", }}></input>
@@ -163,11 +182,11 @@ const BookCategoryList = () => {
         </div> */}
         
         {/* Book List */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {bookList.map((book) => (
             <div key={book.title} className="border p-3 rounded-lg shadow-sm">
               <img src={book.image} alt={book.title} className="w-full h-100 object-cover mb-2" />
-              <h1 className="font-bold text-xl mb-1">{book.title}</h1>
+              <h1 className="font-bold text-base md:text-xl mb-1">{book.title}</h1>
 
               <div className="text-xl font-bold text-green-600">
                 {(parseFloat(book.price_discounted)).toLocaleString(undefined,
@@ -187,7 +206,7 @@ const BookCategoryList = () => {
               <button onClick={()=>{
                   addToCart(userId, book.id);
                 }} 
-                className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600 mt-4">
+                className="bg-red-500 text-white px-2 py-2 rounded-xl hover:bg-red-600 mt-4 w-full">
                   Add to cart
                 </button>
             </div>

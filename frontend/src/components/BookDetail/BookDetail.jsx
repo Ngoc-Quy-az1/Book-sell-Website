@@ -107,30 +107,30 @@ const BookDetail = () => {
     return <div>Loading...</div>;
   }
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center">
+    <div className="min-h-screen bg-white flex flex-col items-center px-4 sm:px-6">
       {isFullScreen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center">
           <button
             onClick={() => setIsFullScreen(false)}
-            className="absolute top-8 right-8 text-white text-4xl font-bold hover:text-gray-300"
+            className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white text-3xl sm:text-4xl font-bold hover:text-gray-300"
           >
             &times;
           </button>
           <img
             src={bookDetail.image}
             alt="Full Screen Bach"
-            className="max-h-full object-contain"
+            className="max-h-full max-w-full object-contain"
           />
         </div>
       )}
-      <div className="max-w-5xl w-full flex flex-col md:flex-row gap-[150px]">
+      <div className="max-w-6xl w-full flex flex-col md:flex-row gap-10 mt-8">
         {/* Book Cover */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 flex justify-center md:justify-start">
           {
             <img
               src={bookDetail.image}
               alt="Bach"
-              className="w-80 rounded shadow-lg cursor-pointer"
+              className="w-60 sm:w-72 md:w-80 rounded shadow-lg cursor-pointer"
               onClick={() => setIsFullScreen(true)}
             />
           }
@@ -180,12 +180,12 @@ const BookDetail = () => {
       </div>
 
       {/* Description and Details */}
-      <div className="max-w-7xl w-full mt-12 flex flex-col md:flex-row gap-56">
+      <div className="max-w-6xl w-full mt-12 flex flex-col md:flex-row gap-12">
         {/* Description */}
         <div className="flex-1">
-          <h2 className="text-3xl font-semibold text-green-700 mb-4">Description</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-green-700 mb-4">Description</h2>
           {
-            <p className="mb-4 text-xl">
+            <p className="mb-4 text-base sm:text-xl">
               {bookDetail.description}
             </p>
           }
@@ -194,60 +194,49 @@ const BookDetail = () => {
 
         {/* Detailed Info */}
         <div className="w-full md:w-1/3">
-          <h2 className="text-3xl font-semibold text-green-700 mb-4">Detail</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-green-700 mb-4">Detail</h2>
           <div className="border rounded-lg p-4 space-y-2 text-sm text-gray-700">
-            <div className="flex text-xl justify-between">
-              <span>Author</span>
-              <span className="font-semibold">{bookDetail.author}</span>
+            {[
+            ["Author", bookDetail.author],
+            ["Translator", bookDetail.translator],
+            ["Publisher", bookDetail.publisher],
+            ["Dimensions", bookDetail.dimensions],
+            ["Pages", bookDetail.pages],
+            ["Publish year", bookDetail.created_at]
+          ].map(([label, value]) => (
+            <div className="flex text-base sm:text-xl justify-between" key={label}>
+              <span>{label}</span>
+              <span className="font-semibold">{value}</span>
             </div>
-            <div className="flex text-xl justify-between">
-              <span>Translator</span>
-              <span className="font-semibold">{bookDetail.translator}</span>
-            </div>
-            <div className="flex text-xl justify-between">
-              <span>Publisher</span>
-              <span className="font-semibold">{bookDetail.publisher}</span>
-            </div>
-            <div className="flex text-xl justify-between">
-              <span>Dimensions</span>
-              <span className="font-semibold">{bookDetail.dimensions}</span>
-            </div>
-            <div className="flex text-xl justify-between">
-              <span>Pages</span>
-              <span className="font-semibold">{bookDetail.pages}</span>
-            </div>
-            <div className="flex text-xl justify-between">
-              <span>Publish year</span>
-              <span className="font-semibold">{bookDetail.created_at}</span>
-            </div>
+          ))}
           </div>
         </div>
       </div>
 
       {/* Ratings Section */}
-      <div className="max-w-7xl w-full mt-12 p-6 bg-gray-50 rounded-lg">
+      <div className="max-w-6xl w-full mt-12 p-6 bg-gray-50 rounded-lg">
         <h2 className="text-lg font-bold text-gray-800 mb-4">User rating</h2>
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
-            <div className="text-5xl font-bold">{caculateAverageRating().toFixed(1)}<span className="text-2xl">/5</span></div>
+        <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col items-center lg:items-start">
+            <div className="text-4xl sm:text-5xl font-bold">{caculateAverageRating().toFixed(1)}<span className="text-2xl">/5</span></div>
             <p className="text-sm text-gray-500 mt-1">({listComment.length} rating)</p>
           </div>
 
-          <div className="w-full md:w-2/3 space-y-2">
+          <div className="w-full lg:w-2/3 space-y-2 overflow-x-auto">
             {[5, 4, 3, 2, 1].map((star) => (
               <div key={star} className="flex items-center">
                 <span className="w-12 text-sm text-gray-700">{star} star</span>
-                <div className=" h-2 bg-gray-200 rounded mx-6 w-[30rem]">
+                <div className="h-2 bg-gray-200 rounded mx-4 w-full">
                   <div className={`h-full bg-yellow-400 rounded `} style={{ width: `${caculatePercentStar(star)}%` }}/>
                 </div>
-                <span className="text-sm text-gray-600">{caculatePercentStar(star).toFixed(0)}%</span>
+                <span className="text-sm text-gray-600 w-10 text-right">{caculatePercentStar(star).toFixed(0)}%</span>
               </div>
             ))}
           </div>
 
           {/* Add comment button  */}
           <div className="mt-6 md:mt-0">
-            <button onClick={() => setIsOpenDialog(true)} variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+            <button onClick={() => setIsOpenDialog(true)} variant="outline" className="mt-4 lg:mt-0 border border-red-600 text-red-600 hover:bg-red-50 px-4 py-2 rounded-md flex items-center">
               <Pen size={16} className="mr-2" /> Viết đánh giá
             </button>
           </div>
@@ -307,12 +296,12 @@ const BookDetail = () => {
         {/* User Comments */}
         <div className="h-[400px] mt-10 overflow-y-auto border rounded-lg p-4 space-y-6 shadow-inner">
         <div className="max-w-5xl w-full mt-12">
-          <h2 className="text-3xl font-semibold text-green-700 mb-4">User feedback</h2>
+          <h2 className="text-2xl font-semibold text-green-700 mb-4">User feedback</h2>
           <div className="space-y-6">
             {listComment.map((comment)=>
                <div className="border p-4 rounded-lg shadow-sm">
                <div className="flex items-center justify-between mb-2">
-                 <span className="font-semibold text-xl">{comment.user_name}</span>
+                 <span className="font-semibold text-lg sm:text-xl">{comment.user_name}</span>
                  <span className="text-sm text-gray-500">{Moment(comment.created_at).format('YYYY-MM-D, HH:mm')}</span>
                </div>
                <div className="flex items-center text-yellow-500 mb-2">

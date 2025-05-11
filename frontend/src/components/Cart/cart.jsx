@@ -161,12 +161,12 @@ export default function Cart() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Navbar/>
-      <h1 className="text-3xl font-bold text-green-600 mb-6 ml-36 mt-8">Your cart</h1>
+      <h1 className="text-3xl font-bold text-green-600 mb-6 mt-8 px-4 md:px-10 lg:ml-36">Your cart</h1>
       {(cartlist.length>0)
-      ? <div className="flex flex-col content-evenly px-36 ">
+      ? <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-36 ">
         
             {cartlist.map((cartItem, index) => (
-              <div key={index} className="flex flex-row content-evenly items-center border-b pb-4">
+              <div key={index} className="flex flex-col sm:flex-row sm:items-center border-b pb-4 space-y-4 sm:space-y-0 sm:space-x-4">
                 <input checked={cartItem.isPurchased} 
                   onChange={()=>{
                     var newValue= !cartItem.isPurchased
@@ -180,7 +180,7 @@ export default function Cart() {
                   type="checkbox" className="mr-4 w-5 h-5" />
 
                 {/* Book image */}
-                <img src={cartItem.book.image} alt={cartItem.book.title} className="w-20 h-28 object-cover mr-4" />
+                <img src={cartItem.book.image} alt={cartItem.book.title} className="w-20 h-28 object-cover" />
 
                 {/* Book information */}
                 <div className="flex-1">
@@ -194,12 +194,12 @@ export default function Cart() {
                     Delete
                   </button>
                 </div>
-                <div className="text-green-600 font-semibold w-24 text-right">
+                <div className="text-green-600 font-semibold w-full sm:w-24 text-right">
                   {(cartItem.book.price_discounted).toLocaleString('vi-VN')}₫
                 </div>
 
                 {/* Quantity */}
-                <div className="flex items-center ml-6">
+                <div className="flex items-center">
                   <div className="inline-flex items-center border border-gray-300 rounded-md overflow-hidden text-sm font-medium">
                     <button
                       onClick={()=>{
@@ -224,7 +224,7 @@ export default function Cart() {
                 </div>
 
                 {/* Book final price */}
-                <div className="text-green-600 font-semibold w-24 text-right ml-4">
+                <div className="text-green-600 font-semibold w-full sm:w-24 text-right">
                   {(cartItem.book.price_discounted*cartItem.quantity).toLocaleString('vi-VN')}₫
                 </div>
               </div>
@@ -244,7 +244,7 @@ export default function Cart() {
 
                   {/* Drop down */}
                   {showVoucher && (
-                    <div className="flex flex-col absolute left-3 mt-2 w-64 bg-white shadow-lg border rounded-lg p-4 z-10">
+                    <div className="flex flex-col absolute left-0 mt-2 w-64 bg-white shadow-lg border rounded-lg p-4 z-10">
                       
                       {/* <input
                         type="text"
@@ -291,18 +291,18 @@ export default function Cart() {
                 </div>
             </div>
             {/* Total cart price */}
-            <div className="flex flex-row justify-end">
-              <div className="mt-6 text-right font-bold text-green-600 text-lg">
+            <div className="flex flex-col items-end space-y-2 mt-6">
+              <div className="text-right font-bold text-green-600 text-lg">
                 Total amount: {(totalAmount).toLocaleString('vi-VN')}₫ 
               </div>
-              <div className="mt-7 pl-3 text-right line-through text-green-600">
+              <div className="text-right line-through text-green-600">
                 {discountText}
               </div>
               <div className="mt-7 pl-3 text-right text-green-600">
                 {discountText2}
               </div>
             </div>
-            <button onClick={()=>{handlePlaceOrder(14);}} className="mt-4 ml-[1250px] w-96 justify-self-end bg-green-600 text-white py-2 rounded hover:bg-green-700">
+            <button onClick={()=>{handlePlaceOrder(14);}} className="mt-4 self-end w-full sm:w-auto sm:min-w-[200px] bg-green-600 text-white py-2 rounded hover:bg-green-700">
               Place Order
             </button>
           
