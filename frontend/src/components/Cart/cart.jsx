@@ -302,7 +302,7 @@ export default function Cart() {
                 {discountText2}
               </div>
             </div>
-            <button onClick={()=>{handlePlaceOrder(14);}} className="mt-4 self-end w-full sm:w-auto sm:min-w-[200px] bg-green-600 text-white py-2 rounded hover:bg-green-700">
+            <button onClick={()=>{handlePlaceOrder(userId);}} className="mt-4 self-end w-full sm:w-auto sm:min-w-[200px] bg-green-600 text-white py-2 rounded hover:bg-green-700">
               Place Order
             </button>
           
