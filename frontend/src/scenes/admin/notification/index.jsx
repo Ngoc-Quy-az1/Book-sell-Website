@@ -5,7 +5,7 @@ import { Box, useTheme } from "@mui/material";
 import axios from "axios";
 import Cookies from "js.cookie"
 import { tokens } from "../../../theme";
-import { CheckToken } from "../../../Service";
+import "../../../CheckToken";
 export default Notification = ({notification, handleNotification}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -15,15 +15,13 @@ export default Notification = ({notification, handleNotification}) => {
     handleNotice();
   },[])
 
-  const handleNotice = () => {
-    fetch("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
-        headers:{'Authorization': `Bearer ${CheckToken()}`}
+  const handleNotice = async () => {
+    await axios.get("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
+        headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      setNotice(Response);
+      console.log(Response.data)
+      setNotice(Response.data);
     })
   }
   const clearAll = () => {
@@ -32,17 +30,15 @@ export default Notification = ({notification, handleNotification}) => {
     }
     )
   }
-  const markAsRead = (msgId) => {
-    fetch("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{
-        method: "PUT", headers:{'Authorization': `Bearer ${CheckToken()}`}
-    }) .then((response) => {
-      if (!response.ok) console.error("Fail");
+  const markAsRead = async (msgId) => {
+    await axios.put("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{},{
+       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
+    }) .then(() => {
       const id = notice.indexOf(notice.find((e) => e.id == msgId));
       let t = notice;
       t[id].is_read = true;
       console.log(t);
       setNotice(t);
-    }).then((data) => {
     });
   }
   return (

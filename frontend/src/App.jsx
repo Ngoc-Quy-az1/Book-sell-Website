@@ -7,7 +7,8 @@ import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import { Outlet } from "react-router-dom";
 import ChatButton from "./components/ChatButton/ChatButton.jsx";
-import { CheckToken } from "./Service.jsx";
+import Cookies from "js.cookie";
+
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
 
@@ -28,16 +29,15 @@ const App = () => {
     });
     AOS.refresh();
   }, []);
-
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
-      {/*Cookies.remove("authToken")}
+      {/*Cookies.remove("Cookies.get('authToken')")}
       {Cookies.remove("userId")*/}
       <Navbar handleOrderPopup={handleOrderPopup} handleLoginPopup ={handleLoginPopup} />
       {/* <BookCategoryList/> */}
       {/* <Cart/> */}
         <Outlet/>
-      { (CheckToken())?
+      { (Cookies.get('authToken') && Cookies.get('userId')!=16)?
       <>
         <ChatButton />
       </>

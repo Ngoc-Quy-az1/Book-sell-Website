@@ -35,9 +35,10 @@ const Login = ({ handleSignUp, handleNotice, handleForgotPassword }) => {
     }).then((data) => {
       Cookies.set('authToken', data.token);
       Cookies.set('userId', data.user_id);
-      Cookies.set('refreshToken', data.token);
+      Cookies.set('refreshToken', data.refreshToken);      
       if (data.status) location.reload();
       else handleNotice(data.message, !data.status);
+
     });
   }
 

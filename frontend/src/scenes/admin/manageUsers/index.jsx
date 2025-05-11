@@ -7,13 +7,15 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import Notice from "../../../components/Notice";
+import Cookies from "js.cookie";
 import {
   GridRowModes,
   DataGrid,
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
-import { CheckToken } from "../../../Service";
+import "../../../CheckToken";
+import axios from "axios";
 
 // Function chính
 const ManageUsers = () => {
@@ -34,42 +36,34 @@ const ManageUsers = () => {
   useEffect(() => {
     getUser();
   },[])
-  const getUser = () =>{
-    fetch("http://localhost:8090/api/admin/users",{
-      method:"GET",
-      headers: {'Authorization': `Bearer ${CheckToken()}`}
+  const getUser = async () =>{
+    await axios.get("http://localhost:8090/api/admin/users",{
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      getListUsers(Response);
+      getListUsers(Response.data);
     })
   }
 
   //Xóa người dùng
   const handleDeleteUsers = (selectedRows) => {
-    selectedRows.forEach(UserId => {
-    fetch("http://localhost:8090/api/admin/deleteUsers/" + UserId,{
-      method:"DELETE",
-      headers: {'Authorization': `Bearer ${CheckToken()}`}
+    selectedRows.forEach(async UserId => {
+    await axios.delete("http://localhost:8090/api/admin/deleteUsers/" + UserId,{
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })});
   }
 
   //Update người dùng
-  const updateUsers = (user) => {
+  const updateUsers = async (user) => {
     let res = "";
     
-    fetch("http://localhost:8090/api/admin/updateUsers/" + user.id,{method:"PUT",
+    await axios.put("http://localhost:8090/api/admin/updateUsers/" + user.id,user,{
       headers: {      
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${CheckToken()}`
+      'Authorization': `Bearer ${Cookies.get('authToken')}`
       },
-      body:JSON.stringify(user)
-    }).then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
+    })
+    .then((response) => {
+      if (response.data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
       else {res="Account Successfully Updated"; setError(false)}
       setMessage(res); 
       showNotice();

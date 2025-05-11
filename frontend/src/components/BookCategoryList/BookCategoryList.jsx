@@ -4,7 +4,7 @@ import Cookies from "js.cookie";
 import { Slider, Box, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
-import { CheckToken } from "../../Service";
+import "../../CheckToken";
 
 const userId = Cookies.get('userId');
 const BookCategoryList = () => {
@@ -103,7 +103,7 @@ const BookCategoryList = () => {
     await axios.post('http://localhost:8090/api/cart/add',
       data,
       {
-        headers:{'Authorization': `Bearer ${CheckToken()}`},
+        headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
       }
     )
     .then((response) => {

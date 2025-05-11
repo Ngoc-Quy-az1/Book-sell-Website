@@ -6,7 +6,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Admin/Header";
 import { ColorModeContext,tokens } from "../../../theme";
 import Cookies from "js.cookie"
-import { CheckToken } from "../../../Service";
+import "../../../CheckToken";
+import axios from "axios";
 
 const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, handleDelete }) => {
   useEffect(() => {
@@ -28,31 +29,29 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
     handleDelete(book);
   }
   //Đẩy DL lên Database 
-  const updateBook = (form) =>{
-    fetch("http://localhost:8090/api/books/update/"+form.id,{
-      method:"PUT",      
+  const updateBook = async (form) =>{
+    await axios.put("http://localhost:8090/api/books/update/"+form.id,form,{
       headers: {      
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CheckToken()}`
-        },
-      body:JSON.stringify(form)
-    }) .then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {setMessage(data); setError(true)}// this will be a string
+        'Authorization': `Bearer ${Cookies.get('authToken')}`
+        }
+    })
+    .then((response) => {
+      if (response.data!=undefined) {setMessage(response.data); setError(true)}// this will be a string
       else {setMessage("Updated!"); setError(false)}
       showNotice();
     });
   }
-  const deleteBook = (id) =>{
-    fetch("http://localhost:8090/api/books/delete/"+id,{
-      method:"DELETE",      
-      headers: {'Authorization': `Bearer ${CheckToken()}`}
-    }) .then((response) => {
-      if (!response.ok) return response.text();
-    }).then((data) => {
-      if (data!=undefined) {setMessage(data); setError(true)}// this will be a string
-      else {setMessage("Book Removed!"); setError(false)}
+  const deleteBook = async (id) =>{
+    await axios.delete("http://localhost:8090/api/books/delete/"+id,{
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+    })
+    .then((response) => {
+      setMessage("Updated!"); setError(false)
+      showNotice();
+    })
+    .catch((response) => {
+      setMessage(response.response.data);
+      setError(true);
       showNotice();
     });
   }

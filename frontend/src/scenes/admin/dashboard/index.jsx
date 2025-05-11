@@ -9,97 +9,43 @@ import BarChart from "../../../components/Admin/BarChart";
 import StatBox from "../../../components/Admin/StatBox";
 import ProgressCircle from "../../../components/Admin/ProgressCircle";
 import { useState,useEffect } from "react";
-import { CheckToken } from "../../../Service";
+import "../../../CheckToken";
+import Cookies from "js.cookie";
+import axios from "axios";
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const auth = {'Authorization': `Bearer ${CheckToken()}`}
-  const [countUsers, getCountUsers] = useState();
+  const [countUsers, setCountUsers] = useState();
+  const [countBooks, setCountBooks] = useState();
+  const [countSales, setCountSales] = useState();
+  const [totalRevenue, setTotalRevenue] = useState();
   useEffect(() => {
-    handleCountUser();
+    fetchData();
   },[])
-  const handleCountUser = () =>{
-    
-    fetch("http://localhost:8090/api/admin/users/count",{
-      method:"GET",
-      headers:auth
+  const fetchData = async () =>{
+    await axios.get("http://localhost:8090/api/admin/users/count",{
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      getCountUsers(Response);
+      setCountUsers(Response.data);
     })
-  }  
-  const [countBooks, getCountBooks] = useState();
-  useEffect(() => {
-    handleCountBook();
-  })
-  const handleCountBook = () =>{
-    
-    fetch("http://localhost:8090/api/books/all",{
-      method:"GET",
-      headers:auth
+    await axios.get("http://localhost:8090/api/books/all",{
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      getCountBooks(Response.length);
+      setCountBooks(Response.data.length);
     })
-  }  
-  
-
-  const [countSales, getCountSales] = useState();
-  useEffect(() => {
-    handleCountSales();
-  },[])
-  const handleCountSales = () =>{
-    
-    fetch("http://localhost:8090/api/admin/orders/count",{
-      method:"GET",
-      headers:auth
+    await axios.get("http://localhost:8090/api/admin/orders/count",{
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      getCountSales(Response);
+      setCountSales(Response.data);
     })
-  }  
-  
-  const [totalRevenue, getTotalRevenue] = useState();
-  useEffect(() => {
-    handleTotalRevenue();
-  },[])
-  const handleTotalRevenue = () =>{
-    
-    fetch("http://localhost:8090/api/admin/revenue/total",{
-      method:"GET",
-      headers:auth
+    await axios.get("http://localhost:8090/api/admin/revenue/total",{
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      getTotalRevenue(Response);
-    })
-  }  
-  const [message, getMessage] = useState();
-  useEffect(() => {
-    handleMessage();
-  },[])
-  const handleMessage = () =>{
-    
-    fetch("http://localhost:8090/api/admin/revenue/total",{
-      method:"GET",
-      headers:auth
-    })
-    .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      getMessage(Response);
+      setTotalRevenue(Response.data);
     })
   }  
   return (

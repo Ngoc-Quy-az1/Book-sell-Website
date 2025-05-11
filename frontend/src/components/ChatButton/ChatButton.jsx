@@ -4,8 +4,7 @@ import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import axios from "axios";
 import Cookies from "js.cookie"
-import { CheckToken } from "../../Service";
-import { Check } from "lucide-react";
+import "../../CheckToken.jsx";
 
 
 const socket = new SockJS('http://localhost:8090/ws');  
@@ -68,7 +67,7 @@ const ChatButton = () => {
           "http://localhost:8090/api/chat/admin/history",
           { userId: userId },
           {
-            headers: {'Authorization': `Bearer ${CheckToken()}`},
+            headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
           }
         );
       } else if (chatMode == "group1" || chatMode == "group2") {
@@ -80,7 +79,7 @@ const ChatButton = () => {
           "http://localhost:8090/api/chat/community/history",
           { groupId: groupId },
           {
-            headers: {'Authorization': `Bearer ${CheckToken()}`},
+            headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
           }
         );
       }
@@ -131,7 +130,7 @@ const ChatButton = () => {
     axios
       .post(apiUrl, requestBody, {
         headers: {
-          Authorization: `Bearer ${CheckToken()}`,
+          Authorization: `Bearer ${Cookies.get('authToken')}`,
         },
       })
       .then((response) => {

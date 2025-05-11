@@ -24,7 +24,7 @@ const Checkout = () => {
           "http://localhost:8090/api/payment/pending-orders",
           {
             headers: {
-              Authorization: `Bearer ${Cookies.get("authToken")}`, // Thêm header Authorization
+              Authorization: `Bearer ${Cookies.get("Cookies.get('authToken')")}`, // Thêm header Authorization
             },
           }
         );
@@ -52,7 +52,7 @@ const Checkout = () => {
         `http://localhost:8090/api/payment/check-status/${orderId}`,
         {
           headers: {
-            Authorization: `Bearer ${Cookies.get("authToken")}`,
+            Authorization: `Bearer ${Cookies.get("Cookies.get('authToken')")}`,
           },
         }
       );
@@ -89,7 +89,7 @@ const Checkout = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${Cookies.get("authToken")}`,
+            Authorization: `Bearer ${Cookies.get("Cookies.get('authToken')")}`,
           },
         }
       );

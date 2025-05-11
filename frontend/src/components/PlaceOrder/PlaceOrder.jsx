@@ -2,14 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Cookies from 'js.cookie';
 import OrderItem from "./OrderItem";
-import { selectClasses } from "@mui/material";
 import Moment from 'moment';
 import qrImage from "../../assets/qr_checkout.png"; // Import QR image
-import { CheckToken } from "../../Service";
+import "../../CheckToken";
 
 export default function PlaceOrder() {
   const userId = Cookies.get('userId');
-  const auth = {'Authorization': `Bearer ${CheckToken()}`}
   const [selectedOrder, setSelectedOrder] = useState(-1);
   const [orderList, setOrderList] = useState([]);
   const [activeSection, setActiveSection] = useState(null); // Manage payment section visibility
@@ -24,7 +22,7 @@ export default function PlaceOrder() {
   const getOrderList = async (userID)=>{
     const apiUrl = import.meta.env.VITE_API_URL;
     await axios.get(`${apiUrl}/api/order/${userID}`,{
-      headers:auth,
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         setOrderList(response.data);

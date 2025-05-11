@@ -6,12 +6,11 @@ import axios from 'axios';
 import { useParams } from "react-router-dom";
 import Cookies from 'js.cookie';
 import Moment from 'moment';
-import { CheckToken } from "../../Service";
+import "../../CheckToken";
 
 
 const BookDetail = () => {
   const userId = Cookies.get('userId');
-  const auth = {'Authorization': `Bearer ${CheckToken()}`}
   const [listComment, setListComment] = useState([]);
   const [bookDetail, setBookDetail] = useState()
   const [isOpenDialog, setIsOpenDialog] = useState(false);
@@ -31,7 +30,7 @@ const BookDetail = () => {
   let {id} = useParams();
   const getBookDetail = ()=>{
     axios.get(`http://localhost:8090/api/books/${id}`,{
-      headers:auth,
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
       setBookDetail(response.data);
@@ -43,7 +42,7 @@ const BookDetail = () => {
 
   const getAllReview = async (bookId)=>{
     axios.get(`http://localhost:8090/api/users/review/${bookId}`,{
-      headers:auth,
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
       setListComment(response.data);
@@ -75,7 +74,7 @@ const BookDetail = () => {
     await axios.post(`http://localhost:8090/api/users/review/${userId}/${bookId}`,
       data,
       {
-        headers: auth,
+        headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
       }
     ).then((response)=>{
       console.log(response.data);

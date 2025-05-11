@@ -6,7 +6,8 @@ import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
 import Cookies from "js.cookie";
 import {Link} from "react-router-dom";
-import { CheckToken } from "../../Service";
+import "../../CheckToken";
+import axios from "axios";
 
 const Menu = [
   {
@@ -46,20 +47,24 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   
   const [notice, setNotice] = useState([]);
   useEffect(() => {
-    handleNotice();
+    fetchData();
   },[])
 
-  const handleNotice = () => {
+  const fetchData = async () => {
     if (Cookies.get("authToken")!=null)
-    fetch("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
-        headers:{'Authorization': `Bearer ${CheckToken()}`}
+    await axios.get("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
+  {
+    headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
+    }).then(response => {
+      setUser(response.data);
+    });
+    if (Cookies.get("authToken")!=null)
+    await axios.get("http://localhost:8090/api/notification/show?userId="+Cookies.get("userId"), {
+        headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      setNotice(Response);
-    console.log(Response)
+      setNotice(Response.data);
+    console.log(Response.data)
     })
   }
   const clearAll = () => {
@@ -69,48 +74,31 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     )
   }
   const markAsRead = (msgId) => {
-    fetch("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{
-        method: "PUT", headers:{'Authorization': `Bearer ${CheckToken()}`}
-    }) .then((response) => {
-      if (!response.ok) console.error("Fail");
+    axios.put("http://localhost:8090/api/notification/mark-read?notificationId="+msgId,{},{
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
+    }) .then(() => {
       const id = notice.indexOf(notice.find((e) => e.id == msgId));
       let t = notice;
       t[id].is_read = true;
       setNotice(t);
     });
   }
-  const handleSignOut = () =>{
-    fetch("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),{
-      method:"POST",      
+  const handleSignOut = async () =>{
+    axios.post("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),
+    {token: `${Cookies.get('authToken')}`},
+    {
       headers: {      
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CheckToken()}`
+        'Authorization': `Bearer ${Cookies.get('authToken')}`
         },
-      body: JSON.stringify({"token": `${CheckToken()}`})
-    }) .then((response) => {
-      return response.json();
-    }).then((data) => {
-      console.log(data);
+    })
+    .then((response) => {
+      console.log(response.data);
       Cookies.remove('authToken');
       location.assign('/');
     });
   }
-  const fetchUser = () => {
-
-  }
   const [user, setUser] = useState({'full_name':""});
-  useEffect(() => {
-    if (Cookies.get("authToken")!=null)
-    fetch("http://localhost:8090/api/users/user-detail/"+Cookies.get("userId"),
-  {
-    headers: {'Authorization': `Bearer ${CheckToken()}`}
-  })
-    .then((response) => {
-      return response.json();
-    }).then((data) => {
-      setUser(data);
-    })},[]
-  )
   const [showNoti, setShowNoti] = useState(false);
   const [showOption, setShowOption] = useState(false);
   const dropdownRef = useRef(null);
@@ -187,7 +175,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
               </button>
               <div className="flex justify-end relative " ref={dropdownRef}>
               
-              {CheckToken() ? 
+              {Cookies.get('authToken') ? 
               <>
                 <button className="mr-6"
                   onClick={() => setShowNoti(!showNoti)}

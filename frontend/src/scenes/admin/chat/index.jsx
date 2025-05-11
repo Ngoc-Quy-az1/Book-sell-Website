@@ -5,7 +5,7 @@ import Stomp from "webstomp-client";
 import { tokens } from "../../../theme";
 import axios from "axios";
 import Cookies from "js.cookie"
-import { CheckToken } from "../../../Service";
+import "../../../CheckToken";
 const Chat = () => {
   const ADMIN_ID = Cookies.get("userId");
   const theme = useTheme();
@@ -16,15 +16,11 @@ const Chat = () => {
   const [messages, setMessages] = useState([]); 
   const [subscribed, setSubscribed] = useState([]);
   useEffect(() => {
-    fetch("http://localhost:8090/api/admin/users",{
-      method:"GET",
-      headers: {'Authorization': `Bearer ${CheckToken()}`}
+    axios.get("http://localhost:8090/api/admin/users",{
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      return Response.json();
-    }) 
-    .then(Response => {
-      setUserList(Response.filter((user) => !user.is_admin));
+      setUserList(Response.data.filter((user) => !user.is_admin));
     })
     connectWebSocket();
   },[])
@@ -38,17 +34,14 @@ const Chat = () => {
       connectWebSocket();
     }
   }
-  const getMessage = (userId) => {
-  fetch(
+  const getMessage = async (userId) => {
+  await axios.post(
     "http://localhost:8090/api/chat/admin/history",
-    
+    {userId: userId},
     {
-      method: "POST",
-      headers: {'Authorization': `Bearer ${CheckToken()}`, 'Content-Type' : 'application/json'},
-      body: JSON.stringify({ "userId": userId }),
-    }).then(response => response.json())
-    .then(result => {setMessages(result); console.log(result);})
-    .catch(error => console.log('error', error));
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
+    })
+    .then(result => {setMessages(result.data); console.log(result.data);})
   }
 
   const connectWebSocket = () => {
@@ -85,7 +78,7 @@ const Chat = () => {
 
     axios
       .post(apiUrl, requestBody, {
-        headers: {'Authorization': `Bearer ${CheckToken()}`},
+        headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
       })
       .then((response) => {
         setMessages((prevMessages) => [

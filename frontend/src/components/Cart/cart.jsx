@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import Footer from "../Footer/Footer";
 import Cookies from 'js.cookie';
 import axios from 'axios';
-import { CheckToken } from "../../Service";
+import "../../CheckToken";
 
 export default function Cart() {
-  const auth = {'Authorization': `Bearer ${CheckToken()}`,}
   const userId = Cookies.get('userId');
   const [showVoucher, setShowVoucher] = useState(false);
   const [showInvalidVoucher, setShowInvalidVoucher] = useState(false);
@@ -25,7 +24,7 @@ export default function Cart() {
 
   const getCartList = async(userId)=>{
     await axios.get(`http://localhost:8090/api/cart/user/${userId}`,{
-      headers:auth,
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         setCartlist(response.data);
@@ -45,7 +44,7 @@ export default function Cart() {
     await axios.put(`http://localhost:8090/api/cart/update-quantity`,
     data,
     {   
-      headers: auth,
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         console.log(response.data);
@@ -59,7 +58,7 @@ export default function Cart() {
     await axios.delete(`http://localhost:8090/api/cart/${userId}/${bookId}`,
     //data,
     {   
-      headers: auth,
+      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         console.log(response.data);
@@ -71,7 +70,7 @@ export default function Cart() {
 
   const getVoucherList = async(userId)=>{
     await axios.get(`http://localhost:8090/api/users/${userId}/discount-codes`,{
-      headers:auth,
+      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
         setVoucherList(response.data);
@@ -146,7 +145,7 @@ export default function Cart() {
     await axios.post('http://localhost:8090/api/order/create',
       data,
       {
-        headers: auth,
+        headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
       }
     ).then((response)=>{
       console.log(response.data);
