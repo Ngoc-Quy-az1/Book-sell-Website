@@ -28,8 +28,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
-
-//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+@CrossOrigin(origins = "https://book-sell-website-5g6x.onrender.com")
 
 public class userController {
 

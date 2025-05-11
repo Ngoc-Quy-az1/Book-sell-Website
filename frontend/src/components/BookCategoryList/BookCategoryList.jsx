@@ -17,6 +17,7 @@ const BookCategoryList = () => {
   const [page, setPage] = useState(1);
   const [bookList, setBookList] = useState([]);
   const [search, setSearch] = useState("")
+  const apiUrl = import.meta.env.VITE_API_URL;
   //Lấy tất cả thể loại
   const [categories, setCategories] = useState([]);
   useEffect( () => {
@@ -58,7 +59,7 @@ const BookCategoryList = () => {
   };
   
   const getBookCategory = async ()=>{
-    await fetch('http://localhost:8090/api/books/AllTypeCategories', )
+    await fetch(`${apiUrl}/api/books/AllTypeCategories`, )
     .then((response) => {
       return response.json();
     })
@@ -70,7 +71,7 @@ const BookCategoryList = () => {
     });
   }
   const getBookList = async ()=>{
-    await fetch('http://localhost:8090/api/books/GetAllPaginatedFull',
+    await fetch(`${apiUrl}/api/books/GetAllPaginatedFull`,
       { method:"POST",
         headers: {'Content-Type': 'application/json',},
         body: JSON.stringify({"sort": sortRule ,
@@ -100,7 +101,7 @@ const BookCategoryList = () => {
       "bookId": bookId,
       "quantity":1,
     };
-    await axios.post('http://localhost:8090/api/cart/add',
+    await axios.post(`${apiUrl}/api/cart/add`,
       data,
       {
         headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},

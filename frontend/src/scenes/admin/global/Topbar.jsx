@@ -16,11 +16,12 @@ const Topbar = ({handleNotification}) => {
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const [showOption, setShowOption] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
   const handleShowOption = () => {
     setShowOption(!showOption);
   }
   const handleSignOut = async () =>{
-    await axios.post("http://localhost:8090/api/users/logout/"+Cookies.get("userId"),
+    await axios.post(`${apiUrl}/api/users/logout/`+Cookies.get("userId"),
       {token: `${Cookies.get('authToken')}`},
       {     
       headers: {      

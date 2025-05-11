@@ -21,6 +21,7 @@ const BookDetail = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [totalComment, setTotalComment] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
+  const apiUrl = import.meta.env.VITE_API_URL;
   let ratingArray = [0,0,0,0,0,0];
   useEffect( () => {
     console.log(userId);
@@ -71,7 +72,7 @@ const BookDetail = () => {
       "rating": rating,
       "comment": comment
     };
-    await axios.post(`http://localhost:8090/api/users/review/${userId}/${bookId}`,
+    await axios.post(`${apiUrl}/api/users/review/${userId}/${bookId}`,
       data,
       {
         headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},

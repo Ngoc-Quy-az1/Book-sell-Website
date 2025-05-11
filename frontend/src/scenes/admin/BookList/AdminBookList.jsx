@@ -28,6 +28,7 @@ const AdminBookList = () => {
   const [value, setValue] = React.useState([0, 1000000]);
   const [tValue, setTValue] = React.useState([0, 1000000]);
   const [bookList, setBookList] = useState([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
 //Lấy tất cả thể loại
   useEffect( () => {
     getBookCategory();
@@ -40,7 +41,7 @@ const AdminBookList = () => {
   },[])
   
   const getBookCategory = async ()=>{
-    await fetch('http://localhost:8090/api/books/AllTypeCategories', 
+    await fetch(`${apiUrl}/api/books/AllTypeCategories`, 
       {headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}})
     .then((response) => {
       return response.json();
@@ -94,7 +95,7 @@ const AdminBookList = () => {
   }
 //Danh sách tất cả sách 
   const getBookPage = async ()=>{
-    await fetch('http://localhost:8090/api/books/GetAllPaginatedFull',
+    await fetch(`${apiUrl}/api/books/GetAllPaginatedFull`,
       { method:"POST",
         headers: {'Content-Type': 'application/json',},
         body: JSON.stringify({"sort": sortRule ,
@@ -121,7 +122,7 @@ const AdminBookList = () => {
 //Sách được click vào để xem thông tin chi tiết    
   
   const getDetail = async ()=>{
-    if (selectedBook!=null) await fetch("http://localhost:8090/api/books/"+selectedBook.id, 
+    if (selectedBook!=null) await fetch(`${apiUrl}/api/books/`+selectedBook.id, 
       {headers : {'Authorization': `Bearer ${Cookies.get('authToken')}`}})
     .then((response) => {
       return response.json();

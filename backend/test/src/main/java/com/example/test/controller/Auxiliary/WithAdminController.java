@@ -20,7 +20,7 @@
     @RestController
     @RequestMapping("/api/chat/admin")
 
-    //@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+    @CrossOrigin(origins = "https://book-sell-website-5g6x.onrender.com")
 
     public class WithAdminController {
 

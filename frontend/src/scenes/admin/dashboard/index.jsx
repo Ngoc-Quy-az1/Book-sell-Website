@@ -19,29 +19,30 @@ const Dashboard = () => {
   const [countBooks, setCountBooks] = useState();
   const [countSales, setCountSales] = useState();
   const [totalRevenue, setTotalRevenue] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     fetchData();
   },[])
   const fetchData = async () =>{
-    await axios.get("http://localhost:8090/api/admin/users/count",{
+    await axios.get(`${apiUrl}/api/admin/users/count`,{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
       setCountUsers(Response.data);
     })
-    await axios.get("http://localhost:8090/api/books/all",{
+    await axios.get(`${apiUrl}/api/books/all`,{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
       setCountBooks(Response.data.length);
     })
-    await axios.get("http://localhost:8090/api/admin/orders/count",{
+    await axios.get(`${apiUrl}/api/admin/orders/count`,{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
       setCountSales(Response.data);
     })
-    await axios.get("http://localhost:8090/api/admin/revenue/total",{
+    await axios.get(`${apiUrl}/api/admin/revenue/total`,{
       headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {

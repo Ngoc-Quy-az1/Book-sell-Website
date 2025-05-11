@@ -16,6 +16,7 @@ import {
 } from '@mui/x-data-grid';
 import "../../../CheckToken";
 import axios from "axios";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Function chính
 const ManageUsers = () => {
@@ -37,7 +38,7 @@ const ManageUsers = () => {
     getUser();
   },[])
   const getUser = async () =>{
-    await axios.get("http://localhost:8090/api/admin/users",{
+    await axios.get(`${apiUrl}/api/admin/users`,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
@@ -48,7 +49,7 @@ const ManageUsers = () => {
   //Xóa người dùng
   const handleDeleteUsers = (selectedRows) => {
     selectedRows.forEach(async UserId => {
-    await axios.delete("http://localhost:8090/api/admin/deleteUsers/" + UserId,{
+    await axios.delete(`${apiUrl}/api/admin/deleteUsers/` + UserId,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })});
   }
@@ -57,7 +58,7 @@ const ManageUsers = () => {
   const updateUsers = async (user) => {
     let res = "";
     
-    await axios.put("http://localhost:8090/api/admin/updateUsers/" + user.id,user,{
+    await axios.put(`${apiUrl}/api/admin/updateUsers/` + user.id,user,{
       headers: {      
       'Authorization': `Bearer ${Cookies.get('authToken')}`
       },

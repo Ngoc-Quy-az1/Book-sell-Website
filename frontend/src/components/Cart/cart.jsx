@@ -6,6 +6,7 @@ import "../../CheckToken";
 
 export default function Cart() {
   const userId = Cookies.get('userId');
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [showVoucher, setShowVoucher] = useState(false);
   const [showInvalidVoucher, setShowInvalidVoucher] = useState(false);
   const [voucherCode, setVoucherCode] = useState("");
@@ -41,7 +42,7 @@ export default function Cart() {
       "bookId": bookId,
       "quantity": quantity,
     };
-    await axios.put(`http://localhost:8090/api/cart/update-quantity`,
+    await axios.put(`${apiUrl}/api/cart/update-quantity`,
     data,
     {   
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
@@ -55,7 +56,7 @@ export default function Cart() {
   };
 
   const deleteCartBookBackend = async (userId, bookId)=>{
-    await axios.delete(`http://localhost:8090/api/cart/${userId}/${bookId}`,
+    await axios.delete(`${apiUrl}/api/cart/${userId}/${bookId}`,
     //data,
     {   
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
@@ -142,7 +143,7 @@ export default function Cart() {
       "userId": userId,
       "bookIds": tempList,
     };
-    await axios.post('http://localhost:8090/api/order/create',
+    await axios.post(`${apiUrl}/api/order/create`,
       data,
       {
         headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},

@@ -14,6 +14,7 @@ const Form = () => {
   const [notice, setNotice] = useState(false);
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL;
   const showNotice = () => {
     setNotice(!notice);
     setTimeout(() => {setNotice()},3000)
@@ -26,7 +27,7 @@ const Form = () => {
 
   //Đẩy DL lên Database 
   const createUser = async (form) =>{
-    await axios.post("http://localhost:8090/api/admin/createUsers",form,{
+    await axios.post(`${apiUrl}/api/admin/createUsers`,form,{
       headers: {      
         'Authorization': `Bearer ${Cookies.get('authToken')}`
         },

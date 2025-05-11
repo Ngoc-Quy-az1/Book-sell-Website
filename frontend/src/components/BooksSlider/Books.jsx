@@ -93,7 +93,8 @@ const Books = () => {
         getBookLink();
       }, []);
     const getBookLink = async ()=>{
-      await axios.get('http://localhost:8090/api/books/GetAllPaginated?page=2&size=5')
+      const apiUrl = import.meta.env.VITE_API_URL;
+      await axios.get(`${apiUrl}/api/books/GetAllPaginated?page=2&size=5`)
       .then((response) => {
           setBooklist(response.data.content);
       })

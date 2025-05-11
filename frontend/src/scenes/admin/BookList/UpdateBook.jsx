@@ -10,14 +10,13 @@ import "../../../CheckToken";
 import axios from "axios";
 
 const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, handleDelete }) => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
   },[])
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-
   const isNonMobile = useMediaQuery("(min-width:600px)");
-
   const [updateInformation, getUpdateImformation] = useState(true);
   const handleUpdate = () => {
     getUpdateImformation(!updateInformation);
@@ -30,7 +29,8 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
   }
   //Đẩy DL lên Database 
   const updateBook = async (form) =>{
-    await axios.put("http://localhost:8090/api/books/update/"+form.id,form,{
+
+    await axios.put(`${apiUrl}/api/books/update/`+form.id,form,{
       headers: {      
         'Authorization': `Bearer ${Cookies.get('authToken')}`
         }
@@ -42,7 +42,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
     });
   }
   const deleteBook = async (id) =>{
-    await axios.delete("http://localhost:8090/api/books/delete/"+id,{
+    await axios.delete(`${apiUrl}/api/books/delete/`+id,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then((response) => {

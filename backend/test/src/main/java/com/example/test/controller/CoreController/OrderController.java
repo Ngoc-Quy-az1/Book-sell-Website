@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/order")
 
-//@CrossOrigin(origins = "https://book-sell-website-phuc.onrender.com")
+@CrossOrigin(origins = "https://book-sell-website-5g6x.onrender.com")
 
 public class OrderController {
 

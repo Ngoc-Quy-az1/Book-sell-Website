@@ -9,6 +9,7 @@ const BarChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     getData()
   }, [])

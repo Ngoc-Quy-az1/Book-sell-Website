@@ -15,8 +15,9 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
   const [messages, setMessages] = useState([]); 
   const [subscribed, setSubscribed] = useState([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
-    axios.get("http://localhost:8090/api/admin/users",{
+    axios.get(`${apiUrl}/api/admin/users`,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
@@ -36,7 +37,7 @@ const Chat = () => {
   }
   const getMessage = async (userId) => {
   await axios.post(
-    "http://localhost:8090/api/chat/admin/history",
+    `${apiUrl}/api/chat/admin/history`,
     {userId: userId},
     {
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
@@ -46,7 +47,7 @@ const Chat = () => {
 
   const connectWebSocket = () => {
 
-    const socket = new SockJS('http://localhost:8090/ws');
+    const socket = new SockJS(`${apiUrl}/ws`);
     let stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
       // Subscribe kênh admin chat
@@ -72,12 +73,12 @@ const Chat = () => {
       return;
     }
 
-    const apiUrl = "http://localhost:8090/api/chat/admin/reply";
+    const apiUrl1 = `${apiUrl}/api/chat/admin/reply`;
 
     const requestBody = { adminId: Cookies.get('userId'), userId: userId, message: newMessage };
 
     axios
-      .post(apiUrl, requestBody, {
+      .post(apiUrl1, requestBody, {
         headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
       })
       .then((response) => {

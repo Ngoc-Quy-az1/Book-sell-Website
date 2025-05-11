@@ -6,8 +6,8 @@ import axios from "axios";
 import Cookies from "js.cookie"
 import "../../CheckToken.jsx";
 
-
-const socket = new SockJS('http://localhost:8090/ws');  
+const apiUrl = import.meta.env.VITE_API_URL;
+const socket = new SockJS(`${apiUrl}/ws`);
 let stompClient = Stomp.over(socket);
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,9 +23,11 @@ const ChatButton = () => {
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     
-    const bottom = document.getElementById("bottom")
-    if (bottom!=null) bottom.scrollIntoView()
-  },[messages])
+    const bottom = document.getElementById("bottom");
+    if (bottom) {
+      bottom.scrollIntoView({ behavior: "smooth" }); // Added smooth scrolling
+    }
+  }, [messages])
   
   useEffect(() => {
     fetchMessages(chatMode);
@@ -64,7 +66,7 @@ const ChatButton = () => {
       let response;
       if (chatMode == "admin") {
         response = await axios.post(
-          "http://localhost:8090/api/chat/admin/history",
+          `${apiUrl}/api/chat/admin/history`,
           { userId: userId },
           {
             headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
@@ -76,7 +78,7 @@ const ChatButton = () => {
         console.log("Group ID:", groupId);
 
         response = await axios.post(
-          "http://localhost:8090/api/chat/community/history",
+          `${apiUrl}/api/chat/community/history`,
           { groupId: groupId },
           {
             headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
@@ -117,10 +119,10 @@ const ChatButton = () => {
       return;
     }
   
-    const apiUrl =
+    const apiUrl1 =
       chatMode === "admin"
-        ? "http://localhost:8090/api/chat/admin/send"
-        : "http://localhost:8090/api/chat/community/send";
+        ? `${apiUrl}/api/chat/admin/send`
+        : `${apiUrl}/api/chat/community/send`;
   
     const requestBody =
       chatMode === "admin"
@@ -128,7 +130,7 @@ const ChatButton = () => {
         : { senderId: userId, message: newMessage, groupId: chatMode == "group1" ? 1 : 2 };
   
     axios
-      .post(apiUrl, requestBody, {
+      .post(apiUrl1, requestBody, {
         headers: {
           Authorization: `Bearer ${Cookies.get('authToken')}`,
         },
@@ -155,9 +157,10 @@ const ChatButton = () => {
       {isOpen && (
         <div
           className={`fixed ${isFullscreen
-              ? "top-16 left-0 w-full h-[calc(80%)]"
-              : "bottom-16 right-5 w-80"
-            } bg-white p-4 rounded-lg shadow-lg border transition-all flex flex-col`}
+              ? "top-16 left-0 w-full h-[calc(90%)]"
+              : "bottom-[4.5rem] right-5 w-[20rem] lg:w-[24rem] lg:bottom-[4.5rem] lg:right-5 h-[70vh]" // Minimized mode: 50vh
+            } bg-white p-4 rounded-lg shadow-none border transition-all flex flex-col justify-between`}
+          style={{ overflow: "hidden" }}
         >
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
@@ -199,7 +202,7 @@ const ChatButton = () => {
           </div>
 
           {/* Tin nhắn */}
-          <div className="flex-1 overflow-y-auto border p-3 rounded mb-4 max-h-[60vh] space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+          <div className={`flex-1 overflow-y-auto border p-3 rounded mb-4 ${isFullscreen ? "max-h-[80vh]" : "max-h-[50vh]"} space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200`}>
             {messages.map((msg) => (
               <div
                 key={msg.messageId}
@@ -227,24 +230,23 @@ const ChatButton = () => {
                 </div>
               </div>
             ))}
-            <div style={{ float:"left", clear: "both" }}
-                 id="bottom"> 
-            </div>
+            <div id="bottom" style={{ clear: "both" }}></div> {/* Ensure proper scroll target */}
           </div>
 
           {/* Nhập tin nhắn */}
           <div className="flex items-center">
             <input
               type="text"
-              className="flex-1 border rounded p-2 mr-2 text-black"
+              className="flex-1 border rounded p-2 mr-2 text-black lg:mr-4 lg:rounded-lg"
               placeholder="Nhập tin nhắn..."
               value={newMessage}
-              onKeyDown={(e) => {if (e.key==='Enter') handleSendMessage()}}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage() }}
               onChange={(e) => setNewMessage(e.target.value)}
             />
             <button
               onClick={handleSendMessage}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 lg:px-6 lg:py-2 lg:rounded-lg flex-shrink-0"
+              style={{ height: "100%" }} // Ensure button matches input height
             >
               Gửi
             </button>
