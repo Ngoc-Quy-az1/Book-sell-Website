@@ -12,6 +12,7 @@ public class BookResponse {
     private int price_original;
     private String description;
 
+    private int stock;
 
     // Getters and setters
     public int getId() {
@@ -77,4 +78,13 @@ public class BookResponse {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
 }

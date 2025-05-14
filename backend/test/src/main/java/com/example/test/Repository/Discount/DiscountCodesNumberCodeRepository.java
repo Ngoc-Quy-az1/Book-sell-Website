@@ -16,8 +16,8 @@ public interface DiscountCodesNumberCodeRepository
                 extends JpaRepository<DiscountCodesNumberCode, DiscountCodesNumberCodeId> {
         List<DiscountCodesNumberCode> findByUserId(Integer userId);
 
-        @Query("SELECT d FROM DiscountCodesNumberCode d WHERE d.userId = :userId AND d.discountCode.codeId = :codeId")
-        Optional<DiscountCodesNumberCode> findByUserIdAndDiscountCode_Code(Integer userId, String code);
+        @Query("SELECT d FROM DiscountCodesNumberCode d WHERE d.userId = :userId AND d.discountCode.codeId = :codeid")
+        Optional<DiscountCodesNumberCode> findByUserIdAndDiscountCode_Code(Integer userId, Integer codeid);
 
         @Query("SELECT d FROM DiscountCodesNumberCode d WHERE d.userId = :userId AND d.discountCode.codeId = :codeId")
         DiscountCodesNumberCode findByUserIdAndDiscountCode_CodeId(Integer userId, Integer codeId);

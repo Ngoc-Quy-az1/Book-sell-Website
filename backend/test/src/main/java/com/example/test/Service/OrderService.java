@@ -101,9 +101,12 @@ public class OrderService {
 
             if (request.getDiscountCode() != null && !request.getDiscountCode().isEmpty()) {
                 String requestedDiscountCode = request.getDiscountCode();
+
+                Integer codeid = discountCodeRepository.findCodeIdByCode(requestedDiscountCode);
+
                 // Tìm bản ghi liên kết user và code
                 DiscountCodesNumberCode userOwnedCode = discountCodesNumberCodeRepository
-                        .findByUserIdAndDiscountCode_Code(request.getUserId(), requestedDiscountCode)
+                        .findByUserIdAndDiscountCode_Code(request.getUserId(), codeid)
                         .orElseThrow(() -> new RuntimeException(
                                 "Mã giảm giá '" + requestedDiscountCode + "' không hợp lệ hoặc không thuộc về bạn."));
 
