@@ -55,9 +55,7 @@ const BookDetail = () => {
   }
 
   const getAllReview = async (bookId)=>{
-    axios.get(`${apiUrl}/api/users/review/${bookId}`,{
-      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
-    })
+    axios.get(`${apiUrl}/api/users/review/${bookId}`)
     .then((response) => {
       setListComment(response.data);
       setTotalComment(listComment.length)
@@ -149,13 +147,9 @@ const BookDetail = () => {
             justifyContent: 'center',
             background: 'linear-gradient(90deg, #f59e42 0%, #f43f1a 100%)',
             borderRadius: '50%',
-            width: 32,
-            height: 32,
-            marginRight: 12
           }}>
-            <svg width="20" height="20" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           </span>
-          Sách đã có trong giỏ hàng!
+          Vui lòng đăng nhập hoặc sách đã có trong giỏ hàng
         </div>,
         { position: "top-right", style: { background: 'linear-gradient(90deg, #fef3c7 0%, #fdba74 100%)', color: '#b45309', fontWeight: 'bold' } }
       );
