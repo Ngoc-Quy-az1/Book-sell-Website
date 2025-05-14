@@ -17,4 +17,9 @@ export default defineConfig({
       ],
     },
   },
+  server: {
+    historyApiFallback: true, // 👈 Fix reload 404 for SPA in dev
+  },
+  // Nếu deploy lên subpath, thêm base: '/ten-thu-muc/'
+  base: '/',
 })
