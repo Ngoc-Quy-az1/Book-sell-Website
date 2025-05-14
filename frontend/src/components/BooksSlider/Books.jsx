@@ -1,156 +1,110 @@
-import React from "react";
-import Book1 from "../../assets/books/book1.jpg";
-import Book2 from "../../assets/books/book2.jpg";
-import Book3 from "../../assets/books/book3.jpg";
-import { FaStar } from "react-icons/fa6";
-import { Link } from "react-router-dom";
-
-const booksData = [
-  {
-    id: 1,
-    img: Book1,
-    title: "Who's there",
-    rating: 5.0,
-    author: "Someone",
-  },
-  {
-    id: 2,
-    img: Book2,
-    title: "His Life",
-    rating: 4.5,
-    author: "John",
-  },
-  {
-    id: 3,
-    img: Book3,
-    title: "Lost boys",
-    rating: 4.7,
-    author: "Lost Girl",
-  },
-  {
-    id: 4,
-    img: Book2,
-    title: "His Life",
-    rating: 4.4,
-    author: "Someone",
-  },
-  {
-    id: 5,
-    img: Book1,
-    title: "Who's There",
-    rating: 4.5,
-    author: "Someone",
-  },
-];
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
-// const booksData = [
-//   {
-//     id: 1,
-//     img: Book1,
-//     title: "Who's there",
-//     rating: 5.0,
-//     author: "Someone",
-//   },
-//   {
-//     id: 2,
-//     img: Book2,
-//     title: "His Life",
-//     rating: 4.5,
-//     author: "John",
-//   },
-//   {
-//     id: 3,
-//     img: Book3,
-//     title: "Lost boys",
-//     rating: 4.7,
-//     author: "Lost Girl",
-//   },
-//   {
-//     id: 4,
-//     img: Book2,
-//     title: "His Life",
-//     rating: 4.4,
-//     author: "Someone",
-//   },
-//   {
-//     id: 5,
-//     img: Book1,
-//     title: "Who's There",
-//     rating: 4.5,
-//     author: "Someone",
-//   },
-// ];
-
-const change = () => {
-  console.log("R")
-  return (<Link to={"/books"}/>)
-}
 const Books = () => {
   const [booklist, setBooklist] = useState([]);
-    useEffect( () => {
-        getBookLink();
-      }, []);
-    const getBookLink = async ()=>{
-      const apiUrl = import.meta.env.VITE_API_URL;
-      await axios.get(`${apiUrl}/api/books/GetAllPaginated?page=2&size=5`)
-      .then((response) => {
-          setBooklist(response.data.content);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-    }
-  return (
-    <>
-      <div className="mt-14 mb-12">
-        <div className="container">
-          {/* header */}
-          <div className="text-center mb-10 max-w-[600px] mx-auto">
-            <p className="text-sm bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-              Top Books for you
-            </p>
-            <h1 className="text-3xl font-bold">Top Books</h1>
-            <p className="text-xs text-gray-400">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-              Perspiciatis delectus architecto error nesciunt,
-            </p>
-          </div>
+  
+  useEffect(() => {
+    getBookLink();
+  }, []);
 
-          {/* Body section */}
-          <div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center gap-5 flex-wrap">
-              {/* Card */}
-              {booklist.map((book ) => (
-                <div key={book.id} className="div space-y-3">
-                  <img
-                    src={book.image}
-                    alt=""
-                    className="h-[220px] w-[200px] object-cover pl-12"
-                  />
-                  <div>
-                    <h3 className="font-semibold line-clamp-3 text-align: center">{book.title}</h3>
-                    <p className="text-sm text-gray-700">{book.author}</p>
-                    <div className="flex items-center gap-1">
-                      <FaStar className="text-yellow-500" />
-                      <span>4.5</span>
-                    </div>
-                  </div>
+  const getBookLink = async () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    try {
+      const response = await axios.get(`${apiUrl}/api/books/GetAllPaginated?page=2&size=10`);
+      setBooklist(response.data.content);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  return (
+    <section className="py-16 bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="text-center mb-12 max-w-2xl mx-auto" data-aos="fade-up">
+          <span className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 text-primary dark:text-primary-light mb-4 text-sm font-medium">
+            Top Books for you
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Discover Our Best Sellers
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
+            Explore our curated collection of top-rated books, handpicked for your reading pleasure
+          </p>
+        </div>
+
+        {/* Books Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+          {booklist.map((book) => (
+            <motion.div
+              key={book.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ y: -5 }}
+              className="group bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+            >
+              {/* Book Image Container */}
+              <div className="relative aspect-[3/4] overflow-hidden">
+                <img
+                  src={book.image}
+                  alt={book.title}
+                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+
+              {/* Book Info */}
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2 line-clamp-2">
+                  {book.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                  {book.author}
+                </p>
+                <div className="text-right">
+                  <Link 
+                    to={`/book-detail/${book.id}`}
+                    className="text-primary dark:text-primary-light text-sm font-medium hover:underline"
+                  >
+                    View Details
+                  </Link>
                 </div>
-              ))}
-            </div>
-            <div className="flex justify-center">
-              <Link to="/books">
-              <button className="text-center mt-10 cursor-pointer  bg-primary text-white py-1 px-5 rounded-md" onClick={change}>
-                View All Books
-              </button>
-              </Link>
-            </div>
-          </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* View All Button */}
+        <div className="text-center mt-12" data-aos="fade-up" data-aos-delay="200">
+          <Link to="/books">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              View All Books
+              <svg 
+                className="w-5 h-5 ml-2" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2" 
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </motion.button>
+          </Link>
         </div>
       </div>
-    </>
+    </section>
   );
 };
 

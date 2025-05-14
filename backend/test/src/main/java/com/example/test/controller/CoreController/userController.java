@@ -99,7 +99,7 @@ public class userController {
         return userService.updateUserInfo(userId, moreRegisterDTO);
     }
 
-    // Quy đổi số tiền người dùng nạp về xu cho tài khoản người dùng(10000vnd = 1
+    // Quy đổi số tiền người dùng nạp về xu cho tài khoản người dùng(1000 vnd = 1
     // xu)
 
     // http://localhost:8090/api/users/update/balance/6

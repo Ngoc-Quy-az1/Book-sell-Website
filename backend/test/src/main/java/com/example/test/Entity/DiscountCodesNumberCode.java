@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 @IdClass(DiscountCodesNumberCodeId.class)
 public class DiscountCodesNumberCode {
 
+    @Column(name = "id")
+    private int id;
+    
     @Id
     @Column(name = "code_id")
     private int codeId;

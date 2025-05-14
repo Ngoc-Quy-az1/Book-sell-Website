@@ -451,6 +451,7 @@ public class BookController {
                     response.setPrice_discounted((int) book.getPrice_discounted());
                     response.setPrice_original((int) book.getPrice_original());
                     response.setDescription(book.getDescription());
+                    response.setStock(book.getStock());
                     return response;
                 })
                 .collect(Collectors.toList());

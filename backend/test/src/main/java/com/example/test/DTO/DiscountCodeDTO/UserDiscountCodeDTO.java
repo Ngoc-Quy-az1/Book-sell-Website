@@ -16,7 +16,6 @@ public class UserDiscountCodeDTO {
         this.numberCode = numberCode;
     }
 
-    // Getters and Setters
     public String getCode() {
         return code;
     }
