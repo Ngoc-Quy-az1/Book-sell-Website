@@ -21,10 +21,6 @@ const FooterLinks = [
     title: "Contact",
     link: "/#contact",
   },
-  {
-    title: "Blog",
-    link: "/#blog",
-  },
 ];
 const Footer = () => {
   return (
@@ -38,27 +34,26 @@ const Footer = () => {
               Books Store
             </h1>
             <p className="">
-              Lorem ipsum dolor sit amet consectetur. Lorem ipsum dolor sit amet
-              consectetur adipisicing elit. Possimus, voluptate.{" "}
+              Tạo cảm hứng cho giới trẻ với sách đầy thú vị, biến sách trở thành trở thành công cụ hữu ích dẫn tới thành công {" "}
             </p>
             <br />
             <div className="flex items-center gap-3">
               <FaLocationArrow />
-              <p>Noida, Uttar Pradesh</p>
+              <p>Đặng Ngọc Quý 😃😃🤣</p>
             </div>
             <div className="flex items-center gap-3 mt-3">
               <FaMobileAlt />
-              <p>+91 123456789</p>
+              <p>0948377358</p>
             </div>
             {/* Social Handle */}
             <div className="flex items-center gap-3 mt-6">
-              <a href="#">
+              <a href="https://www.instagram.com/ngquy16.1/">
                 <FaInstagram className="text-3xl" />
               </a>
-              <a href="#">
+              <a href="https://www.facebook.com/ngocquy.160104">
                 <FaFacebook className="text-3xl" />
               </a>
-              <a href="#">
+              <a href="https://www.facebook.com/ngocquy.160104">
                 <FaLinkedin className="text-3xl" />
               </a>
             </div>
@@ -115,7 +110,7 @@ const Footer = () => {
         </div>
         <div>
           <div className="text-center py-10 border-t-2 border-gray-300/50">
-            @copyright 2024 All rights reserved || Made with ❤️ by Dilshad
+            Nhóm 31 Ngọc quý và những người bạn ❤️ 
           </div>
         </div>
       </section>

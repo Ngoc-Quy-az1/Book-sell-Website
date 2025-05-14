@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "@headlessui/react": "^2.2.3",
     "axios": "^1.8.4",
-    "framer-motion": "^12.5.0",
+    "framer-motion": "^12.11.0",
+    "lucide-react": "^0.510.0",
     "mui": "^0.0.1"
   }
 }

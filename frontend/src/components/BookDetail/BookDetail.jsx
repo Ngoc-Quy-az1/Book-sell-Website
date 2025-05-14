@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Minus, Plus, Pen } from "lucide-react";
+import { Minus, Plus, Pen, ShoppingCart } from "lucide-react";
 import { Dialog } from "@headlessui/react";
 import { Star } from "lucide-react";
 import axios from 'axios';
 import { useParams } from "react-router-dom";
 import Cookies from 'js.cookie';
 import Moment from 'moment';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "../../CheckToken";
+import { ToastContainer } from 'react-toastify';
 
 
 const BookDetail = () => {
@@ -21,23 +24,34 @@ const BookDetail = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [totalComment, setTotalComment] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const MAX_DESCRIPTION_LENGTH = 350;
   const apiUrl = import.meta.env.VITE_API_URL;
   let ratingArray = [0,0,0,0,0,0];
-  useEffect( () => {
-    console.log(userId);
-    getBookDetail();
-    getAllReview(4);
-  }, []);
   let {id} = useParams();
+  useEffect(() => {
+    getBookDetail();
+    getAllReview(id);
+  }, [id]);
+
+  useEffect(() => {
+    // Listen for theme changes
+    const handleStorageChange = () => {
+      const currentTheme = localStorage.getItem("theme") || "light";
+      setTheme(currentTheme);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const getBookDetail = ()=>{
     axios.get(`${apiUrl}/api/books/${id}`,{
     })
     .then((response) => {
       setBookDetail(response.data);
     })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-    });
   }
 
   const getAllReview = async (bookId)=>{
@@ -48,285 +62,298 @@ const BookDetail = () => {
       setListComment(response.data);
       setTotalComment(listComment.length)
     })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
+  }
+
+  const getRatingArray = () => {
+    const arr = [0, 0, 0, 0, 0, 0];
+    listComment.forEach(c => {
+      if (c.rating >= 1 && c.rating <= 5) arr[c.rating]++;
     });
-  }
+    return arr;
+  };
 
-  const caculateAverageRating = ()=>{
-    let sumRating = 0;
-    if (listComment.length>0){
-      for (let i=0; i<listComment.length; i++){
-        ratingArray[listComment[i].rating]++;
-        sumRating += listComment[i].rating;
-      }
-    }
-    let all =1;
-    if (listComment.length >0){all = listComment.length}
-    return sumRating/all;
-  }
+  const caculatePercentStar = (score) => {
+    const arr = getRatingArray();
+    const total = listComment.length || 1;
+    return (arr[score] / total) * 100;
+  };
 
-  const caculatePercentStar = (score)=>{
-    let all =1;
-    if (listComment.length >0) {all = listComment.length}
-    return (ratingArray[score]/all)*100;
-  }
+  const caculateAverageRating = () => {
+    if (listComment.length === 0) return 0;
+    const sum = listComment.reduce((acc, c) => acc + c.rating, 0);
+    return sum / listComment.length;
+  };
 
   const postReview = async (rating, comment, bookId)=>{
     const data = {
       "rating": rating,
       "comment": comment
-    };
+    }
     await axios.post(`${apiUrl}/api/users/review/${userId}/${bookId}`,
       data,
       {
         headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
       }
-    ).then((response)=>{
-      console.log(response.data);
-    }). catch((error)=>{
-      console.error('qqq Error fetching data:', error)
-    })
+    )
   }
 
   const handleSetquantity=(value)=>{
     if (value < 1) return;
     setBuyQuantity(value);
   }
-  const handleSubmitReview = () => {
-    console.log("Rating:", rating);
-    console.log("Comment:", comment);
-    postReview(rating, comment, 4);
-    var newRatingComment = {
-      user_id:userId,
-      rating: rating,
-      user_name: "Nguyen quang",
-      review: comment,
-    }
-    setListComment([...listComment, newRatingComment])
+  const handleSubmitReview = async () => {
+    await postReview(rating, comment, id);
+    await getAllReview(id);
     setIsOpenDialog(false);
     setRating(0);
     setComment("");
   };
+
+  const addToCart = async () => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/cart/add`,
+        {
+          userId: Number(userId),
+          bookId: Number(id),
+          quantity: buyQuantity
+        },
+        {
+          headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
+        }
+      );
+      toast.success(
+        <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)',
+            borderRadius: '50%',
+            width: 32,
+            height: 32,
+            marginRight: 12
+          }}>
+            <ShoppingCart color="#fff" size={20} />
+          </span>
+          Đã thêm vào giỏ hàng!
+        </div>,
+        { position: "top-right", style: { background: 'linear-gradient(90deg, #bbf7d0 0%, #86efac 100%)', color: '#166534', fontWeight: 'bold' } }
+      );
+    } catch (error) {
+      toast.error(
+        <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(90deg, #f59e42 0%, #f43f1a 100%)',
+            borderRadius: '50%',
+            width: 32,
+            height: 32,
+            marginRight: 12
+          }}>
+            <svg width="20" height="20" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </span>
+          Sách đã có trong giỏ hàng!
+        </div>,
+        { position: "top-right", style: { background: 'linear-gradient(90deg, #fef3c7 0%, #fdba74 100%)', color: '#b45309', fontWeight: 'bold' } }
+      );
+    }
+  };
+
   if (bookDetail == undefined) {
     return <div>Loading...</div>;
   }
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center px-4 sm:px-6">
-      {isFullScreen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center">
-          <button
-            onClick={() => setIsFullScreen(false)}
-            className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white text-3xl sm:text-4xl font-bold hover:text-gray-300"
-          >
-            &times;
-          </button>
-          <img
-            src={bookDetail.image}
-            alt="Full Screen Bach"
-            className="max-h-full max-w-full object-contain"
-          />
-        </div>
-      )}
-      <div className="max-w-6xl w-full flex flex-col md:flex-row gap-10 mt-8">
-        {/* Book Cover */}
-        <div className="flex-shrink-0 flex justify-center md:justify-start">
-          {
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 flex flex-col md:flex-row gap-12 transition-colors">
+          {/* Ảnh sách lớn bên trái */}
+          <div className="flex-shrink-0 flex justify-center items-start">
             <img
               src={bookDetail.image}
-              alt="Bach"
-              className="w-60 sm:w-72 md:w-80 rounded shadow-lg cursor-pointer"
+              alt={bookDetail.title}
+              className="w-[380px] h-[540px] object-cover rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 cursor-zoom-in transition-all duration-200 hover:scale-105"
               onClick={() => setIsFullScreen(true)}
             />
-          }
-        </div>
-
-        {/* Book Info */}
-        <div className="flex-1 space-y-4">
-          { 
-            <h1 className="text-2xl font-bold text-gray-900">
-              {bookDetail.title}
-            </h1>
-          }
-          <p className="text-gray-700">
-            Author: { <span className="font-semibold">{bookDetail.author}</span>}
-          </p>
-
-
-            <div className="text-2xl font-bold text-green-600">
-              {(parseFloat(bookDetail.price_discounted)).toLocaleString(undefined,
-              )}₫ 
-              <span className="text-base line-through text-gray-500 ml-2">
-                {(parseFloat(bookDetail.price_original)).toLocaleString(undefined,
-              )}₫</span>
-              <span className="bg-red-500 text-white text-sm font-medium px-2 py-1 rounded ml-2">
-                {Math.round( (parseFloat(bookDetail.price_original) - parseFloat(bookDetail.price_discounted))*100
-                  /parseFloat(bookDetail.price_original) )} %
-              </span>
-            </div>
-          
-
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center border rounded px-2 py-1">
-              <button className="p-1" onClick={()=>handleSetquantity(buyQuantity-1)}>
-                <Minus size={16} />
-              </button>
-              <span className="mx-5">{buyQuantity}</span>
-              <button className="p-1" onClick={()=>handleSetquantity(buyQuantity +1)}>
-                <Plus size={16} />
-              </button>
-            </div>
+            {/* Modal phóng to ảnh */}
+            {isFullScreen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+                onClick={() => setIsFullScreen(false)}
+              >
+                <img
+                  src={bookDetail.image}
+                  alt={bookDetail.title}
+                  className="max-h-[90vh] max-w-[90vw] rounded-2xl shadow-2xl border-4 border-white dark:border-gray-700"
+                  onClick={e => e.stopPropagation()}
+                />
+              </div>
+            )}
           </div>
-
-          <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded">
-            Thêm vào giỏ hàng
-          </button>
-        </div>
-      </div>
-
-      {/* Description and Details */}
-      <div className="max-w-6xl w-full mt-12 flex flex-col md:flex-row gap-12">
-        {/* Description */}
-        <div className="flex-1">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-green-700 mb-4">Description</h2>
-          {
-            <p className="mb-4 text-base sm:text-xl">
-              {bookDetail.description}
-            </p>
-          }
-         
-        </div>
-
-        {/* Detailed Info */}
-        <div className="w-full md:w-1/3">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-green-700 mb-4">Detail</h2>
-          <div className="border rounded-lg p-4 space-y-2 text-sm text-gray-700">
-            {[
-            ["Author", bookDetail.author],
-            ["Translator", bookDetail.translator],
-            ["Publisher", bookDetail.publisher],
-            ["Dimensions", bookDetail.dimensions],
-            ["Pages", bookDetail.pages],
-            ["Publish year", bookDetail.created_at]
-          ].map(([label, value]) => (
-            <div className="flex text-base sm:text-xl justify-between" key={label}>
-              <span>{label}</span>
-              <span className="font-semibold">{value}</span>
-            </div>
-          ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Ratings Section */}
-      <div className="max-w-6xl w-full mt-12 p-6 bg-gray-50 rounded-lg">
-        <h2 className="text-lg font-bold text-gray-800 mb-4">User rating</h2>
-        <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-          <div className="flex flex-col items-center lg:items-start">
-            <div className="text-4xl sm:text-5xl font-bold">{caculateAverageRating().toFixed(1)}<span className="text-2xl">/5</span></div>
-            <p className="text-sm text-gray-500 mt-1">({listComment.length} rating)</p>
-          </div>
-
-          <div className="w-full lg:w-2/3 space-y-2 overflow-x-auto">
-            {[5, 4, 3, 2, 1].map((star) => (
-              <div key={star} className="flex items-center">
-                <span className="w-12 text-sm text-gray-700">{star} star</span>
-                <div className="h-2 bg-gray-200 rounded mx-4 w-full">
-                  <div className={`h-full bg-yellow-400 rounded `} style={{ width: `${caculatePercentStar(star)}%` }}/>
+          {/* Thông tin + mô tả bên phải */}
+          <div className="flex-1 flex flex-col gap-6 justify-between">
+            <div>
+              <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-3">{bookDetail.title}</h1>
+              <p className="text-xl text-gray-700 dark:text-gray-300 mb-2">
+                Tác giả: <span className="font-bold text-gray-900 dark:text-white">{bookDetail.author}</span>
+              </p>
+              <div className="flex items-center gap-2 mb-4">
+                {[1,2,3,4,5].map(star => (
+                  <Star key={star} size={32} className={star <= caculateAverageRating() ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 dark:text-gray-600'} />
+                ))}
+                <span className="ml-2 text-gray-600 dark:text-gray-400 text-xl font-semibold">{caculateAverageRating().toFixed(1)} / 5</span>
+              </div>
+              <div className="flex items-baseline gap-4 mb-4">
+                <span className="text-4xl font-extrabold text-green-600 dark:text-green-400">{parseFloat(bookDetail.price_discounted).toLocaleString()}₫</span>
+                <span className="text-2xl line-through text-gray-400 dark:text-gray-500">{parseFloat(bookDetail.price_original).toLocaleString()}₫</span>
+                <span className="bg-red-500 text-white text-lg font-bold px-4 py-1 rounded">-{Math.round((parseFloat(bookDetail.price_original) - parseFloat(bookDetail.price_discounted))*100/parseFloat(bookDetail.price_original))}%</span>
+              </div>
+              <div className="flex items-center gap-6 mb-6">
+                <div className="flex items-center border dark:border-gray-600 rounded-lg overflow-hidden">
+                  <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity-1)}><Minus size={24}/></button>
+                  <span className="px-8 py-2 text-2xl font-bold text-gray-800 dark:text-white">{buyQuantity}</span>
+                  <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity+1)}><Plus size={24}/></button>
                 </div>
-                <span className="text-sm text-gray-600 w-10 text-right">{caculatePercentStar(star).toFixed(0)}%</span>
+                <button
+                  onClick={addToCart}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-bold text-xl px-8 py-3 rounded-xl shadow transition"
+                >
+                  <ShoppingCart className="w-6 h-6" />
+                  Thêm vào giỏ hàng
+                </button>
+              </div>
+              {/* Book Details grid */}
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2 bg-gray-50 dark:bg-gray-700 rounded-xl p-5 text-xl text-gray-700 dark:text-gray-300 mb-6">
+                <div><span className="font-semibold">Dịch giả:</span> {bookDetail.translator}</div>
+                <div><span className="font-semibold">NXB:</span> {bookDetail.publisher}</div>
+                <div><span className="font-semibold">Kích thước:</span> {bookDetail.dimensions}</div>
+                <div><span className="font-semibold">Số trang:</span> {bookDetail.pages}</div>
+                <div><span className="font-semibold">Năm XB:</span> {bookDetail.created_at}</div>
+              </div>
+              {/* Mô tả sách */}
+              <div className="mt-2">
+                <h2 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">Mô tả sách</h2>
+                <p className="text-gray-800 dark:text-gray-300 text-lg leading-relaxed">
+                  {bookDetail.description.length > MAX_DESCRIPTION_LENGTH && !showFullDescription
+                    ? (
+                      <>
+                        {bookDetail.description.slice(0, MAX_DESCRIPTION_LENGTH)}...
+                        <button
+                          className="ml-2 text-green-600 dark:text-green-400 font-semibold hover:underline"
+                          onClick={() => setShowFullDescription(true)}
+                        >Xem thêm</button>
+                      </>
+                    )
+                    : (
+                      <>
+                        {bookDetail.description}
+                        {bookDetail.description.length > MAX_DESCRIPTION_LENGTH && (
+                          <button
+                            className="ml-2 text-green-600 dark:text-green-400 font-semibold hover:underline"
+                            onClick={() => setShowFullDescription(false)}
+                          >Ẩn bớt</button>
+                        )}
+                      </>
+                    )
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Ratings Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-8 mt-10 transition-colors">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div className="flex flex-col items-center md:items-start">
+              <div className="text-5xl font-bold text-gray-900 dark:text-white">{caculateAverageRating().toFixed(1)}</div>
+              <div className="flex items-center mb-1">
+                {[1,2,3,4,5].map(star => (
+                  <Star key={star} size={22} className={star <= caculateAverageRating() ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 dark:text-gray-600'} />
+                ))}
+              </div>
+              <div className="text-gray-500 dark:text-gray-400 text-sm">({listComment.length} đánh giá)</div>
+            </div>
+            <div className="flex-1 w-full max-w-lg mx-auto">
+              {[5,4,3,2,1].map(star => (
+                <div key={star} className="flex items-center gap-2 mb-2">
+                  <span className="w-10 text-sm text-gray-600 dark:text-gray-400">{star} sao</span>
+                  <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-yellow-400 rounded-full transition-all duration-500" style={{width: `${caculatePercentStar(star)}%`}}></div>
+                  </div>
+                  <span className="w-10 text-sm text-gray-500 dark:text-gray-400 text-right">{caculatePercentStar(star).toFixed(0)}%</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col items-center md:items-end">
+              <button onClick={() => setIsOpenDialog(true)} className="flex items-center gap-2 border border-green-600 dark:border-green-400 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 px-4 py-2 rounded-lg font-semibold transition">
+                <Pen size={16} className="mr-1"/> Viết đánh giá
+              </button>
+            </div>
+          </div>
+          {/* User Comments */}
+          <div className="mt-10 max-h-[350px] overflow-y-auto space-y-6">
+            {listComment.length === 0 && <div className="text-gray-400 dark:text-gray-500 italic text-center">Chưa có đánh giá nào.</div>}
+            {listComment.map((comment, idx) => (
+              <div key={idx} className="border dark:border-gray-700 p-4 rounded-lg shadow-sm bg-gray-50 dark:bg-gray-700">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-lg text-gray-900 dark:text-white">{comment.user_name}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{Moment(comment.created_at).format('YYYY-MM-D, HH:mm')}</span>
+                </div>
+                <div className="flex items-center text-yellow-500 mb-2">
+                  {Array.from({length: comment.rating}).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+                </div>
+                <p className="text-gray-700 dark:text-gray-300">{comment.review}</p>
               </div>
             ))}
           </div>
-
-          {/* Add comment button  */}
-          <div className="mt-6 md:mt-0">
-            <button onClick={() => {
-              console.log(userId);
-              setIsOpenDialog(true);
-            }
-            } 
-            variant="outline" className="mt-4 lg:mt-0 border border-red-600 text-red-600 hover:bg-red-50 px-4 py-2 rounded-md flex items-center">
-              <Pen size={16} className="mr-2" /> Viết đánh giá
-            </button>
-          </div>
-
-          {/* Comment dilog */}
+          {/* Comment Dialog */}
           <Dialog open={isOpenDialog} onClose={() => setIsOpenDialog(false)} className="relative z-50">
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-              <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-                <Dialog.Title className="text-xl font-semibold mb-4">Your Feedback</Dialog.Title>
-
-                {/* Star Rating */}
+              <Dialog.Panel className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md transition-colors">
+                <Dialog.Title className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Đánh giá của bạn</Dialog.Title>
                 <div className="flex space-x-2 mb-4">
-                  {[1, 2, 3, 4, 5].map((num) => (
+                  {[1,2,3,4,5].map(num => (
                     <Star
                       key={num}
                       onMouseEnter={() => setHoverRating(num)}
                       onMouseLeave={() => setHoverRating(0)}
                       onClick={() => setRating(num)}
-                      className={`w-6 h-6 cursor-pointer transition-colors ${
-                        (hoverRating || rating) >= num ? "fill-yellow-400 stroke-yellow-400" : "stroke-gray-400"
+                      className={`w-7 h-7 cursor-pointer transition-colors ${
+                        (hoverRating || rating) >= num ? "fill-yellow-400 stroke-yellow-400" : "stroke-gray-400 dark:stroke-gray-600"
                       }`}
                     />
                   ))}
                 </div>
-
-                {/* Comment Textarea */}
                 <textarea
                   rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Write your comment..."
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="Viết nhận xét của bạn..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                 />
-
-                {/* Buttons */}
                 <div className="mt-4 flex justify-end space-x-2">
                   <button
                     onClick={() => setIsOpenDialog(false)}
-                    className="px-4 py-2 text-gray-500 hover:underline"
+                    className="px-4 py-2 text-gray-500 dark:text-gray-400 hover:underline"
                   >
-                    Cancel
+                    Hủy
                   </button>
                   <button
                     onClick={handleSubmitReview}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
+                    className="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-xl hover:bg-green-700 dark:hover:bg-green-600"
                   >
-                    Submit
+                    Gửi đánh giá
                   </button>
                 </div>
               </Dialog.Panel>
             </div>
           </Dialog>
-
         </div>
-
-        {/* User Comments */}
-        <div className="h-[400px] mt-10 overflow-y-auto border rounded-lg p-4 space-y-6 shadow-inner">
-        <div className="max-w-5xl w-full mt-12">
-          <h2 className="text-2xl font-semibold text-green-700 mb-4">User feedback</h2>
-          <div className="space-y-6">
-            {listComment.map((comment)=>
-               <div className="border p-4 rounded-lg shadow-sm">
-               <div className="flex items-center justify-between mb-2">
-                 <span className="font-semibold text-lg sm:text-xl">{comment.user_name}</span>
-                 <span className="text-sm text-gray-500">{Moment(comment.created_at).format('YYYY-MM-D, HH:mm')}</span>
-               </div>
-               <div className="flex items-center text-yellow-500 mb-2">
-                 {Array.from({length: comment.rating}).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
-               </div>
-               <p className="text-gray-700">
-                 {comment.review}
-               </p>
-             </div>
-            )}
-          </div>
-        </div>
-        </div>
-
       </div>
+      <ToastContainer theme={theme === "dark" ? "dark" : "light"} />
     </div>
   );
 };
