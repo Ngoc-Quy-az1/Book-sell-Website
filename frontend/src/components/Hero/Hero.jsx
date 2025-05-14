@@ -11,7 +11,7 @@ const Hero = ({ handleOrderPopup }) => {
   const [booklist, setBooklist] = useState([]);
   const [bookId, setBookId] = useState('3');
   const [description, setDescription] = useState(
-    "Thông tin chi tiết sản phẩm đang được cập nhật"
+    "Cha mẹ nào cũng muốn con cái mình thành đạt, vươn tới tận cùng tiềm năng của chúng. Nhưng liệu có một phương pháp nuôi dạy con nào đảm bảo tạo ra những con người thành đạt, thông minh, tự quyết và có khả năng thay đổi thế giới không? Cuốn sách này sẽ cho bạn thấy là có. Kết hợp các nghiên cứu khoa học mới nhất về tâm lý học phát triển, sự phát triển não bộ và khả năng học tập của trẻ em, cùng với những câu chuyện đời thực của các cá nhân nổi bật, Đại công thức minh họa cách mà phương pháp nuôi dạy con có chiến lược định hình nên những con người xuất sắc và thú vị. Không cần phải giàu có hay xuất chúng, các bậc cha mẹ của những người này giúp họ tỏa sáng chỉ bằng nỗ lực tận tâm và một chiến lược nuôi dạy con hiệu quả. Tám vai trò mà cha mẹ cần đảm đương trong đời con làm nên một Đại công thức dẫn con tới một cuộc sống hạnh phúc, thành đạt, với mọi tiềm năng được hiện thực hóa."
   );
   const [author, setAuthor] = useState('Nguyễn Thị Ninh')
 
