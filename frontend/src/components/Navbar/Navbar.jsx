@@ -344,19 +344,19 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                   <div className="absolute -left-9 z-[9999] w-[150px] rounded-md bg-white dark:bg-black dark:text-white  p-2 text-black group-hover:block  " hidden={!showOption}>
                       <ul className="space-y-3">
                           <li >
-                            <a
+                            <Link
                               className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                              href={`/user-detail/${user.id}`}
+                              to={`/user-detail`}
                             >
                               User Detail
-                            </a>
+                            </Link>
                             {Cookies.get("userId")==16 ?
-                            <a
+                            <Link
                               className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                              href={`/admin`}
+                              to={`/admin`}
                             >
                               Admin Page
-                            </a>: <></>}
+                            </Link>: <></>}
                             <a
                               className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
                               onClick={handleSignOut}

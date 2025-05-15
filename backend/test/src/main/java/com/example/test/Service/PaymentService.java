@@ -98,11 +98,11 @@ public class PaymentService {
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
 
                 if (order.getStatus() != PurchaseStatus.Pending) {
-                    throw new RuntimeException("Đơn hàng #" + orderId + " không ở trạng thái chờ thanh toán");
+                    throw new RuntimeException("Đơn hàng " + orderId + " không ở trạng thái chờ thanh toán");
                 }
 
                 if (!order.getUserId().equals(userId)) {
-                    throw new RuntimeException("Đơn hàng #" + orderId + " không thuộc về người dùng này");
+                    throw new RuntimeException("Đơn hàng " + orderId + " không thuộc về người dùng này");
                 }
 
                 totalAmount = totalAmount.add(order.getTotalAmount());
@@ -126,7 +126,7 @@ public class PaymentService {
 
             if (transactionAmount.compareTo(totalAmount) > 0) {
                 BigDecimal excessAmount = transactionAmount.subtract(totalAmount); // Tính số tiền thừa
-                int excessXu = excessAmount.divide(BigDecimal.valueOf(100), BigDecimal.ROUND_DOWN).intValue();
+                int excessXu = excessAmount.divide(BigDecimal.valueOf(1000), BigDecimal.ROUND_DOWN).intValue();
                 user.setBalance(user.getBalance() + excessXu); // Cộng xu vào tài khoản người dùng
 
                 for (PurchaseHistory order : orders) {

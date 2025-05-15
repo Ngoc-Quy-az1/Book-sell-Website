@@ -66,10 +66,30 @@ export default function PlaceOrder() {
         }));
       }
     } catch (error) {
-      setPaymentResult((prev) => ({
-        ...prev,
-        [method]: "⚠️ Unable to check payment status.",
-      }));
+      if (error.response && error.response.status === 400 && method === "qr") {
+        const errorMessage = error.response.data.message;
+        if (errorMessage.startsWith("Lỗi xử lý thanh toán")) {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: `⚠️ ${errorMessage}`,
+          }));
+        } else if (errorMessage.startsWith("Số tiền chuyển khoản")) {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: `⚠️ ${errorMessage}`,
+          }));
+        } else {
+          setPaymentResult((prev) => ({
+            ...prev,
+            qr: "⚠️ Unable to process payment.",
+          }));
+        }
+      } else {
+        setPaymentResult((prev) => ({
+          ...prev,
+          [method]: "⚠️ Unable to check payment status.",
+        }));
+      }
     }
   };
 

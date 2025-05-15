@@ -28,9 +28,9 @@ const UserDetail = () => {
   const [customCoins, setCustomCoins] = useState(""); // State for custom coin input
 
   const rechargeOptions = [
-    { amount: 100000, coins: 109 },
-    { amount: 200000, coins: 222 },
-    { amount: 500000, coins: 599 },
+    { amount: 100000, coins: 100, voucher: "giảm 10%" },
+    { amount: 200000, coins: 200, voucher: "giảm 20%" },
+    { amount: 500000, coins: 500, voucher: "giảm 30%" },
   ];
 
   useEffect(() => {
@@ -95,6 +95,49 @@ const UserDetail = () => {
     }
     const amount = customCoins * 1000; // Calculate price based on 1000đ = 1 xu
     setSelectedRecharge({ amount, coins: customCoins });
+  };
+
+  const handleRechargeConfirmation = async () => {
+    if (!selectedRecharge) {
+      alert("Vui lòng chọn gói nạp hoặc nhập số xu hợp lệ!");
+      return;
+    }
+
+    const userId = Cookies.get('userId');
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/users/update/balance/${userId}`,
+        {
+          amount: selectedRecharge.amount,
+          coins: selectedRecharge.coins,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get('authToken')}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert(`✅ ${response.data.message}`);
+        setUser((prevUser) => ({
+          ...prevUser,
+          balance: response.data.newBalance,
+        }));
+        setSelectedRecharge(null); // Reset selected recharge
+        setShowRechargeOptions(false); // Hide recharge options
+      } else {
+        alert(`⚠️ ${response.data.message}`);
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(`⚠️ ${error.response.data.message}`);
+      } else {
+        alert("⚠️ Không thể thực hiện giao dịch. Vui lòng thử lại sau.");
+      }
+    }
   };
 
   if (!user) {
@@ -227,7 +270,7 @@ const UserDetail = () => {
                   }`}
                 >
                   <p className="text-lg font-bold">{option.amount.toLocaleString()} VND</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Nhận {option.coins} Xu</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Nhận {option.coins} Xu và Voucher {option.voucher}</p>
                 </button>
               ))}
             </div>
@@ -264,7 +307,7 @@ const UserDetail = () => {
                   onClick={() => alert("Đang kiểm tra giao dịch...")}
                   className="mt-4 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded transition-colors text-sm sm:text-base"
                 >
-                  Check Giao Dịch
+                  Xác Nhận Giao Dịch
                 </button>
               </div>
             )}
