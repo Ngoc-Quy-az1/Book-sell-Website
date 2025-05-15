@@ -152,13 +152,36 @@ public class PaymentService {
                 assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
             }
 
-            Notification notification = new Notification();
-            notification.setUser(user);
-            notification.setMessage(
+            Notification notification_1 = new Notification();
+            notification_1.setUser(user);
+            notification_1.setMessage(
                     "Thanh toán thành công đơn hàng mã " + orderIds + " bằng chuyển khoản lúc " + new Date());
-            notification.setCreatedAt(new Date());
-            notification.setRead(false);
-            notificationRepository.save(notification);
+            notification_1.setCreatedAt(new Date());
+            notification_1.setRead(false);
+            notificationRepository.save(notification_1);
+
+            if (transactionAmount.compareTo(BigDecimal.valueOf(500000)) >= 0) {
+                Notification notification_2 = new Notification();
+                notification_2.setUser(user);
+                notification_2.setMessage(
+                        "Bạn được cộng 5 điểm tích lũy cho đơn hàng mã " + orderIds + "lúc" + new Date());
+                notification_2.setCreatedAt(new Date());
+                notification_2.setRead(false);
+                notificationRepository.save(notification_2);
+                user.setPoints(user.getPoints() + 5);
+                userRepository.save(user);
+            } else if (transactionAmount.compareTo(BigDecimal.valueOf(2000000)) >= 0
+                    && transactionAmount.compareTo(BigDecimal.valueOf(5000000)) < 0) {
+                Notification notification_2 = new Notification();
+                notification_2.setUser(user);
+                notification_2.setMessage(
+                        "Bạn được cộng 3 điểm tích lũy cho đơn hàng mã " + orderIds + "lúc" + new Date());
+                notification_2.setCreatedAt(new Date());
+                notification_2.setRead(false);
+                notificationRepository.save(notification_2);
+                user.setPoints(user.getPoints() + 3);
+                userRepository.save(user);
+            }
 
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);
@@ -362,7 +385,7 @@ public class PaymentService {
         String discountCodeToAssign = null;
         double amount = orderAmount.doubleValue();
 
-        if (amount >= 20000000) {
+        if (amount >= 200000000) {
             discountCodeToAssign = "REDUC6TW"; // 100%
         } else if (amount >= 15000000) {
             discountCodeToAssign = "GIFT3RXY"; // 90%
