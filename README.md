@@ -47,8 +47,26 @@
    npm run dev
    ```
 
-5. **Chạy backend:**  
-   (Làm theo hướng dẫn riêng của backend, ví dụ với Spring Boot: `mvn spring-boot:run`)
+5. **Chạy backend:**
+
+   ### Cách 1: Dùng VSCode
+
+   - Mở thư mục `backend` trong VSCode.
+   - Đảm bảo đã cài đặt Java và Maven trên máy.
+   - Mở terminal (Ctrl+`), chạy lệnh:
+     ```bash
+     mvn clean install
+     mvn spring-boot:run
+     ```
+   - Backend sẽ chạy ở cổng 8090.
+
+   ### Cách 2: Dùng IntelliJ IDEA
+
+   - Mở thư mục `backend` bằng IntelliJ IDEA.
+   - Chờ IntelliJ load Maven project.
+   - Ở panel bên trái, tìm file `TestApplication.java`.
+   - Nhấn chuột phải vào file này, chọn **Run 'TestApplication.main()'** (hoặc nhấn nút Run hình tam giác màu xanh).
+   - Backend sẽ chạy ở cổng 8090.
 
 6. **Truy cập:**  
    Mở trình duyệt và vào địa chỉ [http://localhost:5173](http://localhost:5173)
