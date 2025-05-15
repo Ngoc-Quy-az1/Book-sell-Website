@@ -1,8 +1,7 @@
-import React, { useState, useRef} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import SignUp from "./SignUp";
 import Login from "./Login";
 import Verify from "./Verify";
-import Notice from "../Notice";
 import ForgotPassword from "./ForgotPassword";
 
 const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
@@ -10,23 +9,57 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
   const [showVerify, setShowVerify] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
+  const loginPopupRef = useRef();
+  const formRef = useRef();
+
   const handleEmail = (str) => {
     setEmail(str);
   }
+
   const handleSignUp = () => {
-    setShowSignUp(!showSignUp);
-    setShowVerify();
+    setShowSignUp(true);
+    setShowVerify(false);
+    setForgotPassword(false);
   };
+
   const handleVerify = () => {
-    if (forgotPassword && showVerify) {
-      handleForgotPassword();
-    }
-    setShowVerify(!showVerify);
+    setShowVerify(true);
+    setShowSignUp(false);
+    setForgotPassword(false);
   };
+
+  const handleBackToLogin = () => {
+    setShowSignUp(false);
+    setShowVerify(false);
+    setForgotPassword(false);
+  };
+
   const handleForgotPassword = () => {
-    setForgotPassword(!forgotPassword);
+    setForgotPassword(true);
+    setShowSignUp(false);
+    setShowVerify(false);
   }
-  const loginPopupRef = useRef();
+
+  // Xử lý click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (loginPopupRef.current && !loginPopupRef.current.contains(event.target) && 
+          formRef.current && !formRef.current.contains(event.target)) {
+        setForgotPassword(false);
+        setShowSignUp(false);
+        setShowVerify(false);
+        handleLoginPopup(false);
+      }
+    };
+
+    if (loginPopup) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [loginPopup, handleLoginPopup]);
 
   //Báo lỗi
   const [notice, setNotice] = useState(false);
@@ -40,29 +73,23 @@ const LoginPopup = ({ loginPopup, handleLoginPopup }) => {
     setMessage(message); 
     setError(error);
     showNotice();
-}
-window.addEventListener("click", (e) => {
-  if (e.target === loginPopupRef.current) {
-    setForgotPassword(false);
-    handleLoginPopup(false);
   }
-  });
 
   return (
     <>
-    <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
       {loginPopup && (
         <div
           ref={loginPopupRef}
           className="h-screen w-screen fixed top-0 left-0 bg-black/50 z-50 backdrop-blur-sm"
         >
-          <div className="rounded-2xl bg-white/10 backdrop-md shadow-custom-inset sm:w-[600px] md:w-[380px] ">
-          
-            <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
+          <div 
+            ref={formRef}
+            className="rounded-2xl bg-white/10 backdrop-md shadow-custom-inset sm:w-[600px] md:w-[380px]"
+          >
             {
-              (showVerify) ? <Verify handleVerify={handleVerify} mail={email} handleNotice={handleNotice} forgotPassword={forgotPassword}/>
-              : (showSignUp) ? <SignUp handleSignUp={handleSignUp} handleVerify={handleVerify} handleMail={handleEmail} handleNotice={handleNotice}/>
-              : (forgotPassword) ? <ForgotPassword handleForgotPassword={handleForgotPassword} handleNotice={handleNotice} handleVerify={handleVerify} handleMail={handleEmail}/>
+              (showVerify) ? <Verify handleVerify={handleBackToLogin} mail={email} handleNotice={handleNotice} forgotPassword={forgotPassword}/>
+              : (showSignUp) ? <SignUp handleSignUp={handleBackToLogin} handleVerify={handleVerify} handleMail={handleEmail} handleNotice={handleNotice}/>
+              : (forgotPassword) ? <ForgotPassword handleForgotPassword={handleBackToLogin} handleNotice={handleNotice} handleVerify={handleVerify} handleMail={handleEmail}/>
               : <Login handleSignUp={handleSignUp} handleNotice={handleNotice} handleForgotPassword={handleForgotPassword}/>
             }
           </div>

@@ -33,6 +33,9 @@ import java.util.regex.Pattern;
 public class PaymentService {
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+    private static Timestamp lastProcessedEmailTime = null; // Thêm biến để theo dõi thời gian email đã xử lý gần nhất
+    // Thêm map để theo dõi số tiền đã thanh toán cho mỗi đơn hàng
+    private static final Map<String, BigDecimal> partialPayments = new HashMap<>();
 
     @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
@@ -56,6 +59,11 @@ public class PaymentService {
     private DiscountCodesNumberCodeRepository discountCodesNumberCodeRepository;
 
     private static final double XU_TO_VND_RATE = 1000.0; // 1 xu = 1000 VND
+
+    // Hàm helper để tạo key cho partialPayments
+    private String createPaymentKey(List<Integer> orderIds, Integer userId) {
+        return userId + "_" + String.join("_", orderIds.stream().map(String::valueOf).toArray(String[]::new));
+    }
 
     /**
      * Get all pending orders that need payment
@@ -88,6 +96,165 @@ public class PaymentService {
     @Transactional
     public Map<String, Object> processNewBankTransfer(List<Integer> orderIds, Integer userId) {
         try {
+            String paymentKey = createPaymentKey(orderIds, userId);
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            List<PurchaseHistory> orders = new ArrayList<>();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+            // Kiểm tra xem có thanh toán một phần trước đó không
+            BigDecimal previousPayment = partialPayments.getOrDefault(paymentKey, BigDecimal.ZERO);
+            boolean hasPartialPayment = previousPayment.compareTo(BigDecimal.ZERO) > 0;
+
+            for (Integer orderId : orderIds) {
+                PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+
+                // Nếu có thanh toán một phần, cho phép tiếp tục thanh toán ngay cả khi trạng thái đã thay đổi
+                if (!hasPartialPayment && order.getStatus() != PurchaseStatus.Pending) {
+                    throw new RuntimeException("Đơn hàng " + orderId + " không ở trạng thái chờ thanh toán");
+                }
+
+                if (!order.getUserId().equals(userId)) {
+                    throw new RuntimeException("Đơn hàng " + orderId + " không thuộc về người dùng này");
+                }
+
+                totalAmount = totalAmount.add(order.getTotalAmount());
+                orders.add(order);
+            }
+
+            try {
+                Map<String, String> transactionDetails = readRecentEmails();
+                if (transactionDetails == null) {
+                    if (hasPartialPayment) {
+                        BigDecimal remainingAmount = totalAmount.subtract(previousPayment);
+                        return createResponse(false,
+                            "Bạn đã thanh toán " + previousPayment + " VND. " +
+                            "Còn thiếu " + remainingAmount + " VND. " +
+                            "Vui lòng chuyển thêm " + remainingAmount + " VND để hoàn tất thanh toán.");
+                    }
+                    return createResponse(false, "Vui lòng chuyển khoản để hoàn thiện đơn hàng");
+                }
+
+                String amountStr = transactionDetails.get("amount");
+                BigDecimal transactionAmount = new BigDecimal(amountStr);
+                
+                // Cộng dồn số tiền mới với số tiền đã thanh toán trước đó
+                BigDecimal totalPaidAmount = previousPayment.add(transactionAmount);
+
+                if (totalPaidAmount.compareTo(totalAmount) < 0) {
+                    // Cập nhật số tiền đã thanh toán
+                    partialPayments.put(paymentKey, totalPaidAmount);
+                    BigDecimal remainingAmount = totalAmount.subtract(totalPaidAmount);
+                    return createResponse(false,
+                            "Đã nhận được thanh toán " + transactionAmount + " VND. " +
+                            "Tổng số tiền đã thanh toán: " + totalPaidAmount + " VND. " +
+                            "Còn thiếu " + remainingAmount + " VND. " +
+                            "Hãy chuyển thêm " + remainingAmount + " VND nữa để hoàn tất thanh toán.");
+                }
+
+                // Xóa thông tin thanh toán một phần sau khi hoàn tất
+                partialPayments.remove(paymentKey);
+
+                if (totalPaidAmount.compareTo(totalAmount) > 0) {
+                    BigDecimal excessAmount = totalPaidAmount.subtract(totalAmount);
+                    int excessXu = excessAmount.divide(BigDecimal.valueOf(1000), BigDecimal.ROUND_DOWN).intValue();
+                    user.setBalance(user.getBalance() + excessXu);
+
+                    for (PurchaseHistory order : orders) {
+                        order.setStatus(PurchaseStatus.Completed);
+                        purchaseHistoryRepository.save(order);
+                        assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
+                    }
+
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("success", true);
+                    result.put("paymentStatus", "excess");
+                    result.put("message", "Thanh toán thành công " + orders.size() + " đơn hàng");
+                    result.put("excessAmount", excessAmount);
+                    result.put("excessCoins", excessXu);
+                    result.put("orderIds", orderIds);
+                    result.put("totalAmount", totalAmount);
+                    result.put("totalPaidAmount", totalPaidAmount);
+                    return result;
+                }
+
+                // Xử lý thanh toán đủ
+                for (PurchaseHistory order : orders) {
+                    order.setStatus(PurchaseStatus.Completed);
+                    purchaseHistoryRepository.save(order);
+                    assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
+                }
+
+                Notification notification_1 = new Notification();
+                notification_1.setUser(user);
+                notification_1.setMessage(
+                        "Thanh toán thành công đơn hàng mã " + orderIds + " bằng chuyển khoản lúc " + new Date());
+                notification_1.setCreatedAt(new Date());
+                notification_1.setRead(false);
+                notificationRepository.save(notification_1);
+
+                if (totalPaidAmount.compareTo(BigDecimal.valueOf(500000)) >= 0) {
+                    Notification notification_2 = new Notification();
+                    notification_2.setUser(user);
+                    notification_2.setMessage(
+                            "Bạn được cộng 5 điểm tích lũy cho đơn hàng mã " + orderIds + "lúc" + new Date());
+                    notification_2.setCreatedAt(new Date());
+                    notification_2.setRead(false);
+                    notificationRepository.save(notification_2);
+                    user.setPoints(user.getPoints() + 5);
+                    userRepository.save(user);
+                } else if (totalPaidAmount.compareTo(BigDecimal.valueOf(2000000)) >= 0
+                        && totalPaidAmount.compareTo(BigDecimal.valueOf(5000000)) < 0) {
+                    Notification notification_2 = new Notification();
+                    notification_2.setUser(user);
+                    notification_2.setMessage(
+                            "Bạn được cộng 3 điểm tích lũy cho đơn hàng mã " + orderIds + "lúc" + new Date());
+                    notification_2.setCreatedAt(new Date());
+                    notification_2.setRead(false);
+                    notificationRepository.save(notification_2);
+                    user.setPoints(user.getPoints() + 3);
+                    userRepository.save(user);
+                }
+
+                Map<String, Object> result = new HashMap<>();
+                result.put("success", true);
+                result.put("paymentStatus", "exact");
+                result.put("message", "Thanh toán thành công " + orders.size() + " đơn hàng");
+                result.put("orderIds", orderIds);
+                result.put("totalAmount", totalAmount);
+                result.put("totalPaidAmount", totalPaidAmount);
+                return result;
+
+            } catch (RuntimeException e) {
+                // Xử lý các exception cụ thể từ readRecentEmails
+                if (e.getMessage().equals("Vui lòng nhập số điện thoại khi chuyển khoản")) {
+                    return createResponse(false, e.getMessage());
+                } else if (e.getMessage().equals("Vui lòng chuyển khoản để hoàn thiện đơn hàng")) {
+                    return createResponse(false, e.getMessage());
+                }
+                // Nếu là lỗi khác, throw lại để xử lý ở catch block bên ngoài
+                throw e;
+            }
+
+        } catch (Exception e) {
+            logger.error("Lỗi xử lý thanh toán qua chuyển khoản: {}", e.getMessage(), e);
+            // Kiểm tra nếu là lỗi đã xử lý ở trên thì trả về message tương ứng
+            if (e.getMessage().equals("Vui lòng nhập số điện thoại khi chuyển khoản") ||
+                e.getMessage().equals("Vui lòng chuyển khoản để hoàn thiện đơn hàng")) {
+                return createResponse(false, e.getMessage());
+            }
+            // Các lỗi khác sẽ trả về message chung
+            return createResponse(false, "Có lỗi xảy ra, vui lòng thử lại sau");
+        }
+    }
+
+    /**
+     * Process payment using user's balance (xu) for multiple orders
+     */
+    @Transactional
+    public Map<String, Object> processBalancePayment(List<Integer> orderIds, Integer userId) {
+        try {
             BigDecimal totalAmount = BigDecimal.ZERO;
             List<PurchaseHistory> orders = new ArrayList<>();
             User user = userRepository.findById(userId)
@@ -109,121 +276,6 @@ public class PaymentService {
                 orders.add(order);
             }
 
-            Map<String, String> transactionDetails = readRecentEmails();
-            if (transactionDetails == null || !transactionDetails.containsKey("amount")) {
-                return createResponse(false, "Không tìm thấy email chuyển khoản mới");
-            }
-
-            String amountStr = transactionDetails.get("amount");
-            BigDecimal transactionAmount = new BigDecimal(amountStr);
-
-            if (transactionAmount.compareTo(totalAmount) < 0) {
-                return createResponse(false,
-                        "Số tiền chuyển khoản (" + amountStr + " VND) không đủ để thanh toán tổng đơn hàng ("
-                                + totalAmount + " VND)" + ". Hãy chuyển thêm "
-                                + (totalAmount.subtract(transactionAmount)) + " VND nữa để hoàn tất thanh toán.");
-            }
-
-            if (transactionAmount.compareTo(totalAmount) > 0) {
-                BigDecimal excessAmount = transactionAmount.subtract(totalAmount); // Tính số tiền thừa
-                int excessXu = excessAmount.divide(BigDecimal.valueOf(1000), BigDecimal.ROUND_DOWN).intValue();
-                user.setBalance(user.getBalance() + excessXu); // Cộng xu vào tài khoản người dùng
-
-                for (PurchaseHistory order : orders) {
-                    order.setStatus(PurchaseStatus.Completed);
-                    purchaseHistoryRepository.save(order);
-                    assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
-                }
-
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", true);
-                result.put("message", "Bạn đã thanh toán thành công " + orders.size() + " đơn hàng" +
-                        ". Số tiền thừa là " + excessAmount + " VND. Xu đã cộng vào tài khoản: " + excessXu + " xu.");
-                result.put("excessAmount", excessAmount);
-                result.put("orderIds", orderIds);
-                result.put("totalAmount", totalAmount);
-                result.put("transactionAmount", transactionAmount);
-                return result;
-            }
-
-            for (PurchaseHistory order : orders) {
-                order.setStatus(PurchaseStatus.Completed);
-                purchaseHistoryRepository.save(order);
-                assignDiscountCodeBasedOnAmount(user, order.getTotalAmount());
-            }
-
-            Notification notification_1 = new Notification();
-            notification_1.setUser(user);
-            notification_1.setMessage(
-                    "Thanh toán thành công đơn hàng mã " + orderIds + " bằng chuyển khoản lúc " + new Date());
-            notification_1.setCreatedAt(new Date());
-            notification_1.setRead(false);
-            notificationRepository.save(notification_1);
-
-            if (transactionAmount.compareTo(BigDecimal.valueOf(500000)) >= 0) {
-                Notification notification_2 = new Notification();
-                notification_2.setUser(user);
-                notification_2.setMessage(
-                        "Bạn được cộng 5 điểm tích lũy cho đơn hàng mã " + orderIds + "lúc" + new Date());
-                notification_2.setCreatedAt(new Date());
-                notification_2.setRead(false);
-                notificationRepository.save(notification_2);
-                user.setPoints(user.getPoints() + 5);
-                userRepository.save(user);
-            } else if (transactionAmount.compareTo(BigDecimal.valueOf(2000000)) >= 0
-                    && transactionAmount.compareTo(BigDecimal.valueOf(5000000)) < 0) {
-                Notification notification_2 = new Notification();
-                notification_2.setUser(user);
-                notification_2.setMessage(
-                        "Bạn được cộng 3 điểm tích lũy cho đơn hàng mã " + orderIds + "lúc" + new Date());
-                notification_2.setCreatedAt(new Date());
-                notification_2.setRead(false);
-                notificationRepository.save(notification_2);
-                user.setPoints(user.getPoints() + 3);
-                userRepository.save(user);
-            }
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("message", "Thanh toán thành công " + orders.size() + " đơn hàng");
-            result.put("orderIds", orderIds);
-            result.put("totalAmount", totalAmount);
-            result.put("transactionAmount", transactionAmount);
-            return result;
-
-        } catch (Exception e) {
-            logger.error("Lỗi xử lý thanh toán qua chuyển khoản: {}", e.getMessage(), e);
-            return createResponse(false, "Lỗi xử lý thanh toán: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Process payment using user's balance (xu) for multiple orders
-     */
-    @Transactional
-    public Map<String, Object> processBalancePayment(List<Integer> orderIds, Integer userId) {
-        try {
-            BigDecimal totalAmount = BigDecimal.ZERO;
-            List<PurchaseHistory> orders = new ArrayList<>();
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-
-            for (Integer orderId : orderIds) {
-                PurchaseHistory order = purchaseHistoryRepository.findById(orderId)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
-
-                if (order.getStatus() != PurchaseStatus.Pending) {
-                    throw new RuntimeException("Đơn hàng #" + orderId + " không ở trạng thái chờ thanh toán");
-                }
-
-                if (!order.getUserId().equals(userId)) {
-                    throw new RuntimeException("Đơn hàng #" + orderId + " không thuộc về người dùng này");
-                }
-
-                totalAmount = totalAmount.add(order.getTotalAmount());
-                orders.add(order);
-            }
-
             double requiredXu = totalAmount.doubleValue() / XU_TO_VND_RATE;
 
             if (user.getBalance() < requiredXu) {
@@ -232,6 +284,34 @@ public class PaymentService {
             }
 
             user.setBalance(user.getBalance() - requiredXu);
+
+            // Tích điểm dựa trên số tiền thanh toán
+            int pointsToAdd = 0;
+            if (totalAmount.compareTo(BigDecimal.valueOf(500000)) >= 0) {
+                pointsToAdd = 5;
+            } else if (totalAmount.compareTo(BigDecimal.valueOf(200000)) >= 0) {
+                pointsToAdd = 3;
+            } else if (totalAmount.compareTo(BigDecimal.valueOf(100000)) >= 0) {
+                pointsToAdd = 1;
+            }
+
+            if (pointsToAdd > 0) {
+                user.setPoints(user.getPoints() + pointsToAdd);
+                // Thông báo tích điểm
+                Notification pointsNotification = new Notification();
+                pointsNotification.setUser(user);
+                pointsNotification.setMessage(
+                    String.format("Bạn được cộng %d điểm tích lũy cho đơn hàng %s trị giá %s VND lúc %s", 
+                        pointsToAdd,
+                        orderIds,
+                        totalAmount.toString(),
+                        new Date())
+                );
+                pointsNotification.setCreatedAt(new Date());
+                pointsNotification.setRead(false);
+                notificationRepository.save(pointsNotification);
+            }
+
             userRepository.save(user);
 
             for (PurchaseHistory order : orders) {
@@ -254,6 +334,8 @@ public class PaymentService {
             result.put("orderIds", orderIds);
             result.put("totalAmount", totalAmount);
             result.put("remainingBalance", user.getBalance());
+            result.put("pointsAdded", pointsToAdd);
+            result.put("totalPoints", user.getPoints());
             return result;
 
         } catch (Exception e) {
@@ -283,17 +365,25 @@ public class PaymentService {
             System.out.println("Connected to email server");
 
             Folder inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_ONLY);
+            // Mở folder với quyền đọc và ghi để có thể đánh dấu email đã đọc
+            inbox.open(Folder.READ_WRITE);
 
             int totalMessages = inbox.getMessageCount();
             System.out.println("Total messages in inbox: " + totalMessages);
 
+            // Lấy 10 email gần nhất
             int startMessage = Math.max(1, totalMessages - 10);
             Message[] messages = inbox.getMessages(startMessage, totalMessages);
             System.out.println("Fetched " + messages.length + " recent messages");
 
             for (int i = messages.length - 1; i >= 0; i--) {
                 Message message = messages[i];
+                
+                if (message.getFlags().contains(Flags.Flag.SEEN)) {
+                    System.out.println("Skipping already read email");
+                    continue;
+                }
+
                 String from = Arrays.toString(message.getFrom());
                 String subject = message.getSubject();
                 System.out.println("Checking message from: " + from + ", subject: " + subject);
@@ -327,16 +417,39 @@ public class PaymentService {
                                 transactionDetails.put("date", dateMatcher.group(1));
                             }
 
+                            try {
+                                message.setFlag(Flags.Flag.SEEN, true);
+                                message.saveChanges();
+                            } catch (Exception e) {
+                                logger.warn("Không thể đánh dấu email đã đọc: " + e.getMessage());
+                                // Bỏ qua lỗi và tiếp tục xử lý giao dịch
+                            }
+
                             return transactionDetails;
                         } else {
-                            System.out.println("Không tìm thấy số điện thoại hợp lệ (10–11 số) trong nội dung email.");
+                            // Đánh dấu email đã đọc và throw exception với message cụ thể
+                            try {
+                                message.setFlag(Flags.Flag.SEEN, true);
+                                message.saveChanges();
+                            } catch (Exception e) {
+                                logger.warn("Không thể đánh dấu email đã đọc: " + e.getMessage());
+                            }
+                            throw new RuntimeException("Vui lòng nhập số điện thoại khi chuyển khoản");
+                        }
+                    } else {
+                        // Đánh dấu email đã đọc nếu không phải email chuyển khoản
+                        try {
+                            message.setFlag(Flags.Flag.SEEN, true);
+                            message.saveChanges();
+                        } catch (Exception e) {
+                            logger.warn("Không thể đánh dấu email đã đọc: " + e.getMessage());
                         }
                     }
                 }
             }
 
-            System.out.println("No matching Sacombank emails found");
-            return null;
+            // Nếu không tìm thấy email chuyển khoản nào
+            throw new RuntimeException("Vui lòng chuyển khoản để hoàn thiện đơn hàng");
 
         } finally {
             try {
@@ -385,15 +498,7 @@ public class PaymentService {
         String discountCodeToAssign = null;
         double amount = orderAmount.doubleValue();
 
-        if (amount >= 200000000) {
-            discountCodeToAssign = "REDUC6TW"; // 100%
-        } else if (amount >= 15000000) {
-            discountCodeToAssign = "GIFT3RXY"; // 90%
-        } else if (amount >= 10000000) {
-            discountCodeToAssign = "SAVE2NML"; // 80%
-        } else if (amount >= 7000000) {
-            discountCodeToAssign = "VCHR8KJD"; // 70%
-        } else if (amount >= 5000000) {
+        if (amount >= 5000000) {
             discountCodeToAssign = "COUPN4BZ"; // 60%
         } else if (amount >= 3000000) {
             discountCodeToAssign = "PROMO1WL"; // 50%

@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js.cookie"
 import qrImage from "../../assets/qr_checkout.png";
 import  "../../CheckToken";
+import discountCodeImage from "../../components/Cart/ExampleImage/ahihi.png";
 
 const getColorFromName = (name) => {
   const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
@@ -26,6 +27,25 @@ const UserDetail = () => {
   const [showRechargeOptions, setShowRechargeOptions] = useState(false); // State to toggle recharge options
   const [selectedRecharge, setSelectedRecharge] = useState(null); // State to track selected recharge option
   const [customCoins, setCustomCoins] = useState(""); // State for custom coin input
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+  const [showPaymentNotification, setShowPaymentNotification] = useState(false);
+  const [paymentNotification, setPaymentNotification] = useState({
+    type: "", // "success" or "warning"
+    title: "",
+    message: "",
+    details: []
+  });
+  const [activeTab, setActiveTab] = useState('recharge'); // 'recharge' or 'redeem'
+  const [selectedRedemptionType, setSelectedRedemptionType] = useState(null);
+  const [pointsToRedeem, setPointsToRedeem] = useState('');
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [showRedemptionNotification, setShowRedemptionNotification] = useState(false);
+  const [redemptionNotification, setRedemptionNotification] = useState({
+    type: "",
+    title: "",
+    message: "",
+    details: []
+  });
 
   const rechargeOptions = [
     { amount: 100000, coins: 100, voucher: "giảm 10%" },
@@ -97,11 +117,19 @@ const UserDetail = () => {
     setSelectedRecharge({ amount, coins: customCoins });
   };
 
-  const handleRechargeConfirmation = async () => {
-    if (!selectedRecharge) {
-      alert("Vui lòng chọn gói nạp hoặc nhập số xu hợp lệ!");
-      return;
-    }
+  const showPaymentNotificationModal = (type, title, message, details = []) => {
+    setPaymentNotification({
+      type,
+      title,
+      message,
+      details
+    });
+    setShowPaymentNotification(true);
+  };
+
+  const handleCheckPayment = async () => {
+    if (isCheckingPayment) return;
+    setIsCheckingPayment(true);
 
     const userId = Cookies.get('userId');
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -109,9 +137,100 @@ const UserDetail = () => {
     try {
       const response = await axios.post(
         `${apiUrl}/api/users/update/balance/${userId}`,
+        {},
         {
-          amount: selectedRecharge.amount,
-          coins: selectedRecharge.coins,
+          headers: {
+            Authorization: `Bearer ${Cookies.get('authToken')}`,
+          },
+        }
+      );
+
+      // Kiểm tra nếu có số dư mới trong response, nghĩa là giao dịch thành công
+      if (response.data.newBalance !== undefined) {
+        // Cập nhật số dư người dùng
+        setUser((prevUser) => ({
+          ...prevUser,
+          balance: response.data.newBalance,
+        }));
+
+        // Hiển thị thông báo thành công
+        showPaymentNotificationModal(
+          "success",
+          "Nạp xu thành công!",
+          "Giao dịch của bạn đã được xử lý thành công.",
+          [
+            `Số xu đã nạp: ${response.data.amount.toLocaleString()} xu`,
+            `Số dư mới: ${response.data.newBalance.toLocaleString()} xu`,
+            response.data.paymentStatus === "exact" 
+              ? "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!"
+              : "Số tiền thừa đã được chuyển thành xu và cộng vào tài khoản của bạn."
+          ]
+        );
+
+        // Reset trạng thái nạp xu
+        setSelectedRecharge(null);
+        setShowRechargeOptions(false);
+      } else if (response.data.success === false) {
+        // Nếu backend trả về success: false
+        showPaymentNotificationModal(
+          "warning",
+          "Nạp xu không thành công",
+          response.data.message || "Không thể xử lý giao dịch. Vui lòng thử lại sau.",
+          []
+        );
+      }
+    } catch (error) {
+      let notificationTitle = "Lỗi nạp xu";
+      let notificationMessage = "";
+      let notificationDetails = [];
+
+      if (error.response) {
+        const errorMessage = error.response.data.message;
+        if (errorMessage.includes("Vui lòng nhập số điện thoại")) {
+          notificationMessage = "Vui lòng nhập số điện thoại khi chuyển khoản.";
+          notificationDetails = ["Điều này giúp chúng tôi xác nhận giao dịch của bạn."];
+        } else if (errorMessage.includes("Vui lòng chuyển khoản")) {
+          notificationMessage = "Vui lòng thực hiện chuyển khoản trước khi kiểm tra.";
+          notificationDetails = ["Hãy chắc chắn rằng bạn đã chuyển khoản thành công."];
+        } else if (errorMessage.includes("Không tìm thấy người dùng")) {
+          notificationMessage = "Không tìm thấy thông tin người dùng.";
+          notificationDetails = ["Vui lòng đăng nhập lại để tiếp tục."];
+        } else {
+          notificationMessage = errorMessage || "Có lỗi xảy ra khi xử lý giao dịch.";
+          notificationDetails = ["Vui lòng thử lại sau."];
+        }
+      } else {
+        notificationMessage = "Không thể kết nối đến máy chủ.";
+        notificationDetails = [
+          "Vui lòng kiểm tra kết nối internet của bạn.",
+          "Nếu vấn đề vẫn tiếp tục, hãy thử lại sau."
+        ];
+      }
+
+      showPaymentNotificationModal(
+        "warning",
+        notificationTitle,
+        notificationMessage,
+        notificationDetails
+      );
+    } finally {
+      setIsCheckingPayment(false);
+    }
+  };
+
+  const handleRedeemPoints = async () => {
+    if (isRedeeming || !selectedRedemptionType || !pointsToRedeem) return;
+    setIsRedeeming(true);
+
+    const userId = Cookies.get('userId');
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/users/${userId}/redeem-points`,
+        {
+          type: selectedRedemptionType,
+          pointsToRedeem: parseInt(pointsToRedeem)
         },
         {
           headers: {
@@ -121,23 +240,154 @@ const UserDetail = () => {
       );
 
       if (response.data.success) {
-        alert(`✅ ${response.data.message}`);
-        setUser((prevUser) => ({
+        // Cập nhật số điểm của user
+        setUser(prevUser => ({
           ...prevUser,
-          balance: response.data.newBalance,
+          points: response.data.remainingPoints,
+          balance: selectedRedemptionType === 'XU' 
+            ? prevUser.balance + response.data.xuAmount 
+            : prevUser.balance
         }));
-        setSelectedRecharge(null); // Reset selected recharge
-        setShowRechargeOptions(false); // Hide recharge options
+
+        // Hiển thị thông báo thành công
+        setRedemptionNotification({
+          type: "success",
+          title: "Quy đổi thành công!",
+          message: response.data.message,
+          details: selectedRedemptionType === 'DISCOUNT_CODE' 
+            ? [
+                `Mã giảm giá: ${response.data.code}`,
+                `Giảm giá: ${response.data.discountPercentage}%`,
+                `Điểm còn lại: ${response.data.remainingPoints}`
+              ]
+            : [
+                `Số xu nhận được: ${response.data.xuAmount}`,
+                `Điểm còn lại: ${response.data.remainingPoints}`
+              ]
+        });
       } else {
-        alert(`⚠️ ${response.data.message}`);
+        setRedemptionNotification({
+          type: "warning",
+          title: "Quy đổi không thành công",
+          message: response.data.message,
+          details: []
+        });
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(`⚠️ ${error.response.data.message}`);
-      } else {
-        alert("⚠️ Không thể thực hiện giao dịch. Vui lòng thử lại sau.");
-      }
+      setRedemptionNotification({
+        type: "warning",
+        title: "Lỗi quy đổi",
+        message: error.response?.data?.message || "Có lỗi xảy ra khi quy đổi điểm",
+        details: []
+      });
+    } finally {
+      setIsRedeeming(false);
+      setShowRedemptionNotification(true);
+      setSelectedRedemptionType(null);
+      setPointsToRedeem('');
     }
+  };
+
+  // Thêm component PaymentNotificationModal
+  const PaymentNotificationModal = ({ isOpen, onClose, notification }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+           onClick={onClose}>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full transform transition-all"
+             onClick={e => e.stopPropagation()}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`text-xl font-bold ${
+              notification.type === "success" 
+                ? "text-green-600 dark:text-green-400" 
+                : "text-yellow-600 dark:text-yellow-400"
+            }`}>
+              {notification.title}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="space-y-3">
+            <p className="text-gray-700 dark:text-gray-300 text-lg">
+              {notification.message}
+            </p>
+            {notification.details.map((detail, index) => (
+              <p key={index} className="text-gray-600 dark:text-gray-400">
+                {detail}
+              </p>
+            ))}
+          </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={onClose}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                notification.type === "success"
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-white"
+              }`}
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Thêm component RedemptionNotificationModal
+  const RedemptionNotificationModal = ({ isOpen, onClose, notification }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+           onClick={onClose}>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full transform transition-all"
+             onClick={e => e.stopPropagation()}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`text-xl font-bold ${
+              notification.type === "success" 
+                ? "text-green-600 dark:text-green-400" 
+                : "text-yellow-600 dark:text-yellow-400"
+            }`}>
+              {notification.title}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="space-y-3">
+            <p className="text-gray-700 dark:text-gray-300 text-lg">
+              {notification.message}
+            </p>
+            {notification.details.map((detail, index) => (
+              <p key={index} className="text-gray-600 dark:text-gray-400">
+                {detail}
+              </p>
+            ))}
+          </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={onClose}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                notification.type === "success"
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-white"
+              }`}
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (!user) {
@@ -245,18 +495,47 @@ const UserDetail = () => {
                 Chỉnh sửa
               </button>
               <button
-                onClick={() => setShowRechargeOptions(!showRechargeOptions)}
+                onClick={() => {
+                  setShowRechargeOptions(!showRechargeOptions);
+                  setActiveTab('recharge');
+                }}
                 className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-4 py-2 rounded transition-colors text-sm sm:text-base"
               >
-                Nạp Xu
+                Nạp Xu & Quy đổi
               </button>
             </>
           )}
         </div>
 
-        {/* Recharge Coins Section */}
+        {/* Tabs for Recharge and Redemption */}
         {showRechargeOptions && (
           <div className="mt-4 sm:mt-6">
+            <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+              <button
+                className={`px-4 py-2 font-medium text-sm sm:text-base ${
+                  activeTab === 'recharge'
+                    ? 'border-b-2 border-purple-600 text-purple-600 dark:text-purple-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+                onClick={() => setActiveTab('recharge')}
+              >
+                Nạp Xu
+              </button>
+              <button
+                className={`px-4 py-2 font-medium text-sm sm:text-base ${
+                  activeTab === 'redeem'
+                    ? 'border-b-2 border-purple-600 text-purple-600 dark:text-purple-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+                onClick={() => setActiveTab('redeem')}
+              >
+                Quy đổi điểm
+              </button>
+            </div>
+
+            {activeTab === 'recharge' ? (
+              // Existing recharge section
+              <div>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-4">Nạp Xu</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
               {rechargeOptions.map((option, index) => (
@@ -304,15 +583,174 @@ const UserDetail = () => {
                   Bạn sẽ nhận được {selectedRecharge.coins} Xu
                 </p>
                 <button
-                  onClick={() => alert("Đang kiểm tra giao dịch...")}
-                  className="mt-4 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded transition-colors text-sm sm:text-base"
-                >
-                  Xác Nhận Giao Dịch
+                      onClick={handleCheckPayment}
+                      disabled={isCheckingPayment}
+                      className={`mt-4 px-6 py-2 rounded-lg font-semibold transition-colors ${
+                        isCheckingPayment
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+                      } text-white`}
+                    >
+                      {isCheckingPayment ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Đang kiểm tra...
+                        </span>
+                      ) : (
+                        "Kiểm tra giao dịch"
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // New redemption section
+              <div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-4">Quy đổi điểm</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Discount Code Redemption */}
+                  <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6 shadow-lg">
+                    <h4 className="text-lg font-semibold text-purple-700 dark:text-purple-400 mb-4">
+                      Quy đổi mã giảm giá
+                    </h4>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { points: 20, discount: 10 },
+                          { points: 35, discount: 20 },
+                          { points: 50, discount: 30 },
+                          { points: 65, discount: 40 },
+                          { points: 80, discount: 50 }
+                        ].map((option, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setSelectedRedemptionType('DISCOUNT_CODE');
+                              setPointsToRedeem(option.points.toString());
+                            }}
+                            className={`p-3 rounded-lg border transition-all ${
+                              selectedRedemptionType === 'DISCOUNT_CODE' && 
+                              pointsToRedeem === option.points.toString()
+                                ? 'border-purple-500 bg-purple-100 dark:bg-purple-900/30'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-700'
+                            }`}
+                          >
+                            <div className="text-center">
+                              <p className="font-bold text-purple-700 dark:text-purple-400">
+                                {option.discount}%
+                              </p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {option.points} điểm
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mt-4 text-center">
+                        <img
+                          src={discountCodeImage}
+                          alt="Mẫu phiếu giảm giá"
+                          className="w-full max-w-xs mx-auto rounded-lg shadow-md"
+                        />
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                          Mẫu phiếu giảm giá của bạn
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Xu Redemption */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 shadow-lg">
+                    <h4 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-4">
+                      Quy đổi xu
+                    </h4>
+                    <div className="space-y-4">
+                      {[
+                        { points: 10, xu: 10, vnd: "10.000" },
+                        { points: 50, xu: 50, vnd: "50.000" },
+                        { points: 100, xu: 100, vnd: "100.000" }
+                      ].map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setSelectedRedemptionType('XU');
+                            setPointsToRedeem(option.points.toString());
+                          }}
+                          className={`w-full p-4 rounded-lg border transition-all ${
+                            selectedRedemptionType === 'XU' && 
+                            pointsToRedeem === option.points.toString()
+                              ? 'border-green-500 bg-green-100 dark:bg-green-900/30'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-bold text-green-700 dark:text-green-400">
+                                {option.xu} Xu
+                              </p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {option.vnd} VND
+                              </p>
+                            </div>
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                              {option.points} điểm
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Redemption Action Button */}
+                {selectedRedemptionType && pointsToRedeem && (
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={handleRedeemPoints}
+                      disabled={isRedeeming}
+                      className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                        isRedeeming
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : selectedRedemptionType === 'DISCOUNT_CODE'
+                            ? 'bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700'
+                            : 'bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700'
+                      } text-white`}
+                    >
+                      {isRedeeming ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Đang xử lý...
+                        </span>
+                      ) : (
+                        `Quy đổi ${pointsToRedeem} điểm`
+                      )}
                 </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
+
+        {/* Payment Notification Modal */}
+        <PaymentNotificationModal
+          isOpen={showPaymentNotification}
+          onClose={() => setShowPaymentNotification(false)}
+          notification={paymentNotification}
+        />
+
+        {/* Redemption Notification Modal */}
+        <RedemptionNotificationModal
+          isOpen={showRedemptionNotification}
+          onClose={() => setShowRedemptionNotification(false)}
+          notification={redemptionNotification}
+        />
       </div>
     </div>
   );
