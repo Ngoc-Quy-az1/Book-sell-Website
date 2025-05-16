@@ -5,9 +5,11 @@ import {Bell, BellDot} from "lucide-react";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
 import Cookies from "js.cookie";
-import {Link} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import "../../CheckToken";
 import axios from "axios";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 const Menu = [
   {
@@ -56,12 +58,34 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   const [showOption, setShowOption] = useState(false);
   const dropdownRef = useRef(null);
   const notiRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
     // Fetch unread count every 30 seconds
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!Cookies.get('userId')) return;
+    // Địa chỉ endpoint WebSocket backend (sửa lại nếu backend chạy port khác)
+    const socket = new SockJS(`${apiUrl.replace('/api', '')}/ws/notification`);
+    const client = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      onConnect: () => {
+        // Lắng nghe notification gửi về cho user hiện tại
+        client.subscribe(`/user/${Cookies.get('userId')}/queue/notifications`, (message) => {
+          const notification = JSON.parse(message.body);
+          setNotice(prev => [notification, ...prev]);
+          setUnreadCount(prev => prev + 1);
+        });
+      },
+    });
+    client.activate();
+    return () => client.deactivate();
   }, []);
 
   // Close notification dropdown when clicking outside
@@ -74,6 +98,21 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowOption(false);
+      }
+    };
+    if (showOption) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showOption]);
 
   const fetchUnreadCount = async () => {
     if (Cookies.get("authToken")) {
@@ -177,77 +216,50 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     .then((response) => {
       console.log(response.data);
       Cookies.remove('authToken');
-      location.assign('/');
+      navigate('/');
     });
   }
   const [user, setUser] = useState({'full_name':""});
   return (
     <>
-      <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200">
-        <div className="container py-3 sm:py-0">
-          <div className="flex justify-between items-center">
-            <div>
-              <a href="/" className="font-bold text-2xl sm:text-3xl flex gap-2">
-                <img src={Logo} alt="Logo" className="w-10" />
-                Books
-              </a>
-            </div>
-            <div className="flex justify-between items-center gap-4">
-              <div>
-                <DarkMode />
-              </div>
-              <ul className="hidden sm:flex items-center gap-4">
-                {Menu.map((menu) => (
-                  <li key={menu.id}>
-                    <a
-                      href={menu.link}
-                      className="inline-block py-4 px-4 hover:text-primary duration-200"
-                    >
-                      {menu.name}
-                    </a>
-                  </li>
-                ))}
-                {/* Simple Dropdown and Links */}
-                <li className="group relative cursor-pointer">
-                  <a
-                    className="flex h-[72px] items-center gap-[2px]"
-                  >
-                    Quick Links{" "}
-                    <span>
-                      <FaCaretDown className="transition-all duration-200 group-hover:rotate-180" />
-                    </span>
-                  </a>
-                  <div className="absolute -left-9 z-[9999] hidden w-[150px] rounded-md bg-white dark:bg-black p-2 text-black group-hover:block  ">
-                    <ul className="space-y-3 dark:text-white">
-                      {DropdownLinks.map((data) => (
-                        <li key={data.name}>
-                          <Link
-                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                            to={data.link}
-                          >
-                            {data.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </li>
-              </ul>
-              <Link
-                to="/books"
-                className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-1 px-4 rounded-full flex items-center gap-3"
-              >
-                Order
-                <FaCartShopping className="text-xl text-white drop-shadow-sm cursor-pointer" />
-              </Link>
-              <div className="flex justify-end relative" ref={dropdownRef}>
-              
-              {Cookies.get('authToken') ? 
+      <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200 w-full">
+        <div className="container mx-auto px-8 py-4 flex items-center justify-between h-20">
+          {/* Logo và tên */}
+          <div className="flex items-center gap-4">
+            <a href="/" className="font-bold text-3xl flex gap-3 items-center">
+              <img src={Logo} alt="Logo" className="w-12 h-12" />
+              <span className="tracking-wide">Books</span>
+            </a>
+          </div>
+          {/* Menu chính - sang phải gần phần user */}
+          <div className="flex items-center gap-8">
+            <ul className="flex items-center gap-8 font-semibold text-lg">
+              <li>
+                <Link to="/" className={`inline-block py-2 px-4 rounded-lg duration-200 hover:text-primary ${location.pathname === '/' ? 'text-primary' : ''}`}>Home</Link>
+              </li>
+              <li>
+                <Link to="/books" className={`inline-block py-2 px-4 rounded-lg duration-200 hover:text-primary ${location.pathname.startsWith('/books') ? 'text-primary' : ''}`}>Books List</Link>
+              </li>
+              <li>
+                <Link to="/cart" className={`inline-block py-2 px-4 rounded-lg duration-200 hover:text-primary ${location.pathname.startsWith('/cart') ? 'text-primary' : ''}`}>Cart</Link>
+              </li>
+              <li>
+                <Link to="/placeorder" className={`inline-block py-2 px-4 rounded-lg duration-200 hover:text-primary ${location.pathname.startsWith('/placeorder') ? 'text-primary' : ''}`}>Order</Link>
+              </li>
+            </ul>
+            <DarkMode />
+            {Cookies.get('authToken') ? (
               <>
-                <div className="relative mr-6" ref={notiRef}>
+                {user && (
+                  <div className="flex items-center gap-1 text-green-600 dark:text-green-400 font-bold text-base ml-2">
+                    <span className="bg-yellow-400 text-white rounded-full px-2 py-0.5 text-xs font-bold">x</span>
+                    {user.balance?.toLocaleString() || 0} Xu
+                  </div>
+                )}
+                <div className="relative ml-2" ref={notiRef}>
                   <button
                     onClick={() => setShowNoti(!showNoti)}
-                    className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                    className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors shadow-none border-none"
                   >
                     {unreadCount > 0 ? (
                       <BellDot className="text-primary" size={28} />
@@ -336,49 +348,55 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                     </div>
                   )}
                 </div>
-                <button onClick={()=>setShowOption(!showOption)} className="w-14 h-14">
-                  <img
-                  src={generateAvatar(user.full_name || user.name)}
-                  alt="Avatar"
-                  className=" rounded-full border-4 border-indigo-500 shadow-lg"/>
-                  <div className="absolute -left-9 z-[9999] w-[150px] rounded-md bg-white dark:bg-black dark:text-white  p-2 text-black group-hover:block  " hidden={!showOption}>
+                <div className="relative flex items-center" style={{marginTop: '2px'}}>
+                  <button onClick={()=>setShowOption(!showOption)} className="w-14 h-14 ml-2 flex items-center justify-center">
+                    <img
+                      src={generateAvatar(user.full_name || user.name)}
+                      alt="Avatar"
+                      className="rounded-full border-4 border-indigo-500 shadow-lg"
+                    />
+                  </button>
+                  {showOption && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute right-0 w-[150px] rounded-md bg-white dark:bg-black dark:text-white p-2 text-black shadow-lg z-50"
+                      style={{ top: 'calc(100% + 8px)' }}
+                    >
                       <ul className="space-y-3">
-                          <li >
-                            <Link
-                              className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                              to={`/user-detail`}
-                            >
-                              User Detail
-                            </Link>
-                            {Cookies.get("userId")==16 ?
-                            <Link
-                              className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                              to={`/admin`}
-                            >
-                              Admin Page
-                            </Link>: <></>}
-                            <a
-                              className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                              onClick={handleSignOut}
-                            >
-                              Log Out
-                            </a>
-                          </li>
+                        <li >
+                          <Link
+                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                            to={`/user-detail`}
+                          >
+                            User Detail
+                          </Link>
+                          {Cookies.get("userId")==16 ?
+                          <Link
+                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                            to={`/admin`}
+                          >
+                            Admin Page
+                          </Link>: <></>}
+                          <a
+                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                            onClick={handleSignOut}
+                          >
+                            Log Out
+                          </a>
+                        </li>
                       </ul>
                     </div>
-                </button>
+                  )}
+                </div>
               </>
-              :
+            ) : (
               <button
                 onClick={() => handleLoginPopup() }
-                className="bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-2 px-8 rounded-full flex items-center gap-3"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-8 py-2 flex items-center gap-3 text-lg shadow-none border-none"
               >
                 Sign In
               </button>
-              }
-              </div>
-
-            </div>
+            )}
           </div>
         </div>
       </div>

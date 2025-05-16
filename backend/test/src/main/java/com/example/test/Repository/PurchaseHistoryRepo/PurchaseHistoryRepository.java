@@ -11,4 +11,5 @@ public interface PurchaseHistoryRepository extends JpaRepository<PurchaseHistory
     List<PurchaseHistory> findByStatus(PurchaseStatus status);
     List<PurchaseHistory> findByUserIdAndStatus(Integer userId, PurchaseStatus status);
     List<PurchaseHistory> findByUserId(Integer userId);
+    long countByUserIdAndStatus(Integer userId, PurchaseStatus status);
 } 

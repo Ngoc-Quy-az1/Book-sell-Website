@@ -232,11 +232,11 @@ public class AdminService {
         
         // Xác định cấp độ hội viên mới dựa trên tổng chi tiêu
         MembershipLevel newLevel = null;
-        if (totalSpending.compareTo(new BigDecimal("10000000")) >= 0) { // 10 triệu
+        if (totalSpending.compareTo(new BigDecimal("10000000")) >= 0) { 
             newLevel = MembershipLevel.Platinum;
-        } else if (totalSpending.compareTo(new BigDecimal("5000000")) >= 0) { // 5 triệu
+        } else if (totalSpending.compareTo(new BigDecimal("5000000")) >= 0) { 
             newLevel = MembershipLevel.Gold;
-        } else if (totalSpending.compareTo(new BigDecimal("1000000")) >= 0) { // 1 triệu
+        } else if (totalSpending.compareTo(new BigDecimal("1000000")) >= 0) { 
             newLevel = MembershipLevel.Silver;
         }
         
