@@ -397,7 +397,6 @@ export default function PlaceOrder() {
           sm:overflow-y-visible
           lg:overflow-y-auto"
         style={{
-          // Chỉ hiện thanh cuộn ở mobile (dưới 640px)
           maxHeight: 'none',
           ...(window.innerWidth < 640
             ? { maxHeight: '420px', overflowY: 'auto' }
@@ -405,7 +404,73 @@ export default function PlaceOrder() {
         }}
       >
         {(selectedOrder === -1)
-          ? <div className="text-center text-lg lg:text-xl font-semibold text-gray-600 dark:text-gray-300 h-full flex items-center justify-center">Select an order to view details.</div>
+          ? (
+            <div className="h-full flex flex-col">
+              <h3 className="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+                Hướng dẫn thanh toán
+              </h3>
+              
+              <div className="space-y-6 text-gray-600 dark:text-gray-300">
+                {/* Phần 1: Phương thức thanh toán */}
+                <div>
+                  <h4 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-3">
+                    1. Phương thức thanh toán
+                  </h4>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>Thanh toán qua QR Code (Chuyển khoản ngân hàng)</li>
+                    <li>Thanh toán bằng xu (1 xu = 1,000₫)</li>
+                  </ul>
+                </div>
+
+                {/* Phần 2: Quy tắc chuyển khoản */}
+                <div>
+                  <h4 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-3">
+                    2. Quy tắc chuyển khoản
+                  </h4>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>Vui lòng chuyển khoản đúng số tiền được hiển thị</li>
+                    <li>Ghi nội dung chuyển khoản theo cú pháp: <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">HOVATEN_[Họ và tên] + Số điện thoại đã đăng ký</span></li>
+                    <li>Ví dụ: <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">HOVATEN_Nguyễn Văn A + 0987654321</span></li>
+                    <li>Chuyển khoản với các nội dung trên xong, nhấn nút "Check Payment" để kiểm tra thanh toán</li>
+                    <li>Thời gian xử lý: 30s -1 phút sau khi chuyển khoản</li>
+                  </ul>
+                </div>
+
+                {/* Phần 3: Lưu ý quan trọng */}
+                <div>
+                  <h4 className="text-lg font-semibold text-yellow-600 dark:text-yellow-400 mb-3">
+                    3. Lưu ý quan trọng
+                  </h4>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>Đơn hàng sẽ tự động hủy sau 24 giờ nếu chưa thanh toán</li>
+                    <li>Địa chỉ nhận hàng là địa chỉ bạn đã đăng kí trên hệ thống(Chỉnh sửa địa chỉ tại trang cá nhân)</li>
+                    <li>Số điện thoại nhận hàng là số điện thoại bạn đã đăng kí trên hệ thống(Chỉnh sửa số điện thoại tại trang cá nhân)</li>
+                    <li>Nếu chuyển thừa tiền, số tiền thừa sẽ được chuyển thành xu và cộng vào tài khoản của bạn</li>
+                    <li>Nếu chuyển thiếu tiền hoặc nội dung chuyển khoản không đúng, vui lòng liên hệ với Admin để được hỗ trợ</li>
+                  </ul>
+                </div>
+
+                {/* Phần 4: Hỗ trợ */}
+                <div>
+                  <h4 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3">
+                    4. Hỗ trợ
+                  </h4>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li>Hotline hỗ trợ: <span className="font-semibold">0948377358</span></li>
+                    <li>Email: <span className="font-semibold">Quy160104@gmail.com</span></li>
+                    <li>Thời gian hỗ trợ: Buổi tối 😁 (19h - 23h)</li>
+                  </ul>
+                </div>
+
+                {/* Thông báo */}
+                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-blue-600 dark:text-blue-400 text-sm">
+                    💡 <span className="font-semibold">Mẹo:</span> Bạn có thể chọn đơn hàng ở bên trái để xem chi tiết và thực hiện thanh toán.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )
           : <div className="h-full flex flex-col">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 lg:mb-6">
               <h3 className="text-lg lg:text-2xl font-bold text-gray-800 dark:text-gray-100">

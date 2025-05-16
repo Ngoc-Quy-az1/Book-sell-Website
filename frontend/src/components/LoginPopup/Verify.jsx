@@ -1,30 +1,51 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import OTPInput from "react-otp-input";
 import bgVideo from './video/185096-874643413.mp4';
 import { useNavigate } from "react-router-dom";
-const Verify = ({ handleVerify, mail, handleNotice, forgotPassword}) => {
+
+const Verify = ({ resetStates, backToLogin, mail, handleNotice, forgotPassword }) => {
   const [code, setCode] = useState('');
+  const [notification, setNotification] = useState({ show: false, message: '', isError: false });
   const formRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
-  
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+  }, []);
+
+  const showNotification = (message, isError = false) => {
+    setNotification({ show: true, message, isError });
+    // Tự động ẩn thông báo sau 3 giây
+    setTimeout(() => {
+      setNotification({ show: false, message: '', isError: false });
+    }, 3000);
+  };
+
   const selectUrl = () => {
-    if (forgotPassword) return `${apiUrl}/api/users/confirmcode`;
-    return `${apiUrl}/api/users/verify?mail=${mail.mail}`;
-  }
+    return forgotPassword
+      ? `${apiUrl}/api/users/confirmcode`
+      : `${apiUrl}/api/users/verify?mail=${mail.mail}`;
+  };
 
   const check = () => {
-    verifyUser();
-  }
-
-  const verifyUser = () => {
     if (!code || code.length !== 6) {
-      handleNotice("Please enter a valid 6-digit code", true);
+      showNotification("Please enter a valid 6-digit code", true);
       return;
     }
+    verifyUser();
+  };
 
-    const requestBody = forgotPassword ? { code, mail: mail.mail } : { ...mail, code };
-    
+  const verifyUser = () => {
+    const requestBody = forgotPassword
+      ? { 
+          infor: mail.infor,
+          password: mail.password,
+          code: code 
+        }
+      : { ...mail, code };
+
     fetch(selectUrl(), {
       method: "POST",
       headers: {
@@ -32,33 +53,39 @@ const Verify = ({ handleVerify, mail, handleNotice, forgotPassword}) => {
       },
       body: JSON.stringify(requestBody)
     })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return forgotPassword ? response.text() : response.json();
-    })
-    .then((data) => {
-      if (forgotPassword) {
-        if (data === "ok") {
-          handleNotice("Password Successfully Changed", false);
-          handleVerify();
-        } else {
-          handleNotice("Wrong Code", true);
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || 'Network error');
         }
-        return;
-      }
-      
-      handleNotice(data.message, !data.status);
-      if (data.status || data.message === 'Your account is enable! Log in now!') {
-        handleVerify();
-      }
-    })
-    .catch((error) => {
-      handleNotice("An error occurred. Please try again.", true);
-      console.error('Error:', error);
-    });
-  }
+        return forgotPassword ? response.text() : response.json();
+      })
+      .then((data) => {
+        if (forgotPassword) {
+          if (data === "ok") {
+            showNotification("Password Successfully Changed", false);
+            setTimeout(() => {
+              backToLogin();
+            }, 1500);
+          } else {
+            showNotification("Wrong Code", true);
+          }
+        } else {
+          if (data.status || data.message === 'Your account is enable! Log in now!') {
+            showNotification(data.message, false);
+            setTimeout(() => {
+              backToLogin();
+            }, 1500);
+          } else {
+            showNotification(data.message, true);
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error verifying code:", error);
+        showNotification(error.message || "An error occurred. Please try again.", true);
+      });
+  };
 
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 z-50">
@@ -66,7 +93,7 @@ const Verify = ({ handleVerify, mail, handleNotice, forgotPassword}) => {
         {/* Nút X */}
         <button
           className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500 z-10"
-          onClick={() => navigate("/")}
+          onClick={resetStates}
           aria-label="Close"
         >
           &times;
@@ -91,7 +118,7 @@ const Verify = ({ handleVerify, mail, handleNotice, forgotPassword}) => {
               <span className="text-white/80 mb-2">Already have an account?</span>
               <button
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-2 rounded-lg shadow transition"
-                onClick={handleVerify}
+                onClick={backToLogin}
               >
                 Log in
               </button>
@@ -103,6 +130,16 @@ const Verify = ({ handleVerify, mail, handleNotice, forgotPassword}) => {
           <h1 className="text-3xl font-bold text-center mb-4 text-green-700 dark:text-green-400">
             Enter OTP sent to Email
           </h1>
+          {/* Notification */}
+          {notification.show && (
+            <div className={`w-full mb-4 p-3 rounded-lg text-center ${
+              notification.isError 
+                ? 'bg-red-100 text-red-700 border border-red-200' 
+                : 'bg-green-100 text-green-700 border border-green-200'
+            }`}>
+              {notification.message}
+            </div>
+          )}
           <div className="flex justify-center mb-6">
             <OTPInput
               value={code}
@@ -111,17 +148,32 @@ const Verify = ({ handleVerify, mail, handleNotice, forgotPassword}) => {
               inputStyle={{
                 width: '40px',
                 height: '40px',
-                border: '1px solid #ccc',
+                border: isDark ? '1px solid rgba(255,255,255,0.23)' : '1px solid rgba(0,0,0,0.23)',
                 borderRadius: '8px',
                 margin: '0 4px',
                 fontSize: '1.25rem',
                 textAlign: 'center',
-                background: '#fff',
+                background: 'transparent',
+                color: isDark ? '#e5e7eb' : '#111827',
+                transition: 'all 0.2s ease-in-out',
               }}
-              renderInput={(props) => <input {...props} />}
+              containerStyle={{
+                display: 'flex',
+                gap: '8px',
+                justifyContent: 'center',
+              }}
+              renderInput={(props) => (
+                <input
+                  {...props}
+                  className={isDark ? 'dark:border-gray-600 dark:bg-transparent dark:text-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-900/30' : ''}
+                />
+              )}
             />
           </div>
-          <button className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg py-2 px-8 transition mb-2" onClick={check}>
+          <button
+            className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg py-2 px-8 transition mb-2"
+            onClick={check}
+          >
             Confirm
           </button>
         </div>

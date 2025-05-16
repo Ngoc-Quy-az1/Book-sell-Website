@@ -3,9 +3,11 @@ import Footer from "../Footer/Footer";
 import Cookies from 'js.cookie';
 import axios from 'axios';
 import "../../CheckToken";
+import { Link, useNavigate } from "react-router-dom";
 import voucherImage from './ExampleImage/ahihi.png';  // Import the voucher image
 
 export default function Cart() {
+  const navigate = useNavigate();
   const userId = Cookies.get('userId');
   const apiUrl = import.meta.env.VITE_API_URL;
   const [showVoucher, setShowVoucher] = useState(false);
@@ -179,7 +181,7 @@ export default function Cart() {
     var newList = cartlist.slice();
     newList.splice(index, 1, newBook);
     setCartlist(newList);
-    await updateCartListBackend(14, newBook.bookId, value)
+    await updateCartListBackend(userId, newBook.bookId, value)
   }
 
   const handleCheckBoxChange = async (value, index)=>{
@@ -236,6 +238,8 @@ export default function Cart() {
       setCartlist(newCartList);
       setVoucherIndex(-1);
       setPickVoucherText("Apply voucher");
+      // Chuyển hướng đến trang placeorder sau khi đặt hàng thành công
+      navigate('/placeorder');
     }).catch((error) => {
       console.error('Error creating order:', error)
     });
@@ -411,7 +415,7 @@ export default function Cart() {
               onClick={() => handlePlaceOrder(userId)}
               className="bg-green-600 dark:bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold shadow hover:bg-green-700 dark:hover:bg-green-600 transition"
             >
-              Place
+              Place Order
             </button>
           </div>
         </div>

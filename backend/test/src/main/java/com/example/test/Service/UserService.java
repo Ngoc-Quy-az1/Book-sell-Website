@@ -13,6 +13,7 @@ import com.example.test.Entity.Notification;
 import com.example.test.Entity.Review;
 import com.example.test.Entity.User;
 import com.example.test.Entity.pendingUser;
+import com.example.test.Entity.chatEntity.GroupMembers;
 import com.example.test.Entity.DiscountCode;
 import com.example.test.Entity.DiscountCodesNumberCode;
 import com.example.test.Entity.PurchaseStatus;
@@ -20,12 +21,16 @@ import com.example.test.Repository.UserRepo.NotificationRepository;
 import com.example.test.Repository.UserRepo.UserPendingRepository;
 import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Repository.UserRepo.reviewRepository;
+import com.example.test.Repository.chatRepo.GroupMembersRepository;
 import com.example.test.Repository.BookRepo.BookRepository;
 import com.example.test.Repository.Discount.DiscountCodeRepository;
 import com.example.test.Repository.Discount.DiscountCodesNumberCodeRepository;
 import com.example.test.Repository.PurchaseHistoryRepo.PurchaseHistoryRepository;
 import com.example.test.Repository.Token.DeletedTokenRepository;
 import com.example.test.Repository.Token.RefreshTokenRepository;
+import com.example.test.Entity.chatEntity.ChatGroup;
+import com.example.test.Entity.chatEntity.GroupMembersId;
+import com.example.test.Repository.chatRepo.ChatGroupRepository;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -103,6 +108,12 @@ public class UserService {
 
     @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
+
+    @Autowired
+    private GroupMembersRepository groupMembersRepository;
+
+    @Autowired
+    private ChatGroupRepository chatGroupRepository;
 
     private final Map<String, String> resetCodeMap = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -182,6 +193,39 @@ public class UserService {
                     userDiscount.setDiscountCode(discount); // Set relationship
                     userDiscount.setUser(newUser); // Set relationship
                     discountCodesNumberCodeRepository.save(userDiscount);
+
+                    //Thông báo tặng mã giảm giá
+                    Notification notification = new Notification();
+                    notification.setUser(newUser);
+                    notification.setMessage("Chúc mừng tân thành viên. Chúng tôi tặng bạn mã giảm giá 30%. Chúc bạn có những trải nhiệm tốt nhất!");
+                    notification.setCreatedAt(new Date());
+                    notification.setRead(false);
+                    notificationRepository.save(notification);
+
+                    // THêm user vào groupchat
+                    try {
+                        // Thêm vào cả 2 nhóm chat
+                        for (final int groupId : new int[]{1, 2}) {
+                            // Tạo GroupMembersId với groupId và userId của user mới
+                            GroupMembersId membersId = new GroupMembersId(groupId, newUser.getID());
+                            
+                            // Tạo GroupMembers mới
+                            GroupMembers groupMembers = new GroupMembers();
+                            groupMembers.setId(membersId);
+                            groupMembers.setUser(newUser);
+                            
+                            // Lấy thông tin nhóm chat
+                            ChatGroup chatGroup = chatGroupRepository.findById(groupId)
+                                .orElseThrow(() -> new RuntimeException("Chat group " + groupId + " not found"));
+                            groupMembers.setChatGroup(chatGroup);
+                            
+                            // Lưu vào database
+                            groupMembersRepository.save(groupMembers);
+                            System.out.println("Successfully added user " + newUser.getID() + " to group " + groupId);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error adding user to group chats: " + e.getMessage());
+                    }
 
                     System.out.println("Successfully assigned discount code OFFC5Y2R to user: " + newUser.getID());
                 } catch (Exception e) {

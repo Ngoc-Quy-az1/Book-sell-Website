@@ -654,10 +654,7 @@ const UserDetail = () => {
                           src={discountCodeImage}
                           alt="Mẫu phiếu giảm giá"
                           className="w-full max-w-xs mx-auto rounded-lg shadow-md"
-                        />
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                          Mẫu phiếu giảm giá của bạn
-                        </p>
+                        />  
                       </div>
                     </div>
                   </div>

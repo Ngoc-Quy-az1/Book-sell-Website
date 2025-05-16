@@ -128,17 +128,24 @@ const BookDetail = () => {
             justifyContent: 'center',
             background: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)',
             borderRadius: '50%',
-            width: 32,
-            height: 32,
             marginRight: 12
           }}>
-            <ShoppingCart color="#fff" size={20} />
           </span>
           Đã thêm vào giỏ hàng!
         </div>,
         { position: "top-right", style: { background: 'linear-gradient(90deg, #bbf7d0 0%, #86efac 100%)', color: '#166534', fontWeight: 'bold' } }
       );
     } catch (error) {
+      let errorMessage = "";
+      let errorIcon = "";
+
+      if (!Cookies.get('authToken')) {
+        errorMessage = "Vui lòng đăng nhập để thêm sách vào giỏ hàng";
+      } else {
+        errorMessage = "Sách này đã có trong giỏ hàng của bạn";
+        errorIcon = "";
+      }
+
       toast.error(
         <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
           <span style={{
@@ -147,11 +154,21 @@ const BookDetail = () => {
             justifyContent: 'center',
             background: 'linear-gradient(90deg, #f59e42 0%, #f43f1a 100%)',
             borderRadius: '50%',
+            marginRight: 12,
+            fontSize: '20px'
           }}>
+            {errorIcon}
           </span>
-          Vui lòng đăng nhập hoặc sách đã có trong giỏ hàng
+          {errorMessage}
         </div>,
-        { position: "top-right", style: { background: 'linear-gradient(90deg, #fef3c7 0%, #fdba74 100%)', color: '#b45309', fontWeight: 'bold' } }
+        { 
+          position: "top-right", 
+          style: { 
+            background: 'linear-gradient(90deg, #fef3c7 0%, #fdba74 100%)', 
+            color: '#b45309', 
+            fontWeight: 'bold' 
+          } 
+        }
       );
     }
   };

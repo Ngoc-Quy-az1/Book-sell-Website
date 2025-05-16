@@ -10,12 +10,28 @@ import logo from "../../assets/website/logo.png";
 import bgVideo from "./video/185096-874643413.mp4";
 import { useNavigate } from "react-router-dom";
 
-const Login = ({ handleSignUp, handleForgotPassword }) => {
+const Login = ({ resetStates, handleSignUp, handleForgotPassword }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [inputError, setInputError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [notification, setNotification] = useState({ show: false, message: '', isError: false });
   const formRef = useRef();
   const navigate = useNavigate();
+
+  const showNotification = (message, isError = false) => {
+    setNotification({ show: true, message, isError });
+    if (!isError) {
+      // Nếu là thông báo thành công, đợi 1.5 giây trước khi reload
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
+    } else {
+      // Nếu là thông báo lỗi, tự động ẩn sau 3 giây
+      setTimeout(() => {
+        setNotification({ show: false, message: '', isError: false });
+      }, 3000);
+    }
+  };
 
   const handleFormSubmit = (values) => {
     if (phoneRegExp.test(values.input)) values.phone = values.input;
@@ -39,7 +55,7 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
           Cookies.set("authToken", data.token);
           Cookies.set("userId", data.user_id);
           Cookies.set("refreshToken", data.refreshToken);
-          location.reload();
+          showNotification("Login successful! Redirecting...", false);
         } else {
           // Xác định lỗi gắn với input hay password
           const msg = data.message?.toLowerCase() || "";
@@ -47,15 +63,19 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
           if (msg.includes("password")) {
             setPasswordError(data.message);
             setInputError("");
+            showNotification(data.message, true);
           } else {
             setInputError(data.message);
             setPasswordError("");
+            showNotification(data.message, true);
           }
         }
       })
       .catch(() => {
-        setInputError("Server error. Please try again later.");
+        const errorMsg = "Server error. Please try again later.";
+        setInputError(errorMsg);
         setPasswordError("");
+        showNotification(errorMsg, true);
       });
   };
 
@@ -65,7 +85,7 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
         {/* Nút X */}
         <button
           className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500 z-10"
-          onClick={() => navigate("/")}
+          onClick={resetStates}
           aria-label="Close"
         >
           &times;
@@ -96,9 +116,20 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
         </div>
 
         {/* Right: Login form */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-900 p-8">
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-800 p-8">
           <img src={logo} alt="Logo" className="w-16 h-16 mb-4" />
           <h1 className="text-3xl font-bold text-center mb-2 text-green-700 dark:text-green-400">Welcome Back!</h1>
+          
+          {/* Notification */}
+          {notification.show && (
+            <div className={`w-full mb-4 p-3 rounded-lg text-center ${
+              notification.isError 
+                ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800' 
+                : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+            }`}>
+              {notification.message}
+            </div>
+          )}
 
           <Formik
             onSubmit={handleFormSubmit}
@@ -121,7 +152,30 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
                     type="text"
                     onBlur={handleBlur}
                     label="Enter Username"
-                    sx={{ width: "100%" }}
+                    sx={{ 
+                      width: "100%",
+                      '& .MuiInputLabel-root': {
+                        color: 'inherit',
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: 'rgba(0, 0, 0, 0.23)',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'rgba(0, 0, 0, 0.5)',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#22c55e',
+                        },
+                      },
+                      '& .MuiInputBase-input': {
+                        color: 'inherit',
+                      },
+                      '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                        color: 'inherit',
+                        opacity: 0.7,
+                      },
+                    }}
                     onChange={(e) => {
                       handleChange(e);
                       setInputError(""); // reset nếu nhập lại
@@ -133,10 +187,10 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <IoPersonCircleOutline size={22} className="text-gray-400" />
+                          <IoPersonCircleOutline size={22} className="text-gray-400 dark:text-gray-500" />
                         </InputAdornment>
                       ),
-                      style: { borderRadius: 12, background: "#fff" }
+                      style: { borderRadius: 12, background: "transparent" }
                     }}
                   />
                 </div>
@@ -148,7 +202,30 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
                     type={showPassword ? "text" : "password"}
                     onBlur={handleBlur}
                     label="Enter Password"
-                    sx={{ width: "100%" }}
+                    sx={{ 
+                      width: "100%",
+                      '& .MuiInputLabel-root': {
+                        color: 'inherit',
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: 'rgba(0, 0, 0, 0.23)',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'rgba(0, 0, 0, 0.5)',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#22c55e',
+                        },
+                      },
+                      '& .MuiInputBase-input': {
+                        color: 'inherit',
+                      },
+                      '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                        color: 'inherit',
+                        opacity: 0.7,
+                      },
+                    }}
                     onChange={(e) => {
                       handleChange(e);
                       setPasswordError(""); 
@@ -160,21 +237,21 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <MdOutlineVpnKey size={22} className="text-gray-400" />
+                          <MdOutlineVpnKey size={22} className="text-gray-400 dark:text-gray-500" />
                         </InputAdornment>
                       ),
                       endAdornment: showPassword ? (
                         <FaEye
-                          className="cursor-pointer text-gray-400"
+                          className="cursor-pointer text-gray-400 dark:text-gray-500"
                           onClick={() => setShowPassword(!showPassword)}
                         />
                       ) : (
                         <FaEyeSlash
-                          className="cursor-pointer text-gray-400"
+                          className="cursor-pointer text-gray-400 dark:text-gray-500"
                           onClick={() => setShowPassword(!showPassword)}
                         />
                       ),
-                      style: { borderRadius: 12, background: "#fff" }
+                      style: { borderRadius: 12, background: "transparent" }
                     }}
                   />
                 </div>
@@ -191,7 +268,7 @@ const Login = ({ handleSignUp, handleForgotPassword }) => {
 
           <div className="flex flex-col items-center mt-4 w-full max-w-xs">
             <button
-              className="text-sm text-green-600 hover:underline mb-2"
+              className="text-sm text-green-600 dark:text-green-400 hover:underline mb-2"
               onClick={handleForgotPassword}
             >
               Forgot your password? 
