@@ -6,7 +6,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 axios.interceptors.request.use(
   async (config) => {
   const authToken = config.headers.Authorization;
-  console.log(Cookies.get("authToken"))
+  //console.log(Cookies.get("authToken"))
   if  (authToken!=null)
     if (jwtDecode(authToken.slice(7)).exp<Date.now()/1000) {
       await 
