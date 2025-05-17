@@ -28,11 +28,12 @@ const Chat = () => {
   useEffect(() => 
     document.getElementById("bottom").scrollIntoView(),[messages])
   const showMessage = (id) => {
-    setUserId(id);
+    setUserId(prev => id);
+    console.log(id);
     getMessage(id);
     if (!subscribed.includes(id)) {
       setSubscribed(subscribed => [...subscribed, id]);
-      connectWebSocket();
+      connectWebSocket(id);
     }
   }
   const getMessage = async (userId) => {
@@ -44,23 +45,20 @@ const Chat = () => {
     })
     .then(result => {setMessages(result.data); console.log(result.data);})
   }
-
-  const connectWebSocket = () => {
-
+  const connectWebSocket = (userId) => {
+    if (userId==undefined) return;
     const socket = new SockJS(`${apiUrl}/ws`);
     let stompClient = Stomp.over(socket);
+    console.log(userId)
     stompClient.connect({}, function (frame) {
       // Subscribe kênh admin chat
       stompClient.subscribe('/topic/admin-chat/' + ADMIN_ID, function (message) {
         const messageBody = JSON.parse(message.body);
-        console.log(messageBody);
-
-        if (
-          (messageBody.sender.id == userId && messageBody.receiver.id == ADMIN_ID) ||
-          (messageBody.sender.id == ADMIN_ID && messageBody.receiver.id == userId)
-        ) {
-          setMessages(messages => [...messages, messageBody])
-        }
+        console.log(userId,ADMIN_ID);
+    if (
+      (messageBody.sender.id == userId && messageBody.receiver.id == ADMIN_ID) 
+    ) 
+      setMessages(messages => [...messages, messageBody]);
       });
   })}
 

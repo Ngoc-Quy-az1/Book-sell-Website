@@ -2,7 +2,7 @@ import React, { useState, useRef} from "react";
 import SignUp from "./SignUp";
 import Login from "./Login";
 import Verify from "./Verify";
-import Notice from "../Notice";
+import Notice from "../ErrorNotice";
 import ForgotPassword from "./ForgotPassword";
 
 const LoginPopup = ({ loginPopup, handleLoginPopup }) => {

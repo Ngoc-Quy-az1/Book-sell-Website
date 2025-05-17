@@ -125,8 +125,26 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
       console.error('Error clearing notifications:', error);
     }
   };
-
+  const markAll = async () => {
+    await Promise.allSettled(notice.map((notice) => {
+      markAsRead(notice.id);
+    }))
+    .then(() =>{const updatedNotice = notice.map(n => 
+        n = { ...n, is_read: true }
+      );
+      setNotice(updatedNotice);
+      setUnreadCount(0);
+    })
+  }
   const markAsRead = async (msgId) => {
+    fetchRead(msgId);
+    const updatedNotice = notice.map(n => 
+      n.id === msgId ? { ...n, is_read: true } : n
+    );
+    setNotice(updatedNotice);
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  }
+  const fetchRead = async (msgId) => {
     try {
       await axios.put(
         `${apiUrl}/api/notification/mark-read?notificationId=${msgId}`,
@@ -135,11 +153,6 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
           headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
         }
       );
-      const updatedNotice = notice.map(n => 
-        n.id === msgId ? { ...n, is_read: true } : n
-      );
-      setNotice(updatedNotice);
-      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -268,7 +281,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                           {notice.length > 0 && (
                             <>
                               <button
-                                onClick={clearAll}
+                                onClick={markAll}
                                 className="text-sm text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary transition-colors"
                               >
                                 Mark all as read

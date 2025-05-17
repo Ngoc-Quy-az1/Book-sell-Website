@@ -143,12 +143,19 @@ const Sidebar = () => {
             />
             <Item
               title="Create New User"
-              to="/form"
+              to="/createUser"
               icon={<PersonOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
 
+            <Item
+              title="Add Book"
+              to="/addBook"
+              icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
             <Typography
               variant="h6"
               color={colors.grey[300]}
