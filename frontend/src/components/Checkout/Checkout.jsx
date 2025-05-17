@@ -24,7 +24,7 @@ const Checkout = () => {
           `${apiUrl}/api/payment/pending-orders`,
           {
             headers: {
-              Authorization: `Bearer ${Cookies.get("Cookies.get('authToken')")}`, // Thêm header Authorization
+              Authorization: `Bearer ${Cookies.get("Cookies.get('authToken')")}`,
             },
           }
         );

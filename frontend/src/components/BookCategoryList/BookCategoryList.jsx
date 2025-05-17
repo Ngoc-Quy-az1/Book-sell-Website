@@ -164,14 +164,14 @@ const BookCategoryList = () => {
               className="flex items-center justify-center w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white shadow-xl transition-all duration-200 border-2 border-white dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-300 text-2xl hover:scale-110 active:scale-95"
               title="Mua ngay"
             >
-              <svg xmlns='http://www.w3.org/2000/svg' className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A1 1 0 007.5 17h9a1 1 0 00.85-1.53L17 13M7 13V6a1 1 0 011-1h3m4 0h2a1 1 0 011 1v7" /></svg>
+              <svg xmlns='http://www.w3.org/2000/svg' className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3h13m-9 4a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" /></svg>
             </button>
             <button
               onClick={() => window.location.href = `/book-detail/${book.id}`}
               className="flex items-center justify-center w-14 h-14 rounded-full bg-white dark:bg-gray-700 hover:bg-green-50 dark:hover:bg-gray-600 text-green-700 dark:text-green-400 shadow-xl transition-all duration-200 border-2 border-green-600 dark:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 text-2xl hover:scale-110 active:scale-95"
               title="Xem chi tiết"
             >
-              <svg xmlns='http://www.w3.org/2000/svg' className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0A9 9 0 11 3 12a9 9 0 0118 0z" /></svg>
+              <svg xmlns='http://www.w3.org/2000/svg' className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5.25a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" /></svg>
             </button>
           </div>
         </div>

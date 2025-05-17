@@ -157,12 +157,12 @@ const ChatButton = () => {
       {isOpen && (
         <div
           className={`fixed ${isFullscreen
-              ? "top-0 left-0 w-full h-screen z-[9999] bg-white dark:bg-gray-800"
+              ? "top-20 left-0 w-full h-screen z-[9999] bg-white dark:bg-gray-800"
               : "bottom-[4.5rem] right-5 w-[20rem] lg:w-[24rem] lg:bottom-[4.5rem] lg:right-5 h-[70vh] z-50 bg-white dark:bg-gray-800"
             } p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 transition-all flex flex-col justify-between`}
           style={{ 
             overflow: "hidden",
-            boxShadow: isFullscreen ? "0 0 0 100vmax rgba(0, 0, 0, 0.5)" : undefined
+            //boxShadow: isFullscreen ? "0 0 0 100vmax rgba(0, 0, 0, 0.5)" : undefined
           }}
         >
           {/* Header */}

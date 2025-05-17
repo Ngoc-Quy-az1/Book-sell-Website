@@ -55,9 +55,7 @@ const BookDetail = () => {
   }
 
   const getAllReview = async (bookId)=>{
-    axios.get(`${apiUrl}/api/users/review/${bookId}`,{
-      headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`},
-    })
+    axios.get(`${apiUrl}/api/users/review/${bookId}`)
     .then((response) => {
       setListComment(response.data);
       setTotalComment(listComment.length)
@@ -130,17 +128,24 @@ const BookDetail = () => {
             justifyContent: 'center',
             background: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)',
             borderRadius: '50%',
-            width: 32,
-            height: 32,
             marginRight: 12
           }}>
-            <ShoppingCart color="#fff" size={20} />
           </span>
           Đã thêm vào giỏ hàng!
         </div>,
         { position: "top-right", style: { background: 'linear-gradient(90deg, #bbf7d0 0%, #86efac 100%)', color: '#166534', fontWeight: 'bold' } }
       );
     } catch (error) {
+      let errorMessage = "";
+      let errorIcon = "";
+
+      if (!Cookies.get('authToken')) {
+        errorMessage = "Vui lòng đăng nhập để thêm sách vào giỏ hàng";
+      } else {
+        errorMessage = "Sách này đã có trong giỏ hàng của bạn";
+        errorIcon = "";
+      }
+
       toast.error(
         <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
           <span style={{
@@ -149,15 +154,21 @@ const BookDetail = () => {
             justifyContent: 'center',
             background: 'linear-gradient(90deg, #f59e42 0%, #f43f1a 100%)',
             borderRadius: '50%',
-            width: 32,
-            height: 32,
-            marginRight: 12
+            marginRight: 12,
+            fontSize: '20px'
           }}>
-            <svg width="20" height="20" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {errorIcon}
           </span>
-          Sách đã có trong giỏ hàng!
+          {errorMessage}
         </div>,
-        { position: "top-right", style: { background: 'linear-gradient(90deg, #fef3c7 0%, #fdba74 100%)', color: '#b45309', fontWeight: 'bold' } }
+        { 
+          position: "top-right", 
+          style: { 
+            background: 'linear-gradient(90deg, #fef3c7 0%, #fdba74 100%)', 
+            color: '#b45309', 
+            fontWeight: 'bold' 
+          } 
+        }
       );
     }
   };

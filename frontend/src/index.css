@@ -1,4 +1,3 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
 @tailwind base;
 @tailwind components;
@@ -38,7 +37,7 @@ body,
 }
 
 
-@layer utilities {
+@layer utilities {  
   .duration-high {
     @apply transition-all duration-300 ease-in-out;
   }
@@ -84,5 +83,36 @@ html {
   .primary-btn {
     @apply bg-gradient-to-r from-primary to-secondary hover:scale-105 duration-200 text-white py-1 px-4 rounded-full ;
   }
+}
+
+/* Fix màu chữ input MUI khi dark mode */
+.dark input,
+.dark textarea,
+.dark .MuiInputBase-input,
+.dark .MuiOutlinedInput-input {
+  color: #e5e7eb !important; /* text-gray-200 */
+  background: transparent !important;
+}
+
+.dark .MuiInputLabel-root {
+  color: #e5e7eb !important;
+}
+
+.dark .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255,255,255,0.23) !important;
+}
+
+/* Fix nền input khi dùng autocomplete ở dark mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important; /* bg-gray-800 hoặc màu nền dark */
+  box-shadow: 0 0 0 1000px #1e293b inset !important;
+  -webkit-text-fill-color: #e5e7eb !important; /* text-gray-200 */
+  caret-color: #e5e7eb !important;
+  color: #e5e7eb !important;
+  background-color: #1e293b !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 

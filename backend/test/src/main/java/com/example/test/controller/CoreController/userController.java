@@ -14,6 +14,8 @@ import com.example.test.Repository.UserRepo.UserRepository;
 import com.example.test.Service.JwtService;
 import com.example.test.Service.MailService;
 import com.example.test.Service.UserService;
+import com.example.test.Service.UserService.RedemptionType;
+import com.example.test.Service.UserService.RedemptionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -99,7 +101,7 @@ public class userController {
         return userService.updateUserInfo(userId, moreRegisterDTO);
     }
 
-    // Quy đổi số tiền người dùng nạp về xu cho tài khoản người dùng(10000vnd = 1
+    // Quy đổi số tiền người dùng nạp về xu cho tài khoản người dùng(1000 vnd = 1
     // xu)
 
     // http://localhost:8090/api/users/update/balance/6
@@ -246,6 +248,75 @@ public class userController {
             return ResponseEntity.ok(jwtService.regenerateAccessToken(refreshToken));
         } else {
             return ResponseEntity.status(401).body("Invalid refresh token");
+        }
+    }
+
+    /**
+     * API quy đổi điểm lấy mã giảm giá hoặc xu
+     * Method: POST
+     * URL: http://localhost:8090/api/users/{userId}/redeem-points
+     * Headers:
+     * Authorization: Bearer {your_jwt_token}
+     * Request Body:
+     * {
+     *   "type": "DISCOUNT_CODE" or "XU",
+     *   "pointsToRedeem": 100
+     * }
+     * Response (200 OK):
+     * {
+     *   "success": true,
+     *   "message": "Quy đổi thành công...",
+     *   "code": "MEGA60OFF", // Nếu quy đổi mã giảm giá
+     *   "discountPercentage": 60, // Nếu quy đổi mã giảm giá
+     *   "xuAmount": 100, // Nếu quy đổi xu
+     *   "remainingPoints": 150
+     * }
+     * Error Response (400 Bad Request): Nếu số điểm không đủ hoặc không hợp lệ
+     * Error Response (404 Not Found): Nếu userId không tồn tại
+     */
+    @PostMapping("/{userId}/redeem-points")
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")
+    public ResponseEntity<RedemptionResponse> redeemPoints(
+            @PathVariable Integer userId,
+            @RequestBody Map<String, String> body) {
+        try {
+            String typeStr = body.get("type");
+            String pointsStr = body.get("pointsToRedeem");
+
+            if (typeStr == null || pointsStr == null) {
+                return ResponseEntity.badRequest().body(
+                    new RedemptionResponse(false, "Thiếu thông tin loại quy đổi hoặc số điểm"));
+            }
+
+            RedemptionType type;
+            try {
+                type = RedemptionType.valueOf(typeStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(
+                    new RedemptionResponse(false, "Loại quy đổi không hợp lệ. Chỉ chấp nhận DISCOUNT_CODE hoặc XU"));
+            }
+
+            Integer pointsToRedeem;
+            try {
+                pointsToRedeem = Integer.parseInt(pointsStr);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body(
+                    new RedemptionResponse(false, "Số điểm không hợp lệ"));
+            }
+
+            RedemptionResponse response = userService.redeemPoints(userId, type, pointsToRedeem);
+            
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Không tìm thấy người dùng")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.badRequest().body(
+                new RedemptionResponse(false, e.getMessage()));
         }
     }
 }

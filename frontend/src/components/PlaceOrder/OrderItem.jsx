@@ -114,7 +114,7 @@ export default function OrderItem({
               ))
             )}
           </div>
-          {/* Tổng tiền */} 
+          {/* Tổng tiền */}
         </div>
       )}
     </div>
