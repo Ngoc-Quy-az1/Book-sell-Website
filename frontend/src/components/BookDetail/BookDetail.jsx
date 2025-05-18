@@ -223,9 +223,9 @@ const BookDetail = () => {
               </div>
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center border dark:border-gray-600 rounded-lg overflow-hidden">
-                  <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity-1)}><Minus size={24}/></button>
-                  <span className="px-8 py-2 text-2xl font-bold text-gray-800 dark:text-white">{buyQuantity}</span>
-                  <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity+1)}><Plus size={24}/></button>
+                  <button className="px-2 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity-1)}><Minus size={24}/></button>
+                  <span className="px-2 sm:px-4 text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">{buyQuantity}</span>
+                  <button className="px-2 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity+1)}><Plus size={24}/></button>
                 </div>
                 <button
                   onClick={addToCart}
