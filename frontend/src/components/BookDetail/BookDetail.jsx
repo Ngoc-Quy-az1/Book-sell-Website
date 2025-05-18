@@ -298,7 +298,38 @@ const BookDetail = () => {
               ))}
             </div>
             <div className="flex flex-col items-center md:items-end">
-              <button onClick={() => setIsOpenDialog(true)} className="flex items-center gap-2 border border-green-600 dark:border-green-400 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 px-4 py-2 rounded-lg font-semibold transition">
+              <button 
+                onClick={() => {
+                  if (!Cookies.get('authToken')) {
+                    toast.error(
+                      <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'linear-gradient(90deg, #f59e42 0%, #f43f1a 100%)',
+                          borderRadius: '50%',
+                          marginRight: 12,
+                          fontSize: '20px'
+                        }}>
+                          
+                        </span>
+                        Vui lòng đăng nhập để thêm đánh giá
+                      </div>,
+                      { 
+                        position: "top-right", 
+                        style: { 
+                          background: 'linear-gradient(90deg, #fef3c7 0%, #fdba74 100%)', 
+                          color: '#b45309', 
+                          fontWeight: 'bold' 
+                        } 
+                      }
+                    );
+                  } else {
+                    setIsOpenDialog(true)
+                  }
+                }} 
+                className="flex items-center gap-2 border border-green-600 dark:border-green-400 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 px-4 py-2 rounded-lg font-semibold transition">
                 <Pen size={16} className="mr-1"/> Viết đánh giá
               </button>
             </div>

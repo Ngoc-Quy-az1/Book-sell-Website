@@ -5,7 +5,12 @@ import { FaBars } from 'react-icons/fa';
 import { Slider, Box, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
+import 'react-toastify/dist/ReactToastify.css';
 import "../../CheckToken";
+
+import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
+import LoginPopup from "../LoginPopup/LoginPopup";
 
 const userId = Cookies.get('userId');
 const BookCategoryList = () => {
@@ -15,6 +20,8 @@ const BookCategoryList = () => {
   const [tValue, setTValue] = React.useState([0, 1000000]);
   const [maxPage, setMaxPage] = useState(1);
   const [selectedSortRule, setSelectedSortRule] = useState("Tasc");
+  const [loginPopup, setLoginPopup] = React.useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [page, setPage] = useState(1);
   const [bookList, setBookList] = useState([]);
   const [search, setSearch] = useState("")
@@ -30,6 +37,9 @@ const BookCategoryList = () => {
     getBookList();
     console.log(value,page, selectedCategory, search, sortRule)
   }, [value, page, selectedCategory, search, sortRule]);
+  const handleLoginPopup = () => {
+    setLoginPopup(!loginPopup);
+  };
 //Loc sach 
   const handleCategories = (event) => {
     const index = selectedCategory.indexOf(event.target.id);
@@ -113,9 +123,39 @@ const BookCategoryList = () => {
     .then((response) => {
       setAddToCartSuccess(true);
       setTimeout(() => setAddToCartSuccess(false), 2000);
+      toast.success(
+        <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)',
+            borderRadius: '50%',
+            marginRight: 12
+          }}>
+          </span>
+          Thêm vào rỏ hàng thành công
+        </div>,
+        { position: "top-right", style: { background: 'linear-gradient(90deg, #bbf7d0 0%, #86efac 100%)', color: '#166534', fontWeight: 'bold' } }
+      );
     })
     .catch((error) => {
       console.error('Error fetching data:', error.response.data);
+      toast.error(
+        <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)',
+            borderRadius: '50%',
+            marginRight: 12
+          }}>
+          </span>
+          {error.response.data}
+        </div>,
+        { position: "top-right", style: { background: 'linear-gradient(90deg, #bbf7d0 0%, #86efac 100%)', color: '#166534', fontWeight: 'bold' } }
+      );
     });
   }
   
@@ -160,7 +200,13 @@ const BookCategoryList = () => {
           {/* Hover action buttons */}
           <div className="absolute bottom-4 right-4 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-auto z-10">
             <button
-              onClick={() => addToCart(userId, book.id)}
+              onClick={
+                () => {
+                  Cookies.get('authToken')
+                  ? addToCart(userId, book.id)
+                  : handleLoginPopup();
+                }
+              }
               className="flex items-center justify-center w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white shadow-xl transition-all duration-200 border-2 border-white dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-300 text-2xl hover:scale-110 active:scale-95"
               title="Mua ngay"
             >
@@ -400,6 +446,9 @@ const BookCategoryList = () => {
           Thêm sách vào giỏ hàng thành công!
         </div>
       )}
+
+      <ToastContainer theme={theme === "dark" ? "dark" : "light"} />
+      <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
     </div>
   );
 };
