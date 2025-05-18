@@ -33,6 +33,8 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   const [showNoti, setShowNoti] = useState(false);
   const [showOption, setShowOption] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMobileNoti, setShowMobileNoti] = useState(false);
+  const mobileMenuRef = useRef(null); // Thêm ref cho mobile menu
   const dropdownRef = useRef(null);
   const notiRef = useRef(null);
   const location = useLocation();
@@ -88,6 +90,22 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showOption]);
+
+  // Đóng dropdown mobile khi click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setShowMobileMenu(false);
+        setShowMobileNoti(false);
+      }
+    };
+    if (showMobileMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMobileMenu]);
 
   const fetchUnreadCount = async () => {
     if (!hasToken) return;
@@ -401,6 +419,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
               </button>
               {showMobileMenu && (
                 <div
+                  ref={mobileMenuRef}
                   className="absolute right-4 top-20 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50"
                 >
                   <ul className="flex flex-col font-semibold text-base">
@@ -441,7 +460,91 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                       </Link>
                     </li>
                     {/* Các mục phụ khác nếu cần */}
+                    {/* Thêm item Notifications vào dropdown, chỉ khi đã đăng nhập */}
+                    {hasToken && (
+                      <li>
+                        <button
+                          className="w-full flex items-center gap-2 py-2 px-4 hover:bg-primary/10 focus:outline-none"
+                          onClick={() => setShowMobileNoti(!showMobileNoti)}
+                        >
+                          <span>Notifications</span>
+                          {unreadCount > 0 && (
+                            <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    )}
                   </ul>
+                  {/* Notification dropdown for mobile, chỉ hiện khi showMobileNoti true và đã đăng nhập */}
+                  {hasToken && showMobileNoti && (
+                    <div className="border-t border-gray-200 dark:border-gray-700 mt-2">
+                      <div className="flex items-center justify-between px-4 py-2">
+                        <span className="font-semibold text-gray-900 dark:text-white">Notifications</span>
+                        {notice.length > 0 && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={markAll}
+                              className="text-xs text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
+                            >
+                              Mark all as read
+                            </button>
+                            <button
+                              onClick={clearAll}
+                              className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              Delete all
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <div className="max-h-60 overflow-y-auto">
+                        {notice.length === 0 ? (
+                          <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                            No notifications
+                          </div>
+                        ) : (
+                          notice.toReversed().map((noti) => (
+                            <div
+                              key={noti.id}
+                              className={`group px-4 py-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+                                !noti.is_read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div
+                                  className={`flex-shrink-0 w-2 h-2 mt-2 rounded-full ${
+                                    !noti.is_read ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                                  }`}
+                                />
+                                <div className="flex-1" onClick={() => markAsRead(noti.id)}>
+                                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                                    {noti.message}
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    {new Date(noti.created_at).toLocaleString()}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteNotification(noti.id);
+                                  }}
+                                  className="opacity-100 p-1 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-200"
+                                  title="Delete notification"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

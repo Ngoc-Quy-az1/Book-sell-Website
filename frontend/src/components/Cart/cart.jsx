@@ -251,9 +251,10 @@ export default function Cart() {
         Select the book you want to pay for, change the quantity or remove the product from the cart.
       </p>
       {cartlist.length > 0 ? (
-        <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-36">
-          <div className="overflow-x-auto rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-            <table className="min-w-full text-center">
+        <div className="flex flex-col px-1 sm:px-4 md:px-16 lg:px-36">
+          {/* Bọc bảng trong một div cho phép cuộn ngang trên mobile */}
+          <div className="w-full overflow-x-auto rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <table className="min-w-[700px] w-full text-center">
               <thead className="bg-green-50 dark:bg-green-900/30 border-b dark:border-gray-700">
                 <tr>
                   <th className="py-3 px-2"></th>
@@ -424,4 +425,4 @@ export default function Cart() {
       )}
     </div>
   );
-} 
+}
