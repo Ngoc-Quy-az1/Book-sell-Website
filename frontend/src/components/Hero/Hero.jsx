@@ -74,10 +74,10 @@ const Hero = ({ handleOrderPopup }) => {
         }}
       >
         {/* Overlay làm tối ảnh: dark mode 60%, light mode 0.1 */}
-        <div className="absolute inset-0 z-0"
+        <div className="absolute inset-0 z-0 opacity-10 dark:opacity-60"
           style={{
             background: "black",
-            opacity: theme === "dark" ? 0.6 : 0.1
+            //opacity: theme === "dark" ? 0.6 : 0.1
           }}
         ></div>
         {/* Nền mờ để hiển thị rõ chữ trên desktop, không hiện trên mobile */}
@@ -85,9 +85,9 @@ const Hero = ({ handleOrderPopup }) => {
           className="absolute inset-0 z-10 flex justify-center items-center pointer-events-none hidden sm:flex"
         >
           <div
-            className="w-full max-w-7xl mx-auto rounded-2xl backdrop-blur-md p-6 sm:p-12"
+            className="w-full max-w-7xl mx-auto rounded-2xl backdrop-blur-md p-6 sm:p-12 bg-[#ffffff4d] dark:bg-[#1118274d]"
             style={{
-              backgroundColor: theme === "dark" ? "rgba(17,24,39,0.3)" : "rgba(255,255,255,0.3)",
+              //backgroundColor: theme === "dark" ? "rgba(17,24,39,0.3)" : "rgba(255,255,255,0.3)",
               minHeight: "600px",
               maxWidth: "1200px",
               width: "100%",
