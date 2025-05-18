@@ -113,6 +113,7 @@ public class SecurityConfig {
                 , "http://localhost:5173"
                 , "http://localhost:8090"
                 , "https://book-sell-website.vercel.app"
+                , "https://dangngocquy20225074.id.vn"
                 ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(

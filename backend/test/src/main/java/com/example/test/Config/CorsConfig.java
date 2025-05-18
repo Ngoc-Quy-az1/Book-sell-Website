@@ -20,6 +20,7 @@ public class CorsConfig {
         config.addAllowedOrigin("http://localhost:8090");
 
         config.addAllowedOrigin("https://book-sell-website.vercel.app");
+        config.addAllowedOrigin("https://dangngocquy20225074.id.vn");
         
         config.addAllowedHeader("*");
         
