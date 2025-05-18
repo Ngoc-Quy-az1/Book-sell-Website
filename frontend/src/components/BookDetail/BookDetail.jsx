@@ -221,17 +221,17 @@ const BookDetail = () => {
                 <span className="text-2xl line-through text-gray-400 dark:text-gray-500">{parseFloat(bookDetail.price_original).toLocaleString()}₫</span>
                 <span className="bg-red-500 text-white text-lg font-bold px-4 py-1 rounded">-{Math.round((parseFloat(bookDetail.price_original) - parseFloat(bookDetail.price_discounted))*100/parseFloat(bookDetail.price_original))}%</span>
               </div>
-              <div className="flex items-center gap-6 mb-6">
+              <div className="flex items-center gap-3 sm:gap-6 mb-6">
                 <div className="flex items-center border dark:border-gray-600 rounded-lg overflow-hidden">
-                  <button className="px-2 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity-1)}><Minus size={24}/></button>
-                  <span className="px-2 sm:px-4 text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">{buyQuantity}</span>
-                  <button className="px-2 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity+1)}><Plus size={24}/></button>
+                  <button className="px-1 sm:px-2 md:px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xs sm:text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity-1)}><Minus size={16}/></button>
+                  <span className="px-1 sm:px-2 md:px-4 text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">{buyQuantity}</span>
+                  <button className="px-1 sm:px-2 md:px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-xs sm:text-xl text-gray-800 dark:text-white" onClick={()=>handleSetquantity(buyQuantity+1)}><Plus size={16}/></button>
                 </div>
                 <button
                   onClick={addToCart}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-bold text-xl px-8 py-3 rounded-xl shadow transition"
+                  className="flex items-center gap-2 sm:gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-bold text-sm sm:text-xl px-4 sm:px-8 py-3 rounded-xl shadow transition"
                 >
-                  <ShoppingCart className="w-6 h-6" />
+                  <ShoppingCart className="w-4 sm:w-6 h-4 sm:h-6" />
                   Thêm vào giỏ hàng
                 </button>
               </div>
