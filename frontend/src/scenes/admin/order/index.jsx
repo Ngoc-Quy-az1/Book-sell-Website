@@ -1,4 +1,3 @@
-import { Box, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
 import React,{ useState, useEffect } from "react";
 import Header from "../../../components/Admin/Header";
@@ -7,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import Notice from "../../../components/ErrorNotice";
+import { FormControl, InputLabel, Select, MenuItem, Box, useTheme } from "@mui/material";
 import Cookies from "js.cookie";
 import {
   GridRowModes,
@@ -34,11 +34,13 @@ const OrderList = () => {
 
   //Lấy danh sách người dùng
   const [listOrders, setListOrders] = useState([]);
+  const [userId, setUserId] = useState(14);
+  const [userList, setUserList] = useState([]);
   useEffect(() => {
     getOrder();
-  },[])
+  },[userId])
   const getOrder = async () =>{
-    await axios.get(`${apiUrl}/api/order/14`,{
+    await axios.get(`${apiUrl}/api/order/${userId}`,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
@@ -46,7 +48,15 @@ const OrderList = () => {
       setListOrders(Response.data.reverse());
     })
   }
-
+  useEffect(() => {
+    axios
+      .get(`${apiUrl}/api/admin/users`, {
+        headers: { Authorization: `Bearer ${Cookies.get("authToken")}` },
+      })
+      .then((Response) => {
+        setUserList(Response.data.filter((user) => !user.is_admin));
+      });
+  }, []);
 
     //Cột của bảng
     const [rows, setRows] = React.useState([]);
@@ -101,7 +111,26 @@ const OrderList = () => {
   return (
     <Box m="20px">
       <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
-      <Header title="Order List" subtitle="" />
+      <Header title="Order List" subtitle="" /><FormControl fullWidth sx={{ mt: 2, maxWidth: 400 }}>
+  <InputLabel id="select-user-label">Select User</InputLabel>
+  <Select
+    InputLabelProps={{sx:{color:colors.primary[900]}}}
+    labelId="select-user-label"
+    id="selectUser"
+    value={userId}
+    label="Select User"
+    onChange={(e) => {
+      setUserId(e.target.value);
+    }}
+  >
+    {userList.map((user) => (
+      <MenuItem key={user.id} value={user.id}>
+        {user.full_name} (ID: {user.id})
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
       <Box
         m="40px 0 0 0"
         height="75vh"
