@@ -29,13 +29,19 @@ const ChatButton = () => {
     }
   }, [messages])
   
-  useEffect(() => {
-    fetchMessages(chatMode);
-  }, [chatMode]);
-  useEffect(() => {
+  // Kiểm tra token
+  const hasToken = !!Cookies.get('authToken');
+  // Nếu chưa đăng nhập, không render và không gọi API/websocket
+  if (!hasToken) return null;
 
+  useEffect(() => {
+    if (!hasToken) return;
+    fetchMessages(chatMode);
+  }, [chatMode, hasToken]);
+  useEffect(() => {
+    if (!hasToken) return;
     connectWebSocket();
-  }, [])
+  }, [hasToken]);
   const ADMIN_ID = 16;  
   const connectWebSocket = () => {
     stompClient.connect({}, function (frame) {
@@ -143,8 +149,6 @@ const ChatButton = () => {
         console.error("Lỗi khi gửi tin nhắn:", error);
       });
   };
-  // Kiểm tra token
-  if (!Cookies.get('authToken')) return null;
   return (
     <div>
       {/* Nút mở chat */}

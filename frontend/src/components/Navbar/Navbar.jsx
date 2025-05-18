@@ -38,15 +38,17 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState({ 'full_name': "" });
+  const hasToken = !!Cookies.get('authToken');
 
   useEffect(() => {
+    if (!hasToken) return;
     fetchData();
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [hasToken]);
 
   useEffect(() => {
-    if (!Cookies.get('userId')) return;
+    if (!hasToken || !Cookies.get('userId')) return;
     const socket = new SockJS(`${apiUrl.replace('/api', '')}/ws/notification`);
     const client = new Client({
       webSocketFactory: () => socket,
@@ -61,7 +63,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     });
     client.activate();
     return () => client.deactivate();
-  }, []);
+  }, [hasToken]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -88,42 +90,41 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   }, [showOption]);
 
   const fetchUnreadCount = async () => {
-    if (Cookies.get("authToken")) {
-      try {
-        const response = await axios.get(
-          `${apiUrl}/api/notification/unread-count?userId=${Cookies.get("userId")}`,
-          {
-            headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
-          }
-        );
-        setUnreadCount(response.data);
-      } catch (error) {
-        console.error('Error fetching unread count:', error);
-      }
+    if (!hasToken) return;
+    try {
+      const response = await axios.get(
+        `${apiUrl}/api/notification/unread-count?userId=${Cookies.get("userId")}`,
+        {
+          headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
+        }
+      );
+      setUnreadCount(response.data);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
     }
   };
 
   const fetchData = async () => {
-    if (Cookies.get("authToken")) {
-      try {
-        const [userResponse, noticeResponse] = await Promise.all([
-          axios.get(`${apiUrl}/api/users/user-detail/${Cookies.get("userId")}`, {
-            headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
-          }),
-          axios.get(`${apiUrl}/api/notification/show?userId=${Cookies.get("userId")}`, {
-            headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
-          })
-        ]);
-        setUser(userResponse.data);
-        setNotice(noticeResponse.data);
-        fetchUnreadCount();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+    if (!hasToken) return;
+    try {
+      const [userResponse, noticeResponse] = await Promise.all([
+        axios.get(`${apiUrl}/api/users/user-detail/${Cookies.get("userId")}`, {
+          headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
+        }),
+        axios.get(`${apiUrl}/api/notification/show?userId=${Cookies.get("userId")}`, {
+          headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
+        })
+      ]);
+      setUser(userResponse.data);
+      setNotice(noticeResponse.data);
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
   const clearAll = async () => {
+    if (!hasToken) return;
     try {
       await axios.delete(
         `${apiUrl}/api/notification/delete-all?userId=${Cookies.get("userId")}`,
@@ -139,6 +140,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   };
 
   const markAsRead = async (msgId) => {
+    if (!hasToken) return;
     try {
       await axios.put(
         `${apiUrl}/api/notification/mark-read?notificationId=${msgId}`,
@@ -158,6 +160,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   };
 
   const deleteNotification = async (msgId) => {
+    if (!hasToken) return;
     try {
       await axios.delete(
         `${apiUrl}/api/notification/delete?notificationId=${msgId}`,
