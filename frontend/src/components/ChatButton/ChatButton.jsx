@@ -143,12 +143,15 @@ const ChatButton = () => {
         console.error("Lỗi khi gửi tin nhắn:", error);
       });
   };
+  // Kiểm tra token
+  if (!Cookies.get('authToken')) return null;
   return (
     <div>
       {/* Nút mở chat */}
       <button
         onClick={toggleChat}
-        className="fixed bottom-5 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center justify-center"
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center justify-center z-50"
+        style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
       >
         <FaComments size={20} />
       </button>
@@ -156,11 +159,12 @@ const ChatButton = () => {
       {/* Giao diện khung chat */}
       {isOpen && (
         <div
-          className={`fixed ${isFullscreen
+          className={`fixed ${
+            isFullscreen
               ? "top-20 left-0 w-full h-screen z-[9999] bg-white dark:bg-gray-800"
-              : "bottom-[4.5rem] right-5 w-[20rem] lg:w-[24rem] lg:bottom-[4.5rem] lg:right-5 h-[70vh] z-50 bg-white dark:bg-gray-800"
-            } p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 transition-all flex flex-col justify-between`}
-          style={{ 
+              : "bottom-20 right-4 w-[90vw] max-w-[22rem] h-[70vh] z-50 bg-white dark:bg-gray-800"
+          } p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 transition-all flex flex-col justify-between`}
+          style={{
             overflow: "hidden",
             //boxShadow: isFullscreen ? "0 0 0 100vmax rgba(0, 0, 0, 0.5)" : undefined
           }}
