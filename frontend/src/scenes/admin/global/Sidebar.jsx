@@ -13,6 +13,7 @@ import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import ChatIcon from '@mui/icons-material/Chat';
+import { ReceiptIcon } from "lucide-react";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -109,9 +110,10 @@ const Sidebar = () => {
 
             <Box paddingLeft={isCollapsed ? undefined : "10%"}>
               <Item title="Dashboard" to="/" icon={<HomeOutlinedIcon />} selected={selected} setSelected={setSelected} />
-              <Typography variant="h6" color={colors.grey[300]} sx={{ m: "15px 0 5px 20px" }}>Managament</Typography>
+              <Typography variant="h6" color={colors.grey[300]} sx={{ m: "15px 0 5px 20px" }}>Management</Typography>
               <Item title="Manage Books" to="/booklist" icon={<MenuBookIcon />} selected={selected} setSelected={setSelected} />
               <Item title="Manage Users" to="/manageUsers" icon={<ContactsOutlinedIcon />} selected={selected} setSelected={setSelected} />
+              <Item title="Order Lists" to="/orderlist" icon={<ReceiptIcon />} selected={selected} setSelected={setSelected} />
               <Item title="Create New User" to="/createUser" icon={<PersonAddIcon />} selected={selected} setSelected={setSelected} />
               <Item title="Add Book" to="/addBook" icon={<BookmarkAddIcon />} selected={selected} setSelected={setSelected} />
 

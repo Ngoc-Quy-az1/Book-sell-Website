@@ -35,86 +35,28 @@ const OrderList = () => {
   //Lấy danh sách người dùng
   const [listOrders, setListOrders] = useState([]);
   useEffect(() => {
-    getUser();
+    getOrder();
   },[])
-  const getUser = async () =>{
-    await axios.get(`${apiUrl}/api/payment/pending-orders`,{
+  const getOrder = async () =>{
+    await axios.get(`${apiUrl}/api/order/14`,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      setListOrders(Response.data);
+      console.log(Response.data)
+      setListOrders(Response.data.reverse());
     })
   }
 
-  //Xóa người dùng
-  const handleDeleteUsers = (selectedRows) => {
-    selectedRows.forEach(async UserId => {
-    await axios.delete(`${apiUrl}/api/payment/pending-orders` + UserId,{
-      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-    })});
-  }
 
-  //Update người dùng
-  const updateUsers = async (user) => {
-    let res = "";
-    
-    await axios.put(`${apiUrl}/api/admin/updateUsers/` + user.id,user,{
-      headers: {      
-      'Authorization': `Bearer ${Cookies.get('authToken')}`
-      },
-    })
-    .then((response) => {
-      if (response.data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
-      else {res="Account Successfully Updated"; setError(false)}
-      setMessage(res); 
-      showNotice();
-    });
-    return res;
-  }
     //Cột của bảng
-    const [ini, setIni] = useState(false);
     const [rows, setRows] = React.useState([]);
     useEffect(() => {
-      ini ? 
-        {} : setRows(listOrders);
-    })
-    const disableIni = () => {
-      setIni(true);
-    }
+      setRows(listOrders);
+    },[listOrders])
     const [rowModesModel, setRowModesModel] = React.useState({});
   
-    const handleRowEditStop = (params, event) => {
-      if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-        event.defaultMuiPrevented = true;
-      }
-    };
   
-    const handleEditClick = (id) => () => {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-      disableIni();
-    };
-  
-    const handleSaveClick = (id) => () => {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-    };
-  
-    const handleDeleteClick = (id) => () => {
-      handleDeleteUsers([id]);
-      setRows(rows.filter((row) => row.id !== id));
-      disableIni();
-    };
-  
-    const handleCancelClick = (id) => () => {
-      setRowModesModel({
-        ...rowModesModel,
-        [id]: { mode: GridRowModes.View, ignoreModifications: true },
-      });
-  
-      const editedRow = rows.find((row) => row.id === id);
-      if (editedRow.isNew) {
-        setRows(rows.filter((row) => row.id !== id));
-      }
-    };
+
   
     const processRowUpdate = (newRow,oldRow) => {
       newRow.is_admin = (newRow.is_admin === "Admin");
@@ -132,118 +74,34 @@ const OrderList = () => {
 
     //Hàng của bảng
   const columns = [
-    { field: "id", headerName: "ID", flex: 0.5 },
+    { field: "orderId", headerName: "ID", flex: 0.5 },
     {
-      field: "full_name",
-      headerName: "Name",
+      field: "createdAt",
+      headerName: "Create At",
+      flex: 1,
+      cellClassName: "name-column--cell",
+    },
+    {
+      field: "totalAmount",
+      headerName: "Total Amount",
       flex: 1,
       cellClassName: "name-column--cell",
       editable: true,
     },
     {
-      field: "phone",
-      headerName: "Phone Number",
+      field: "status",
+      headerName: "Status",
       flex: 1,
+      cellClassName: "name-column--cell",
       editable: true,
     },
-    {
-      field: "mail",
-      headerName: "Email",
-      flex: 1,
-      editable: true,
-    },
-    {
-      field: "address",
-      headerName: "Address",
-      flex: 1,
-      editable: true,
-    },
-    {
-      field: "balance",
-      headerName: "Balance",
-      headerAlign: "left",
-      align: "left",
-      editable: true,
-    },
-    {
-      field: "points",
-      headerName: "Points",
-      headerAlign: "left",
-      align: "left",
-      editable: true,
-    },
-    {
-      field: "membershipLevel",
-      headerName: "Membership Level",
-      headerAlign: "left",
-      align: "left",
-      editable: true,
-      type:'singleSelect',
-      valueOptions: ['Silver', 'Gold', 'Platinum']
-    },
-    {
-      field:"is_admin",
-      headerName: "Access",
-      headerAlign: "left",
-      align: "left",
-      editable: true,
-      type:'singleSelect',
-      valueGetter: (params) => {
-        const res = (params === true || params === "Admin") ? "Admin" :  "Member";
-        return res;
-      },
-      valueOptions: ["Admin","Member"],
-    },
-    {
-      field: "actions",
-      type: 'actions',
-      headerName: 'actions',
-      width: 80,
-      cellClassName: 'actions',
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Save"
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(id)}
-              color="inherit"
-            />
-          ]
-        }
-
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="inherit"
-          />
-        ]
-      },
-    }
   ];
 
   //Trả vềvề
   return (
     <Box m="20px">
       <Notice notice={notice} message={message} showNotice={showNotice} isError={error}/>
-      <Header title="Manage Users" subtitle="" />
+      <Header title="Order List" subtitle="" />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -283,12 +141,10 @@ const OrderList = () => {
             gridTemplateRows: 'auto 1f auto',
         }}
         rows={rows}
-        getRowId={rows.orderId}
+        getRowId={row => row.orderId}
         columns={columns}
-        editMode="row"
         rowModesModel={rowModesModel}
         onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
         processRowUpdate={processRowUpdate}/>
       </Box>
     </Box>
