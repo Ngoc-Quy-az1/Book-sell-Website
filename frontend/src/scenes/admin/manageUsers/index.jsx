@@ -64,7 +64,7 @@ const ManageUsers = () => {
       },
     })
     .then((response) => {
-      if (response.data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
+      if (response.data==undefined) {res="Updated Failed";  setError(true)}// this will be a string
       else {res="Account Successfully Updated"; setError(false)}
       setMessage(res); 
       showNotice();
