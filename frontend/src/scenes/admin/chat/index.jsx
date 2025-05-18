@@ -4,89 +4,95 @@ import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import { tokens } from "../../../theme";
 import axios from "axios";
-import Cookies from "js.cookie"
+import Cookies from "js.cookie";
 import "../../../CheckToken";
+
 const Chat = () => {
   const ADMIN_ID = Cookies.get("userId");
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [userList, setUserList] = useState([]);
   const [userId, setUserId] = useState();
-  const [newMessage, setNewMessage] = useState(""); // Nội dung tin nhắn mới
-  const [messages, setMessages] = useState([]); 
+  const [newMessage, setNewMessage] = useState("");
+  const [messages, setMessages] = useState([]);
   const [subscribed, setSubscribed] = useState([]);
   const apiUrl = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
-    axios.get(`${apiUrl}/api/admin/users`,{
-      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
-    })
-    .then(Response => {
-      setUserList(Response.data.filter((user) => !user.is_admin));
-    })
+    axios
+      .get(`${apiUrl}/api/admin/users`, {
+        headers: { Authorization: `Bearer ${Cookies.get("authToken")}` },
+      })
+      .then((Response) => {
+        setUserList(Response.data.filter((user) => !user.is_admin));
+      });
     connectWebSocket();
-  },[])
-  useEffect(() => 
-    document.getElementById("bottom").scrollIntoView(),[messages])
+  }, []);
+
+  useEffect(() => {
+    document.getElementById("bottom").scrollIntoView();
+  }, [messages]);
+
   const showMessage = (id) => {
     setUserId(id);
     getMessage(id);
     if (!subscribed.includes(id)) {
-      setSubscribed(subscribed => [...subscribed, id]);
-      connectWebSocket();
+      setSubscribed((prev) => [...prev, id]);
+      connectWebSocket(id);
     }
-  }
+  };
+
   const getMessage = async (userId) => {
-  await axios.post(
-    `${apiUrl}/api/chat/admin/history`,
-    {userId: userId},
-    {
-      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
-    })
-    .then(result => {setMessages(result.data); console.log(result.data);})
-  }
+    await axios
+      .post(
+        `${apiUrl}/api/chat/admin/history`,
+        { userId },
+        {
+          headers: { Authorization: `Bearer ${Cookies.get("authToken")}` },
+        }
+      )
+      .then((result) => {
+        setMessages(result.data);
+      });
+  };
 
-  const connectWebSocket = () => {
-
+  const connectWebSocket = (userId) => {
+    if (!userId) return;
     const socket = new SockJS(`${apiUrl}/ws`);
-    let stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-      // Subscribe kênh admin chat
-      stompClient.subscribe('/topic/admin-chat/' + ADMIN_ID, function (message) {
-        const messageBody = JSON.parse(message.body);
-        console.log(messageBody);
+    const stompClient = Stomp.over(socket);
 
+    stompClient.connect({}, function () {
+      stompClient.subscribe(`/topic/admin-chat/${ADMIN_ID}`, function (message) {
+        const messageBody = JSON.parse(message.body);
         if (
-          (messageBody.sender.id == userId && messageBody.receiver.id == ADMIN_ID) ||
-          (messageBody.sender.id == ADMIN_ID && messageBody.receiver.id == userId)
+          messageBody.sender.id === userId &&
+          messageBody.receiver.id === ADMIN_ID
         ) {
-          setMessages(messages => [...messages, messageBody])
+          setMessages((prevMessages) => [...prevMessages, messageBody]);
         }
       });
-  })}
+    });
+  };
 
-  
- 
-
-  
   const handleSendMessage = () => {
-    if (!newMessage.trim()) {
-      return;
-    }
+    if (!newMessage.trim()) return;
 
-    const apiUrl1 = `${apiUrl}/api/chat/admin/reply`;
-
-    const requestBody = { adminId: Cookies.get('userId'), userId: userId, message: newMessage };
+    const requestBody = {
+      adminId: Cookies.get("userId"),
+      userId: userId,
+      message: newMessage,
+    };
 
     axios
-      .post(apiUrl1, requestBody, {
-        headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
+      .post(`${apiUrl}/api/chat/admin/reply`, requestBody, {
+        headers: { Authorization: `Bearer ${Cookies.get("authToken")}` },
       })
       .then((response) => {
         setMessages((prevMessages) => [
           ...prevMessages,
           {
             messageId: response.data.messageId,
-            sender: { id: Cookies.get('userId'), name: "Bạn" },
+            sender: { id: Cookies.get("userId"), name: "Bạn" },
             message: newMessage,
             createdAt: new Date().toISOString(),
           },
@@ -98,68 +104,84 @@ const Chat = () => {
         alert("Không thể gửi tin nhắn. Vui lòng thử lại sau.");
       });
   };
+
   return (
-    <Box m="20px" className="flex-1 border h-[80vh] rounded mb-4">
-      <div className="inline-block w-1/5 h-full overflow-y-auto flex-1 border-r p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+    <Box m="20px" className="flex flex-col md:flex-row border h-[80vh] rounded mb-4 overflow-hidden">
+      {/* Sidebar with horizontal scroll on mobile */}
+      <div className="w-full md:w-1/5 h-[80px] md:h-full flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto border-r md:border-r p-3 space-x-2 md:space-x-0 md:space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 whitespace-nowrap">
         {userList.map((user) => (
-        <div style={{backgroundColor:userId == user.id ?colors.redAccent[600] : colors.greenAccent[600], borderRadius:5}} key={user.id}>
-          <button style={{width:"100%", height:"30px"}} key={user.id} onClick={() => showMessage(user.id)}>
-            {user.name}
-          </button>
-        </div>
+          <div
+            key={user.id}
+            className="inline-block"
+            style={{
+              backgroundColor:
+                userId === user.id
+                  ? colors.redAccent[600]
+                  : colors.greenAccent[600],
+              borderRadius: 5,
+            }}
+          >
+            <button
+              className="px-4 py-2 w-full md:w-[100%] h-full"
+              onClick={() => showMessage(user.id)}
+            >
+              {user.name}
+            </button>
+          </div>
         ))}
-      </div> 
-      <div className="inline-block w-4/5 h-full overflow-y-auto flex-1 p-3 space-y-2 ">
-        <div className="float h-[90%] flex-1 overflow-y-auto  p-3 mb-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+      </div>
+
+      {/* Chat Area */}
+      <div className="w-full md:w-4/5 h-full flex flex-col p-3 space-y-2">
+        <div className="flex-1 overflow-y-auto p-3 mb-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           {messages.map((msg) => (
             <div
               key={msg.messageId}
               className={`mb-2 ${msg.sender.id === Cookies.get("userId") ? "text-right" : "text-left"}`}
             >
               <div
-                className={`${msg.sender.id === Cookies.get("userId")
+                className={`${
+                  msg.sender.id === Cookies.get("userId")
                     ? "bg-blue-500 text-white ml-auto"
                     : "bg-gray-200 text-black"
-                  } p-2 rounded-lg text-sm inline-block`}
+                } p-2 rounded-lg text-sm inline-block`}
               >
                 {msg.message}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 {msg.createdAt
                   ? (() => {
-                    const date = new Date(msg.createdAt);
-                    const formattedDate = date.toLocaleDateString();
-                    const formattedTime = date.toLocaleTimeString();
-                    return `${formattedDate} ${formattedTime}`;
-                  })()
+                      const date = new Date(msg.createdAt);
+                      return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                    })()
                   : "Invalid Date"}
               </div>
             </div>
           ))}
-        <div style={{ float:"left", clear: "both" }}
-             id="bottom"> 
+          <div id="bottom" className="float-left clear-both" />
         </div>
-        </div>
-        <div className="flex items-center">
+
+        {/* Message Input */}
+        <div className="flex items-center gap-2">
           <Box
             display="flex"
-            width="100%"
+            flex="1"
             backgroundColor={colors.primary[400]}
             borderRadius="3px"
           >
-            <InputBase 
-            sx={{ ml: 2, flex: 1 }} 
-            placeholder="Enter text" 
-            value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter")
-                handleSendMessage();
+            <InputBase
+              sx={{ ml: 2, flex: 1 }}
+              placeholder="Enter text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSendMessage();
               }}
             />
           </Box>
-          <button 
-            onClick={(handleSendMessage)}
-            className="bg-blue-500 text-white px-4 py-2 ml-1 rounded hover:bg-blue-600"
+          <button
+            onClick={handleSendMessage}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Gửi
           </button>

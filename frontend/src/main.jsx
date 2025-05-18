@@ -8,7 +8,7 @@ import Admin from "./Admin.jsx";
 import Dashboard from "./scenes/admin/dashboard";
 import ManageUsers from "./scenes/admin/manageUsers/index.jsx";
 import Bar from "./scenes/admin/bar";
-import Form from "./scenes/admin/form";
+import UserForm from "./scenes/admin/userForm";
 import Chat from "./scenes/admin/chat";
 import Cart from "./components/Cart/cart.jsx";
 import Calendar from "./scenes/admin/calendar/calendar";
@@ -24,6 +24,8 @@ import BookDetail from "./components/BookDetail/BookDetail.jsx";
 import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
 import UserDetail from "./components/UserDetail/UserDetail.jsx";
 import { Car } from "lucide-react";
+import BookForm from "./scenes/admin/bookForm/index.jsx";
+import OrderList from "./scenes/admin/order/index.jsx";
 
 
 const router = createBrowserRouter([{
@@ -45,9 +47,11 @@ const router = createBrowserRouter([{
       index: true, element: <Dashboard/>
     },
     {path:'manageUsers', element:<ManageUsers />},
-    {path:'form', element:<Form />},
+    {path:'createUser', element:<UserForm />},
+    {path:'addBook', element:<BookForm/>},
     {path:'bar', element:<Bar />},
     {path:'booklist', element:<AdminBookList />},
+    {path:'orderlist',element:<OrderList/>},
     {path:'chat', element: <Chat/>},
     {path:'calendar', element:<Calendar />}
   ]
