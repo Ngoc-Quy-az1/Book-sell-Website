@@ -18,7 +18,7 @@ const Admin = () => {
         <CssBaseline />
         <div className="app">
         <Sidebar/>
-          <main className="content" style={{position:'relative',zIndex:'1'}}>
+          <main className="content" style={{position:'relative',zIndex:'1', paddingLeft:"80px"}}>
               <Topbar handleNotification={handleNotification}/>
               <Outlet/>
               <Notification notification={notification} handleNotification={handleNotification}/>

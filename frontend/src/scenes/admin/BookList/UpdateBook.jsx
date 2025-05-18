@@ -16,9 +16,11 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
   const colorMode = useContext(ColorModeContext);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [updateInformation, getUpdateImformation] = useState(true);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleUpdate = () => {
     getUpdateImformation(!updateInformation);
+    console.log("click")
   }
 
   const handleDeleteBook = () => {
@@ -64,8 +66,18 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
     updateBook(form);
   };
 
+const uploadToCloudinary = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "ml_default"); 
+  const response = await axios.post(
+    "https://api.cloudinary.com/v1_1/dllgtkb4a/image/upload",
+    formData
+  );
+  return response.data.secure_url; 
+}
   return (
-    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4 shadow-md rounded-md duration-200 w-1/2"
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-3/4 p-4 shadow-md rounded-md duration-200 w-2/3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200"
       style={{
         backgroundColor: colors.primary[400],
         borderColor: colors.primary[500]
@@ -85,13 +97,9 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
               handleBlur,
               handleChange,
               handleSubmit,
+              setFieldValue,
             }) => (
               <form onSubmit={handleSubmit}>
-                {values.image && (
-                  <Box display="flex" justifyContent="center" mb={2}>
-                    <img src={values.image} alt="Book Cover" style={{ maxHeight: "200px", borderRadius: "8px" }} />
-                  </Box>
-                )}
                 <Box
                   display="grid"
                   gap="30px"
@@ -109,14 +117,56 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
                   <TextField fullWidth variant="filled" type="number" label="Page Count" disabled={updateInformation} onBlur={handleBlur} onChange={handleChange} value={values.page} name="page" error={!!touched.page && !!errors.page} helperText={touched.page && errors.page} sx={{ gridColumn: "span 2" }} />
                   <TextField fullWidth variant="filled" type="text" label="Dimensions" disabled={updateInformation} onBlur={handleBlur} onChange={handleChange} value={values.dimensions} name="dimensions" error={!!touched.dimensions && !!errors.dimensions} helperText={touched.dimensions && errors.dimensions} sx={{ gridColumn: "span 4" }} />
                   <TextField fullWidth multiline rows={4} variant="filled" type="text" label="Description" disabled={updateInformation} onBlur={handleBlur} onChange={handleChange} value={values.description} name="description" error={!!touched.description && !!errors.description} helperText={touched.description && errors.description} sx={{ gridColumn: "span 4" }} />
-                  <TextField fullWidth variant="filled" type="text" label="Created At" disabled value={values.create_at} name="create_at" sx={{ gridColumn: "span 4" }} />
-                  <TextField fullWidth variant="filled" type="text" label="Image URL" disabled={updateInformation} onBlur={handleBlur} onChange={handleChange} value={values.image} name="image" error={!!touched.image && !!errors.image} helperText={touched.image && errors.image} sx={{ gridColumn: "span 4" }} />
+                  <TextField fullWidth variant="filled" type="text" label="Created At" disabled={updateInformation} value={values.create_at} name="create_at" sx={{ gridColumn: "span 4" }} />
+                  <Box sx={{ gridColumn: "span 4" }}>
+                    {!updateInformation && (<input
+                        accept="image/*"
+                        type="file"
+                        onChange={async (event) => {
+                        const file = event.currentTarget.files[0];
+                        if (file) {
+                            try {
+                            const url = await uploadToCloudinary(file);
+                            setFieldValue("image", url);      // Save to form
+                            setImagePreview(url);             // Show preview
+                            } catch (err) {
+                            console.error("Cloudinary upload failed:", err);
+                            setMessage("Image upload failed");
+                            setError(true);
+                            showNotice();
+                            }
+                        }
+                        }}
+                    />)}
+                    {errors.image && touched.image && (
+                        <div style={{ color: "red", marginTop: "5px" }}>{errors.image}</div>
+                    )}
+                    </Box>
                 </Box>
+                {values.image && (
+                  <Box display="flex" justifyContent="center" mb={2} mt={2}>
+                    <img src={values.image} alt="Book Cover" style={{ maxHeight: "200px", borderRadius: "8px" }} />
+                  </Box>
+                )}
                 <Box display="flex" justifyContent="center" mt="20px" margin="30px">
-                  <Box marginRight="30px">
-                    <Button type={updateInformation ? "button" : "submit"} color="secondary" variant="contained" onClick={handleUpdate}>
-                      {updateInformation ? "Edit Details" : "Save"}
-                    </Button>
+                  <Box marginRight="30px">{updateInformation ? (
+                      <Button 
+                        type="button" 
+                        color="secondary" 
+                        variant="contained" 
+                        onClick={handleUpdate}
+                      >
+                        Edit Details
+                      </Button>
+                  ) : (
+                      <Button 
+                        type="submit" 
+                        color="secondary" 
+                        variant="contained"
+                      >
+                        Save
+                      </Button>
+                  )}
                   </Box>
                   <Box>
                     <Button type="button" color="secondary" variant="contained" onClick={handleDeleteBook}>
@@ -137,7 +187,7 @@ const checkoutSchema = yup.object().shape({
   title: yup.string().required("required"),
   author: yup.string().required("required"),
   translator: yup.string(),
-  publisher: yup.string(),
+  publisher: yup.string().required("required"),
   category: yup.string().required("required"),
   price_original: yup.number().required("required"),
   price_discounted: yup.number().required("required"),

@@ -25,6 +25,7 @@ import PlaceOrder from "./components/PlaceOrder/PlaceOrder.jsx";
 import UserDetail from "./components/UserDetail/UserDetail.jsx";
 import { Car } from "lucide-react";
 import BookForm from "./scenes/admin/bookForm/index.jsx";
+import OrderList from "./scenes/admin/order/index.jsx";
 
 
 const router = createBrowserRouter([{
@@ -50,6 +51,7 @@ const router = createBrowserRouter([{
     {path:'addBook', element:<BookForm/>},
     {path:'bar', element:<Bar />},
     {path:'booklist', element:<AdminBookList />},
+    {path:'orderlist',element:<OrderList/>},
     {path:'chat', element: <Chat/>},
     {path:'calendar', element:<Calendar />}
   ]

@@ -72,7 +72,7 @@ const Topbar = ({handleNotification}) => {
         </IconButton> */}
         <IconButton onClick={handleShowOption}>
           <PersonOutlinedIcon />
-          <div className="absolute -left-20 z-[9999] w-[100px] top-10 rounded-md bg-white p-2 border" hidden={!showOption}
+          <div className="absolute -left-20 z-50 w-[100px] top-10 rounded-md bg-white p-2 border" hidden={!showOption}
           ref={ref}
           style={{backgroundColor:colors.primary[400], textColor:colors.primary[100], borderColor:colors.primary[300], fontSize:"15px" }}>
                     <ul className="space-y-3">

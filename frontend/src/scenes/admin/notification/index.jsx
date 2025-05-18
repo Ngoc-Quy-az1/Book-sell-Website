@@ -59,7 +59,7 @@ export default Notification = ({notification, handleNotification}) => {
           className={`fixed top-16 right-5 w-80 rounded-lg shadow-lg border transition-all flex flex-col`}
           backgroundColor={colors.primary[400]}
           borderColor={colors.primary[300]}
-        > {notification ? "Y" : "n"}
+        > 
           <button onClick={clearAll}> 
             <Box
                 className={ `ml-auto p-2 rounded-lg text-sm inline-block mb-2`}
