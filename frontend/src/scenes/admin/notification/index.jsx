@@ -9,7 +9,6 @@ import "../../../CheckToken";
 export default Notification = ({notification, handleNotification}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [isOpen, setIsOpen] = useState(false);
   const [notice, setNotice] = useState([]);
   const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
@@ -35,22 +34,32 @@ export default Notification = ({notification, handleNotification}) => {
     await axios.put(`${apiUrl}/api/notification/mark-read?notificationId=`+msgId,{},{
        headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     }) .then(() => {
-      const id = notice.indexOf(notice.find((e) => e.id == msgId));
-      let t = notice;
-      t[id].is_read = true;
-      console.log(t);
+      const t = notice.map(n => n.id === msgId ? { ...n, is_read: true } : n);
       setNotice(t);
     });
   }
+  const ref=useRef();
+  
+
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        handleNotification(); console.log("Cl")
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   return (
     <div 
     >
       {notification && (
-        <Box
+        <Box ref={ref}
           className={`fixed top-16 right-5 w-80 rounded-lg shadow-lg border transition-all flex flex-col`}
           backgroundColor={colors.primary[400]}
           borderColor={colors.primary[300]}
-        >
+        > 
           <button onClick={clearAll}> 
             <Box
                 className={ `ml-auto p-2 rounded-lg text-sm inline-block mb-2`}

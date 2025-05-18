@@ -19,7 +19,7 @@ import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 // Function chính
-const ManageUsers = () => {
+const OrderList = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -33,23 +33,23 @@ const ManageUsers = () => {
   }
 
   //Lấy danh sách người dùng
-  const [listUsers, getListUsers] = useState([]);
+  const [listOrders, setListOrders] = useState([]);
   useEffect(() => {
     getUser();
   },[])
   const getUser = async () =>{
-    await axios.get(`${apiUrl}/api/admin/users`,{
+    await axios.get(`${apiUrl}/api/payment/pending-orders`,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      getListUsers(Response.data);
+      setListOrders(Response.data);
     })
   }
 
   //Xóa người dùng
   const handleDeleteUsers = (selectedRows) => {
     selectedRows.forEach(async UserId => {
-    await axios.delete(`${apiUrl}/api/admin/deleteUsers/` + UserId,{
+    await axios.delete(`${apiUrl}/api/payment/pending-orders` + UserId,{
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })});
   }
@@ -76,7 +76,7 @@ const ManageUsers = () => {
     const [rows, setRows] = React.useState([]);
     useEffect(() => {
       ini ? 
-        {} : setRows(listUsers);
+        {} : setRows(listOrders);
     })
     const disableIni = () => {
       setIni(true);
@@ -283,6 +283,7 @@ const ManageUsers = () => {
             gridTemplateRows: 'auto 1f auto',
         }}
         rows={rows}
+        getRowId={rows.orderId}
         columns={columns}
         editMode="row"
         rowModesModel={rowModesModel}
@@ -294,4 +295,4 @@ const ManageUsers = () => {
   );
 };
 
-export default ManageUsers;
+export default OrderList;

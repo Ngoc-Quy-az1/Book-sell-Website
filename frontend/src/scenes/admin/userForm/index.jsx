@@ -2,14 +2,14 @@ import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Notice from "../notice/index";
+import Notice from "../errorNotice/index";
 import Header from "../../../components/Admin/Header";
 import { useState } from "react";
 import Cookies from "js.cookie"
 import "../../../CheckToken";
 import axios from "axios";
 
-const Form = () => {
+const UserForm = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [notice, setNotice] = useState(false);
   const [error, setError] = useState(false);
@@ -208,4 +208,4 @@ const initialValues = {
   id: "10"
 };
 
-export default Form;
+export default UserForm;
