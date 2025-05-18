@@ -1,6 +1,6 @@
 import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
-import {formatDate} from "@fullcalendar/core";
+import { formatDate } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -12,6 +12,7 @@ import {
   ListItemText,
   Typography,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import Header from "../../../components/Admin/Header";
 import { tokens } from "../../../theme";
@@ -19,6 +20,7 @@ import { tokens } from "../../../theme";
 const Calendar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [currentEvents, setCurrentEvents] = useState([]);
 
   const handleDateClick = (selected) => {
@@ -51,13 +53,18 @@ const Calendar = () => {
     <Box m="20px">
       <Header title="Calendar" subtitle="Full Calendar Interactive Page" />
 
-      <Box display="flex" justifyContent="space-between">
+      <Box
+        display="flex"
+        flexDirection={isMobile ? "column" : "row"}
+        justifyContent="space-between"
+      >
         {/* CALENDAR SIDEBAR */}
         <Box
-          flex="1 1 20%"
+          flex={isMobile ? "1 1 auto" : "1 1 20%"}
           backgroundColor={colors.primary[400]}
           p="15px"
           borderRadius="4px"
+          mb={isMobile ? "20px" : 0}
         >
           <Typography variant="h5">Events</Typography>
           <List>
@@ -88,7 +95,7 @@ const Calendar = () => {
         </Box>
 
         {/* CALENDAR */}
-        <Box flex="1 1 100%" ml="15px">
+        <Box flex="1 1 100%" ml={isMobile ? 0 : "15px"}>
           <FullCalendar
             height="75vh"
             plugins={[

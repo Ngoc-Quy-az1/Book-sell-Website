@@ -7,7 +7,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase }) => {
   const colors = tokens(theme.palette.mode);
 
   return (
-    <Box width="100%" m="0 30px" alignContent="center" alignItems="center"
+    <Box width="100%" m="0 30px" alignContent="center" alignItems="center" 
           justifyContent="center">
           {icon}
           <Typography
