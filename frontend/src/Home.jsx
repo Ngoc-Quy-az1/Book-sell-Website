@@ -9,7 +9,7 @@ import Books from "./components/BooksSlider/Books.jsx";
 
 const Home = () => {
   return (
-    <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
+    <div className="bg-white dark:bg-gray-900 dark:text-white duration-200 overflow-x-hidden">
       <Hero />
       <Services />
       <Books/>

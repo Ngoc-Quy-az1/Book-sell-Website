@@ -1,46 +1,22 @@
-import React,{ useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Logo from "../../assets/website/logo.png";
 import { FaCartShopping } from "react-icons/fa6";
-import {Bell, BellDot} from "lucide-react";
+import { Bell, BellDot } from "lucide-react";
 import DarkMode from "./DarkMode";
 import { FaCaretDown } from "react-icons/fa";
 import Cookies from "js.cookie";
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../../CheckToken";
 import axios from "axios";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-const Menu = [
-  {
-    id: 1,
-    name: "Home",
-    link: "/",
-  },
-];
-
-const DropdownLinks = [
-  {
-    name: "Books List",
-    link: "/books",
-  },
-  {
-    name: "Cart",
-    link: "/cart",
-  },
-  {
-    name: "Order",
-    link: "/placeorder",
-  },
-];
-
-  const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL;
 const getColorFromName = (name) => {
   const colors = ["1abc9c", "3498db", "9b59b6", "e67e22", "e74c3c"];
   const hash = Array.from(name || "").reduce((acc, char) => acc + char.charCodeAt(0), 0);
   return colors[hash % colors.length];
 };
-
 const generateAvatar = (name) => {
   const initials = (name || "NA")
     .split(" ")
@@ -50,33 +26,34 @@ const generateAvatar = (name) => {
   const bgColor = getColorFromName(name);
   return `https://ui-avatars.com/api/?name=${initials}&background=${bgColor}&color=fff`;
 };
+
 const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
-  
   const [notice, setNotice] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNoti, setShowNoti] = useState(false);
   const [showOption, setShowOption] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const dropdownRef = useRef(null);
   const notiRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [user, setUser] = useState({ 'full_name': "" });
+  const hasToken = !!Cookies.get('authToken');
 
   useEffect(() => {
+    if (!hasToken) return;
     fetchData();
-    // Fetch unread count every 30 seconds
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [hasToken]);
 
   useEffect(() => {
-    if (!Cookies.get('userId')) return;
-    // Địa chỉ endpoint WebSocket backend (sửa lại nếu backend chạy port khác)
+    if (!hasToken || !Cookies.get('userId')) return;
     const socket = new SockJS(`${apiUrl.replace('/api', '')}/ws/notification`);
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
       onConnect: () => {
-        // Lắng nghe notification gửi về cho user hiện tại
         client.subscribe(`/user/${Cookies.get('userId')}/queue/notifications`, (message) => {
           const notification = JSON.parse(message.body);
           setNotice(prev => [notification, ...prev]);
@@ -86,9 +63,8 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     });
     client.activate();
     return () => client.deactivate();
-  }, []);
+  }, [hasToken]);
 
-  // Close notification dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notiRef.current && !notiRef.current.contains(event.target)) {
@@ -99,7 +75,6 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -115,42 +90,41 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
   }, [showOption]);
 
   const fetchUnreadCount = async () => {
-    if (Cookies.get("authToken")) {
-      try {
-        const response = await axios.get(
-          `${apiUrl}/api/notification/unread-count?userId=${Cookies.get("userId")}`,
-          {
-            headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
-          }
-        );
-        setUnreadCount(response.data);
-      } catch (error) {
-        console.error('Error fetching unread count:', error);
-      }
+    if (!hasToken) return;
+    try {
+      const response = await axios.get(
+        `${apiUrl}/api/notification/unread-count?userId=${Cookies.get("userId")}`,
+        {
+          headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
+        }
+      );
+      setUnreadCount(response.data);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
     }
   };
 
   const fetchData = async () => {
-    if (Cookies.get("authToken")) {
-      try {
-        const [userResponse, noticeResponse] = await Promise.all([
-          axios.get(`${apiUrl}/api/users/user-detail/${Cookies.get("userId")}`, {
-            headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
-          }),
-          axios.get(`${apiUrl}/api/notification/show?userId=${Cookies.get("userId")}`, {
-            headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
-          })
-        ]);
-        setUser(userResponse.data);
-        setNotice(noticeResponse.data);
-        fetchUnreadCount();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+    if (!hasToken) return;
+    try {
+      const [userResponse, noticeResponse] = await Promise.all([
+        axios.get(`${apiUrl}/api/users/user-detail/${Cookies.get("userId")}`, {
+          headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
+        }),
+        axios.get(`${apiUrl}/api/notification/show?userId=${Cookies.get("userId")}`, {
+          headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
+        })
+      ]);
+      setUser(userResponse.data);
+      setNotice(noticeResponse.data);
+      fetchUnreadCount();
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
   const clearAll = async () => {
+    if (!hasToken) return;
     try {
       await axios.delete(
         `${apiUrl}/api/notification/delete-all?userId=${Cookies.get("userId")}`,
@@ -176,14 +150,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     })
   }
   const markAsRead = async (msgId) => {
-    fetchRead(msgId);
-    const updatedNotice = notice.map(n => 
-      n.id === msgId ? { ...n, is_read: true } : n
-    );
-    setNotice(updatedNotice);
-    setUnreadCount(prev => Math.max(0, prev - 1));
-  }
-  const fetchRead = async (msgId) => {
+    if (!hasToken) return;
     try {
       await axios.put(
         `${apiUrl}/api/notification/mark-read?notificationId=${msgId}`,
@@ -192,12 +159,18 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
           headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
         }
       );
+      const updatedNotice = notice.map(n =>
+        n.id === msgId ? { ...n, is_read: true } : n
+      );
+      setNotice(updatedNotice);
+      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
   };
 
   const deleteNotification = async (msgId) => {
+    if (!hasToken) return;
     try {
       await axios.delete(
         `${apiUrl}/api/notification/delete?notificationId=${msgId}`,
@@ -205,9 +178,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
           headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` }
         }
       );
-      // Remove the deleted notification from state
       setNotice(prevNotice => prevNotice.filter(n => n.id !== msgId));
-      // Update unread count if the deleted notification was unread
       const deletedNoti = notice.find(n => n.id === msgId);
       if (deletedNoti && !deletedNoti.is_read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
@@ -217,36 +188,38 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
     }
   };
 
-  const handleSignOut = async () =>{
+  const handleSignOut = async () => {
     axios.post(`${apiUrl}/api/users/logout/${Cookies.get("userId")}`,
-    {token: `${Cookies.get('authToken')}`},
-    {
-      headers: {      
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Cookies.get('authToken')}`
+      { token: `${Cookies.get('authToken')}` },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('authToken')}`
         },
-    })
-    .then((response) => {
-      console.log(response.data);
-      Cookies.remove('authToken');
-      navigate('/');
-    });
-  }
-  const [user, setUser] = useState({'full_name':""});
+      })
+      .then((response) => {
+        Cookies.remove('authToken');
+        // Cookies.remove('userId'); // Nếu cần xóa luôn userId
+        window.location.reload(); // Reload lại trang để reset toàn bộ state/component
+      });
+  };
+
+  // --- Giao diện ---
   return (
     <>
       <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200 w-full">
-        <div className="container mx-auto px-8 py-4 flex items-center justify-between h-20">
-          {/* Logo và tên */}
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between h-20">
+          {/* Logo */}
           <div className="flex items-center gap-4">
             <a href="/" className="font-bold text-3xl flex gap-3 items-center">
               <img src={Logo} alt="Logo" className="w-12 h-12" />
-              <span className="tracking-wide">Books</span>
+              <span className="tracking-wide hidden md:inline">Books</span>
             </a>
           </div>
-          {/* Menu chính - sang phải gần phần user */}
-          <div className="flex items-center gap-8">
-            <ul className="flex items-center gap-8 font-semibold text-lg">
+          {/* Các thành phần bên phải navbar */}
+          <div className="flex items-center gap-2 md:gap-8">
+            {/* Desktop menu */}
+            <ul className="hidden md:flex items-center gap-8 font-semibold text-lg">
               <li>
                 <Link to="/" className={`inline-block py-2 px-4 rounded-lg duration-200 hover:text-primary ${location.pathname === '/' ? 'text-primary' : ''}`}>Home</Link>
               </li>
@@ -261,15 +234,59 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
               </li>
             </ul>
             <DarkMode />
+            {/* Xu và Avatar/Nút Login luôn nằm trên navbar, không nằm trong markdown */}
             {Cookies.get('authToken') ? (
               <>
+                {/* Xu */}
                 {user && (
                   <div className="flex items-center gap-1 text-green-600 dark:text-green-400 font-bold text-base ml-2">
                     <span className="bg-yellow-400 text-white rounded-full px-2 py-0.5 text-xs font-bold">x</span>
                     {user.balance?.toLocaleString() || 0} Xu
                   </div>
                 )}
-                <div className="relative ml-2" ref={notiRef}>
+                {/* Avatar + Option */}
+                <div className="relative flex items-center" style={{ marginTop: '2px' }}>
+                  <button onClick={() => setShowOption(!showOption)} className="w-14 h-14 ml-2 flex items-center justify-center">
+                    <img
+                      src={generateAvatar(user.full_name || user.name)}
+                      alt="Avatar"
+                      className="rounded-full border-4 border-indigo-500 shadow-lg"
+                    />
+                  </button>
+                  {showOption && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute right-0 w-[150px] rounded-md bg-white dark:bg-black dark:text-white p-2 text-black shadow-lg z-50"
+                      style={{ top: 'calc(100% + 8px)' }}
+                    >
+                      <ul className="space-y-3">
+                        <li >
+                          <Link
+                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                            to={`/user-detail`}
+                          >
+                            User Detail
+                          </Link>
+                          {Cookies.get("userId") == 16 ?
+                            <Link
+                              className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                              to={`/admin`}
+                            >
+                              Admin Page
+                            </Link> : <></>}
+                          <a
+                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
+                            onClick={handleSignOut}
+                          >
+                            Log Out
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                {/* Notification icon */}
+                <div className="relative ml-2 hidden md:block" ref={notiRef}>
                   <button
                     onClick={() => setShowNoti(!showNoti)}
                     className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors shadow-none border-none"
@@ -326,10 +343,10 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                               }`}
                             >
                               <div className="flex items-start gap-3">
-                                <div 
+                                <div
                                   className={`flex-shrink-0 w-2 h-2 mt-2 rounded-full ${
                                     !noti.is_read ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
-                                  }`} 
+                                  }`}
                                 />
                                 <div className="flex-1" onClick={() => markAsRead(noti.id)}>
                                   <p className="text-sm text-gray-900 dark:text-gray-100">
@@ -361,55 +378,73 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
                     </div>
                   )}
                 </div>
-                <div className="relative flex items-center" style={{marginTop: '2px'}}>
-                  <button onClick={()=>setShowOption(!showOption)} className="w-14 h-14 ml-2 flex items-center justify-center">
-                    <img
-                      src={generateAvatar(user.full_name || user.name)}
-                      alt="Avatar"
-                      className="rounded-full border-4 border-indigo-500 shadow-lg"
-                    />
-                  </button>
-                  {showOption && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute right-0 w-[150px] rounded-md bg-white dark:bg-black dark:text-white p-2 text-black shadow-lg z-50"
-                      style={{ top: 'calc(100% + 8px)' }}
-                    >
-                      <ul className="space-y-3">
-                        <li >
-                          <Link
-                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                            to={`/user-detail`}
-                          >
-                            User Detail
-                          </Link>
-                          {Cookies.get("userId")==16 ?
-                          <Link
-                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                            to={`/admin`}
-                          >
-                            Admin Page
-                          </Link>: <></>}
-                          <a
-                            className="inline-block w-full rounded-md p-2 hover:bg-primary/20"
-                            onClick={handleSignOut}
-                          >
-                            Log Out
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
               </>
             ) : (
-              <button
-                onClick={() => handleLoginPopup() }
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-8 py-2 flex items-center gap-3 text-lg shadow-none border-none"
-              >
-                Sign In
-              </button>
+              <div className="flex items-center ml-2">
+                <button
+                  onClick={handleLoginPopup}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full px-8 py-2 text-lg shadow transition-all duration-150"
+                  style={{ minWidth: 120 }}
+                >
+                  Login
+                </button>
+              </div>
             )}
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center">
+              <button
+                className="flex items-center px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                id="mobile-menu-btn"
+              >
+                <FaCaretDown size={28} />
+              </button>
+              {showMobileMenu && (
+                <div
+                  className="absolute right-4 top-20 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50"
+                >
+                  <ul className="flex flex-col font-semibold text-base">
+                    <li>
+                      <Link
+                        to="/"
+                        className={`block py-2 px-4 hover:bg-primary/10 ${location.pathname === '/' ? 'text-primary' : ''}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Home
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/books"
+                        className={`block py-2 px-4 hover:bg-primary/10 ${location.pathname.startsWith('/books') ? 'text-primary' : ''}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Books List
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/cart"
+                        className={`block py-2 px-4 hover:bg-primary/10 ${location.pathname.startsWith('/cart') ? 'text-primary' : ''}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Cart
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/placeorder"
+                        className={`block py-2 px-4 hover:bg-primary/10 ${location.pathname.startsWith('/placeorder') ? 'text-primary' : ''}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Order
+                      </Link>
+                    </li>
+                    {/* Các mục phụ khác nếu cần */}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
