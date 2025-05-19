@@ -29,13 +29,19 @@ const ChatButton = () => {
     }
   }, [messages])
   
-  useEffect(() => {
-    fetchMessages(chatMode);
-  }, [chatMode]);
-  useEffect(() => {
+  // Kiểm tra token
+  const hasToken = !!Cookies.get('authToken');
+  // Nếu chưa đăng nhập, không render và không gọi API/websocket
+  if (!hasToken) return null;
 
+  useEffect(() => {
+    if (!hasToken) return;
+    fetchMessages(chatMode);
+  }, [chatMode, hasToken]);
+  useEffect(() => {
+    if (!hasToken) return;
     connectWebSocket();
-  }, [])
+  }, [hasToken]);
   const ADMIN_ID = 16;  
   const connectWebSocket = () => {
     stompClient.connect({}, function (frame) {
@@ -74,8 +80,8 @@ const ChatButton = () => {
         );
       } else if (chatMode == "group1" || chatMode == "group2") {
         const groupId = chatMode == "group1" ? 1 : 2;
-        console.log("Chat Mode:", chatMode);
-        console.log("Group ID:", groupId);
+        //console.log("Chat Mode:", chatMode);
+        //console.log("Group ID:", groupId);
 
         response = await axios.post(
           `${apiUrl}/api/chat/community/history`,
@@ -85,7 +91,7 @@ const ChatButton = () => {
           }
         );
       }
-      console.log("Response Data:", response.data);
+      //console.log("Response Data:", response.data);
 
       const filteredMessages = response.data.filter((msg) => {
         if (chatMode == "admin") {
@@ -100,13 +106,13 @@ const ChatButton = () => {
         }
       });
 
-      console.log("Filtered Messages:", filteredMessages);
+      //console.log("Filtered Messages:", filteredMessages);
       setMessages(filteredMessages);
     } catch (error) {
       console.error("Lỗi khi gọi API:", error);
       if (error.response) {
-        console.log("STATUS:", error.response.status);
-        console.log("DATA:", error.response.data);
+        //console.log("STATUS:", error.response.status);
+        //console.log("DATA:", error.response.data);
       }
       alert("Không thể tải lịch sử chat. Vui lòng thử lại sau.");
     }
@@ -136,7 +142,7 @@ const ChatButton = () => {
         },
       })
       .then((response) => {
-        console.log("Response Data:", response.data);
+        //console.log("Response Data:", response.data);
         setNewMessage("");
       })
       .catch((error) => {
@@ -148,7 +154,8 @@ const ChatButton = () => {
       {/* Nút mở chat */}
       <button
         onClick={toggleChat}
-        className="fixed bottom-5 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center justify-center"
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 flex items-center justify-center z-50"
+        style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
       >
         <FaComments size={20} />
       </button>
@@ -156,13 +163,14 @@ const ChatButton = () => {
       {/* Giao diện khung chat */}
       {isOpen && (
         <div
-          className={`fixed ${isFullscreen
-              ? "top-0 left-0 w-full h-screen z-[9999] bg-white dark:bg-gray-800"
-              : "bottom-[4.5rem] right-5 w-[20rem] lg:w-[24rem] lg:bottom-[4.5rem] lg:right-5 h-[70vh] z-50 bg-white dark:bg-gray-800"
-            } p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 transition-all flex flex-col justify-between`}
-          style={{ 
+          className={`fixed ${
+            isFullscreen
+              ? "top-20 left-0 w-full h-screen z-[9999] bg-white dark:bg-gray-800"
+              : "bottom-20 right-4 w-[90vw] max-w-[22rem] h-[70vh] z-50 bg-white dark:bg-gray-800"
+          } p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 transition-all flex flex-col justify-between`}
+          style={{
             overflow: "hidden",
-            boxShadow: isFullscreen ? "0 0 0 100vmax rgba(0, 0, 0, 0.5)" : undefined
+            //boxShadow: isFullscreen ? "0 0 0 100vmax rgba(0, 0, 0, 0.5)" : undefined
           }}
         >
           {/* Header */}

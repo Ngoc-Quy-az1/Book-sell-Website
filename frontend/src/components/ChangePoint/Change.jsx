@@ -54,7 +54,7 @@ const Change = () => {
 
   const handleExchange = () => {
     // Handle exchange logic here
-    console.log('Exchanging points:', { type: exchangeType, amount });
+    //console.log('Exchanging points:', { type: exchangeType, amount });
   };
 
   return (

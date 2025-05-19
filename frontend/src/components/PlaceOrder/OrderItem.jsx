@@ -87,32 +87,37 @@ export default function OrderItem({
       {/* Book List */}
       {!isCollapsed && (
         <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-inner p-6 transition-all duration-300">
-          <div className="grid grid-cols-4 text-base font-bold text-blue-700 dark:text-blue-200 border-b border-blue-100 dark:border-gray-700 pb-4 mb-2">
-            <span>Product</span>
-            <span className="text-center">Price</span>
-            <span className="text-center">Quantity</span>
-            <span className="text-right">Total</span>
-          </div>
-          <div className="max-h-64 overflow-y-auto">
-            {bookList.length === 0 ? (
-              <div className="text-center text-gray-400 dark:text-gray-500 py-8">No items found.</div>
-            ) : (
-              bookList.map((item) => (
-                <div
-                  key={item.bookName}
-                  className="grid grid-cols-4 text-base text-gray-800 dark:text-gray-200 py-3 border-b border-blue-100 dark:border-gray-700 last:border-b-0 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition"
-                >
-                  <span className="truncate">{item.bookName}</span>
-                  <span className="text-center text-blue-600 dark:text-blue-300 font-semibold">
-                    ₫{item.price.toLocaleString()}
-                  </span>
-                  <span className="text-center">{item.quantity}</span>
-                  <span className="text-right text-blue-700 dark:text-blue-200 font-bold">
-                    ₫{(item.price * item.quantity).toLocaleString()}
-                  </span>
-                </div>
-              ))
-            )}
+          {/* Bọc bảng trong div cho phép cuộn ngang */}
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-[600px]">
+              <div className="grid grid-cols-4 text-base font-bold text-blue-700 dark:text-blue-200 border-b border-blue-100 dark:border-gray-700 pb-4 mb-2">
+                <span>Product</span>
+                <span className="text-center">Price</span>
+                <span className="text-center">Quantity</span>
+                <span className="text-right">Total</span>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {bookList.length === 0 ? (
+                  <div className="text-center text-gray-400 dark:text-gray-500 py-8">No items found.</div>
+                ) : (
+                  bookList.map((item) => (
+                    <div
+                      key={item.bookName}
+                      className="grid grid-cols-4 text-base text-gray-800 dark:text-gray-200 py-3 border-b border-blue-100 dark:border-gray-700 last:border-b-0 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition"
+                    >
+                      <span className="truncate">{item.bookName}</span>
+                      <span className="text-center text-blue-600 dark:text-blue-300 font-semibold">
+                        ₫{item.price.toLocaleString()}
+                      </span>
+                      <span className="text-center">{item.quantity}</span>
+                      <span className="text-right text-blue-700 dark:text-blue-200 font-bold">
+                        ₫{(item.price * item.quantity).toLocaleString()}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
           {/* Tổng tiền */}
         </div>

@@ -1,4 +1,4 @@
-import { Box, useTheme } from "@mui/material";
+import { Box, useTheme,Grid, Typography, IconButton,TextField,MenuItem } from "@mui/material";
 import { tokens } from "../../../theme";
 import React,{ useState, useEffect } from "react";
 import Header from "../../../components/Admin/Header";
@@ -10,7 +10,6 @@ import Notice from "../../../components/ErrorNotice";
 import Cookies from "js.cookie";
 import {
   GridRowModes,
-  DataGrid,
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
@@ -64,7 +63,7 @@ const ManageUsers = () => {
       },
     })
     .then((response) => {
-      if (response.data==undefined) {res="Updated Failed";  setError(true)}// this will be a string
+      if (response.data!=undefined) {res="Updated Failed";  setError(true)}// this will be a string
       else {res="Account Successfully Updated"; setError(false)}
       setMessage(res); 
       showNotice();
@@ -277,18 +276,180 @@ const ManageUsers = () => {
           },
         }}
       >
-        <DataGrid 
-        sx={{
-            display: 'grid',
-            gridTemplateRows: 'auto 1f auto',
-        }}
-        rows={rows}
-        columns={columns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}/>
+         <Grid container spacing={2}>
+  {rows.map((user) => {
+    const isEditing = rowModesModel[user.id]?.mode === GridRowModes.Edit;
+
+    return (
+      <Grid item xs={12} key={user.id}>
+        <Box
+          sx={{
+            backgroundColor: colors.primary[400],
+            color: 'white',
+            p: 2,
+            borderRadius: 2,
+            boxShadow: 2,
+            width: '100%',
+          }}
+        >
+          <Grid container spacing={2} alignItems="center">
+            {/* Editable fields or text */}
+            <Grid item xs={12} sm={2}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  label="Name"
+                  variant="filled"
+                  value={user.full_name}
+                  onChange={(e) => updateRowField(user.id, "full_name", e.target.value)}
+                />
+              ) : (
+                <Typography variant="body2"><strong>Name:</strong> {user.full_name}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  label="Phone"
+                  variant="filled"
+                  value={user.phone}
+                  onChange={(e) => updateRowField(user.id, "phone", e.target.value)}
+                />
+              ) : (
+                <Typography variant="body2"><strong>Phone:</strong> {user.phone}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  label="Email"
+                  variant="filled"
+                  value={user.mail}
+                  onChange={(e) => updateRowField(user.id, "mail", e.target.value)}
+                />
+              ) : (
+                <Typography variant="body2"><strong>Email:</strong> {user.mail}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={1}>
+              <Typography variant="body2"><strong>ID:</strong> {user.id}</Typography>
+            </Grid>
+
+            <Grid item xs={12} sm={1}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  label="Balance"
+                  variant="filled"
+                  value={user.balance}
+                  onChange={(e) => updateRowField(user.id, "balance", e.target.value)}
+                />
+              ) : (
+                <Typography variant="body2"><strong>Balance:</strong> {user.balance}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={1}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  label="Points"
+                  variant="filled"
+                  value={user.points}
+                  onChange={(e) => updateRowField(user.id, "points", e.target.value)}
+                />
+              ) : (
+                <Typography variant="body2"><strong>Points:</strong> {user.points}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={1.5}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  select
+                  label="Membership"
+                  variant="filled"
+                  value={user.membershipLevel}
+                  onChange={(e) => updateRowField(user.id, "membershipLevel", e.target.value)}
+                >
+                  <MenuItem value="Silver">Silver</MenuItem>
+                  <MenuItem value="Gold">Gold</MenuItem>
+                  <MenuItem value="Platinum">Platinum</MenuItem>
+                </TextField>
+              ) : (
+                <Typography variant="body2"><strong>Membership:</strong> {user.membershipLevel}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={1.5}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  select
+                  label="Access"
+                  variant="filled"
+                  value={user.is_admin ? "Admin" : "Member"}
+                  onChange={(e) => updateRowField(user.id, "is_admin", e.target.value === "Admin")}
+                >
+                  <MenuItem value="Admin">Admin</MenuItem>
+                  <MenuItem value="Member">Member</MenuItem>
+                </TextField>
+              ) : (
+                <Typography variant="body2"><strong>Access:</strong> {user.is_admin ? "Admin" : "Member"}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  label="Address"
+                  variant="filled"
+                  value={user.address}
+                  onChange={(e) => updateRowField(user.id, "address", e.target.value)}
+                />
+              ) : (
+                <Typography variant="body2"><strong>Address:</strong> {user.address}</Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm="auto">
+              <Box display="flex" justifyContent="flex-end">
+                {isEditing ? (
+                  <>
+                    <IconButton onClick={handleSaveClick(user.id)}>
+                      <SaveIcon sx={{ color: 'white' }} />
+                    </IconButton>
+                    <IconButton onClick={handleCancelClick(user.id)}>
+                      <CancelIcon sx={{ color: 'gray' }} />
+                    </IconButton>
+                  </>
+                ) : (
+                  <>
+                    <IconButton onClick={handleEditClick(user.id)}>
+                      <EditIcon sx={{ color: 'white' }} />
+                    </IconButton>
+                    <IconButton onClick={handleDeleteClick(user.id)}>
+                      <DeleteIcon sx={{ color: 'red' }} />
+                    </IconButton>
+                  </>
+                )}
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </Grid>
+    );
+  })}
+</Grid>
+
+
       </Box>
     </Box>
   );

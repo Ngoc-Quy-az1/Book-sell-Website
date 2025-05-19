@@ -1,5 +1,5 @@
 import { Box, IconButton, useTheme } from "@mui/material";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState, useEffect } from "react";
 import { ColorModeContext, tokens } from "../../../theme";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
@@ -29,11 +29,21 @@ const Topbar = ({handleNotification}) => {
         'Authorization': `Bearer ${Cookies.get('authToken')}`
         }
     }) .then((data) => {
-      console.log(data);
+      //console.log(data);
       Cookies.remove('authToken');
       location.replace('/');
     });
   }
+  const ref = useRef();
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (ref.current && !ref.current.contains(event.target)) {
+          setShowOption(false); 
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
   return (
     <div style={{position:"sticky", top:"0"}}>
     <Box backgroundColor={colors.primary[400]} display="flex" justifyContent="space-between" p={2}>
@@ -62,7 +72,8 @@ const Topbar = ({handleNotification}) => {
         </IconButton> */}
         <IconButton onClick={handleShowOption}>
           <PersonOutlinedIcon />
-          <div className="absolute -left-20 z-[9999] w-[100px] top-10 rounded-md bg-white p-2 border" hidden={!showOption}
+          <div className="absolute -left-20 z-50 w-[100px] top-10 rounded-md bg-white p-2 border" hidden={!showOption}
+          ref={ref}
           style={{backgroundColor:colors.primary[400], textColor:colors.primary[100], borderColor:colors.primary[300], fontSize:"15px" }}>
                     <ul className="space-y-3">
                         <li >
