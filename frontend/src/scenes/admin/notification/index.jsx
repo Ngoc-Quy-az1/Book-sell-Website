@@ -45,7 +45,8 @@ export default Notification = ({notification, handleNotification}) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
-        handleNotification(); console.log("Cl")
+        handleNotification(); 
+        //console.log("Cl")
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
