@@ -118,7 +118,7 @@ const ManageUsers = () => {
     const processRowUpdate = (newRow,oldRow) => {
       newRow.is_admin = (newRow.is_admin === "Admin");
       const str = updateUsers(newRow);
-      console.log(str);
+      //console.log(str);
       if (str==="Updated Failed") return oldRow;
       const updatedRow = { ...newRow, isNew: false };
       setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));

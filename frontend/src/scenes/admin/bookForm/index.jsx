@@ -23,7 +23,7 @@ const BookForm = () => {
   };
 
   const handleFormSubmit = (values) => {
-    console.log(values);
+    //console.log(values);
     createBook(values);
   };
 const uploadToCloudinary = async (file) => {
@@ -51,7 +51,7 @@ const uploadToCloudinary = async (file) => {
         setImagePreview(null); // Reset preview on success
       })
       .catch((response) => {
-        console.log(response.response.data);
+        //console.log(response.response.data);
         setMessage(response.response.data);
         setError(true);
         showNotice();

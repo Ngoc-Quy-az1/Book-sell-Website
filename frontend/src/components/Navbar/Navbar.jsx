@@ -51,7 +51,7 @@ const Navbar = ({ handleOrderPopup, handleLoginPopup }) => {
 
   useEffect(() => {
     if (!hasToken || !Cookies.get('userId')) return;
-    const socket = new SockJS(`${apiUrl.replace('/api', '')}/ws/notification`);
+    const socket = new SockJS(`${apiUrl.replace('/api', '')}/ws`);
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,

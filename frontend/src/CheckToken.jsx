@@ -17,7 +17,7 @@ axios.interceptors.request.use(
         refreshToken: Cookies.get("refreshToken")
       }).then(res => {
         Cookies.set('authToken',res.data);
-        console.log("refreshed")
+        //console.log("refreshed")
         config.headers.Authorization = "bearer "+ res.data;});  
   }
   return config

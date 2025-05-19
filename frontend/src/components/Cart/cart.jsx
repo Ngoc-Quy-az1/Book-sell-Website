@@ -32,7 +32,7 @@ export default function Cart() {
   };
 
   useEffect( () => {
-    console.log(userId);
+    //console.log(userId);
     getCartList(userId);
     getVoucherList(userId);
     }, []);
@@ -85,7 +85,7 @@ export default function Cart() {
       headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
     })
     .then((response) => {
-        console.log(response.data);
+        //console.log(response.data);
     })
     .catch((error) => {
       console.error(' qqq Error fetching data:', error);

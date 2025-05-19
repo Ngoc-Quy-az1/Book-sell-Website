@@ -20,7 +20,7 @@ export default Notification = ({notification, handleNotification}) => {
         headers:{'Authorization': `Bearer ${Cookies.get('authToken')}`}
     })
     .then(Response => {
-      console.log(Response.data)
+      //console.log(Response.data)
       setNotice(Response.data);
     })
   }

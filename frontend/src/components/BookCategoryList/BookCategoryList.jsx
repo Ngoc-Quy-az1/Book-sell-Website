@@ -35,7 +35,7 @@ const BookCategoryList = () => {
  const [sidebarOpen, setSidebarOpen] = useState(false);
   useEffect( () => {
     getBookList();
-    console.log(value,page, selectedCategory, search, sortRule)
+    //console.log(value,page, selectedCategory, search, sortRule)
   }, [value, page, selectedCategory, search, sortRule]);
   const handleLoginPopup = () => {
     setLoginPopup(!loginPopup);

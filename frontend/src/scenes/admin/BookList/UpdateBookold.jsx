@@ -57,7 +57,7 @@ const UpdateBook = ({ book, showNotice , setError, setMessage, handleBookPopup, 
   }
     
   const handleFormSubmit = (form) => {
-    console.log(JSON.stringify(form));
+    //console.log(JSON.stringify(form));
     updateBook(form);
   };
   return (

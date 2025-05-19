@@ -80,8 +80,8 @@ const ChatButton = () => {
         );
       } else if (chatMode == "group1" || chatMode == "group2") {
         const groupId = chatMode == "group1" ? 1 : 2;
-        console.log("Chat Mode:", chatMode);
-        console.log("Group ID:", groupId);
+        //console.log("Chat Mode:", chatMode);
+        //console.log("Group ID:", groupId);
 
         response = await axios.post(
           `${apiUrl}/api/chat/community/history`,
@@ -91,7 +91,7 @@ const ChatButton = () => {
           }
         );
       }
-      console.log("Response Data:", response.data);
+      //console.log("Response Data:", response.data);
 
       const filteredMessages = response.data.filter((msg) => {
         if (chatMode == "admin") {
@@ -106,13 +106,13 @@ const ChatButton = () => {
         }
       });
 
-      console.log("Filtered Messages:", filteredMessages);
+      //console.log("Filtered Messages:", filteredMessages);
       setMessages(filteredMessages);
     } catch (error) {
       console.error("Lỗi khi gọi API:", error);
       if (error.response) {
-        console.log("STATUS:", error.response.status);
-        console.log("DATA:", error.response.data);
+        //console.log("STATUS:", error.response.status);
+        //console.log("DATA:", error.response.data);
       }
       alert("Không thể tải lịch sử chat. Vui lòng thử lại sau.");
     }
@@ -142,7 +142,7 @@ const ChatButton = () => {
         },
       })
       .then((response) => {
-        console.log("Response Data:", response.data);
+        //console.log("Response Data:", response.data);
         setNewMessage("");
       })
       .catch((error) => {

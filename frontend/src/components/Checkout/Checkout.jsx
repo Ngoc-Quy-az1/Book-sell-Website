@@ -28,17 +28,17 @@ const Checkout = () => {
             },
           }
         );
-        console.log("Pending Orders:", response.data);
+        //console.log("Pending Orders:", response.data);
 
         // Lấy đơn hàng có orderId = orderId (mặc định là 1)
         const selectedOrder = response.data.find((order) => order.orderId === orderId);
         if (selectedOrder) {
           setOrder(selectedOrder);
         } else {
-          console.error(`Không tìm thấy đơn hàng với orderId = ${orderId}`);
+          //console.error(`Không tìm thấy đơn hàng với orderId = ${orderId}`);
         }
       } catch (error) {
-        console.error("Lỗi khi lấy thông tin đơn hàng:", error);
+        //console.error("Lỗi khi lấy thông tin đơn hàng:", error);
       }
     };
 
@@ -56,7 +56,7 @@ const Checkout = () => {
           },
         }
       );
-      console.log("Payment Status:", response.data);
+      //console.log("Payment Status:", response.data);
 
       if (response.data.status === "Completed") {
         setPaymentResult((prev) => ({
@@ -93,7 +93,7 @@ const Checkout = () => {
           },
         }
       );
-      console.log("Payment Response:", response.data);
+      //console.log("Payment Response:", response.data);
   
       if (response.data.success) {
         // Hiển thị thông báo thành công và số dư còn lại

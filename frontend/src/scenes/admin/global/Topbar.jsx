@@ -29,7 +29,7 @@ const Topbar = ({handleNotification}) => {
         'Authorization': `Bearer ${Cookies.get('authToken')}`
         }
     }) .then((data) => {
-      console.log(data);
+      //console.log(data);
       Cookies.remove('authToken');
       location.replace('/');
     });

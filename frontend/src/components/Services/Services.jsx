@@ -11,7 +11,7 @@ const Services = ({ handleOrderPopup }) => {
     }, []);
   const getBookLink = async ()=>{
     const apiUrl = import.meta.env.VITE_API_URL;
-    console.log(apiUrl);
+    //console.log(apiUrl);
     await axios.get(`${apiUrl}/api/books/GetAllPaginated?page=3&size=3`)
     .then((response) => {
         setBooklist(response.data.content);
@@ -37,6 +37,7 @@ const Services = ({ handleOrderPopup }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 md:gap-5 place-items-center">
             {booklist.map((book) => (
               <div
+                key={book.id}
                 data-aos="zoom-in"
                 className="rounded-2xl bg-white dark:bg-gray-800 hover:bg-primary dark:hover:bg-primary hover:text-white relative shadow-xl duration-high group max-w-[300px]"
               >
