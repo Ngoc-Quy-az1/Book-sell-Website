@@ -5,9 +5,9 @@ import { useState, useEffect } from "react";
 import Cookies from "js.cookie";
 import axios from "axios";
 
-const BarChart = () => {
+const BarChart = ({bar}) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery("(max-width:600px)");
+  const isMobile = useMediaQuery("(max-width:1000px)");
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState([]);
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -21,7 +21,7 @@ const BarChart = () => {
       const response = await axios.get(`${apiUrl}/api/admin/revenue/by-category`, {
         headers: { Authorization: `Bearer ${Cookies.get("authToken")}` },
       });
-      setData(response.data.slice(0, 5));
+      setData(response.data.slice(0, bar));
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -63,7 +63,7 @@ const BarChart = () => {
       margin={{
         top: 50,
         right: isMobile ? 20 : 130,
-        bottom: isMobile ? 60 : 50,
+        bottom: isMobile ? 100 : 70,
         left: 60,
       }}
       padding={isMobile ? 0.2 : 0.3}
@@ -99,10 +99,10 @@ const BarChart = () => {
       axisBottom={{
         tickSize: 5,
         tickPadding: 5,
-        tickRotation: isMobile ? 45 : 0,
-        legend: isMobile ? "" : "Category",
+        tickRotation: isMobile ? -30 : -15,
+        legend: "Category",
         legendPosition: "middle",
-        legendOffset: 32,
+        legendOffset: isMobile ? 70 : 45,
       }}
       axisLeft={{
         tickSize: 5,
@@ -122,7 +122,7 @@ const BarChart = () => {
                 style={{
                     background: colors.primary[900],
                     padding: '9px 12px',
-                    color: colors.primary[100]
+                    color: colors.primary[100],
                 }}
             >
                 <div>{`Total Revenue: ${e.formattedValue} `}</div>

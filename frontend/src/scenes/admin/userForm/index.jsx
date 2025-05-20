@@ -1,4 +1,5 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField,useTheme } from "@mui/material";
+import { tokens } from "../../../theme";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -10,6 +11,9 @@ import "../../../CheckToken";
 import axios from "axios";
 
 const UserForm = () => {
+  
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [notice, setNotice] = useState(false);
   const [error, setError] = useState(false);
@@ -75,6 +79,7 @@ const UserForm = () => {
               }}
             >
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"
@@ -92,6 +97,7 @@ const UserForm = () => {
               />
               <TextField
                 fullWidth
+                color={colors.grey[100]}
                 variant="filled"
                 type="text"
                 label="Last Name"
@@ -105,6 +111,7 @@ const UserForm = () => {
               />              
               <TextField
               fullWidth
+                color={colors.grey[100]}
               variant="filled"
               type="text"
               label="User Name"
@@ -118,6 +125,7 @@ const UserForm = () => {
             />
               <TextField
                 fullWidth
+                color={colors.grey[100]}
                 variant="filled"
                 type="text"
                 label="Email"
@@ -131,6 +139,7 @@ const UserForm = () => {
               />
               <TextField
                 fullWidth
+                color={colors.grey[100]}
                 variant="filled"
                 type="text"
                 label="Password"
@@ -144,6 +153,7 @@ const UserForm = () => {
               />
               <TextField
                 fullWidth
+                color={colors.grey[100]}
                 variant="filled"
                 type="text"
                 label="Phone Number"
@@ -157,6 +167,7 @@ const UserForm = () => {
               />
               <TextField
                 fullWidth
+                color={colors.grey[100]}
                 variant="filled"
                 type="text"
                 label="Address"

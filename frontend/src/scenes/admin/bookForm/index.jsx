@@ -1,4 +1,5 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, useTheme } from "@mui/material";
+import { tokens } from "../../../theme";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -10,6 +11,8 @@ import "../../../CheckToken";
 import axios from "axios";
 
 const BookForm = () => {
+  const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [notice, setNotice] = useState(false);
   const [error, setError] = useState(false);
@@ -86,6 +89,7 @@ const uploadToCloudinary = async (file) => {
               }}
             >
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"
@@ -99,6 +103,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"
@@ -112,6 +117,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"
@@ -125,6 +131,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 4" }}
               />              
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"
@@ -138,6 +145,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"
@@ -151,6 +159,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="number"
@@ -164,6 +173,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="number"
@@ -177,6 +187,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="number"
@@ -190,6 +201,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="number"
@@ -203,6 +215,7 @@ const uploadToCloudinary = async (file) => {
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"
@@ -251,6 +264,7 @@ const uploadToCloudinary = async (file) => {
                 </Box>
 
               <TextField
+                color={colors.grey[100]}
                 fullWidth
                 variant="filled"
                 type="text"

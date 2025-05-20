@@ -8,7 +8,7 @@ import "../../CheckToken.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const socket = new SockJS(`${apiUrl}/ws`);
-let stompClient = Stomp.over(socket);
+let stompClient = Stomp.over(socket,{debug:false});
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
