@@ -441,11 +441,6 @@ const BookCategoryList = () => {
             </button>
           </div>
       </div>
-      {addToCartSuccess && (
-        <div className="fixed top-6 right-6 z-50 bg-green-500 dark:bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce transition-all">
-          Thêm sách vào giỏ hàng thành công!
-        </div>
-      )}
 
       <ToastContainer theme={theme === "dark" ? "dark" : "light"} />
       <LoginPopup loginPopup={loginPopup} handleLoginPopup={handleLoginPopup} />
