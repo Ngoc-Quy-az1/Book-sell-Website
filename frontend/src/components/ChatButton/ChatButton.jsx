@@ -9,6 +9,8 @@ import "../../CheckToken.jsx";
 const apiUrl = import.meta.env.VITE_API_URL;
 const socket = new SockJS(`${apiUrl}/ws`);
 let stompClient = Stomp.over(socket);
+// Disable STOMP debug logs
+stompClient.debug = () => {};
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);

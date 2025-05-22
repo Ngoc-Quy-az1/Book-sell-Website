@@ -134,7 +134,7 @@ const BookCategoryList = () => {
             marginRight: 12
           }}>
           </span>
-          Thêm vào rỏ hàng thành công
+          Thêm vào giỏ hàng thành công
         </div>,
         { position: "top-right", style: { background: 'linear-gradient(90deg, #bbf7d0 0%, #86efac 100%)', color: '#166534', fontWeight: 'bold' } }
       );
