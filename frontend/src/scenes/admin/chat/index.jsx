@@ -59,7 +59,7 @@ const Chat = () => {
   const connectWebSocket = (userId) => {
     if (!userId) return;
     const socket = new SockJS(`${apiUrl}/ws`);
-    const stompClient = Stomp.over(socket);
+    const stompClient = Stomp.over(socket,{debug:false}); 
 
     stompClient.connect({}, function () {
       stompClient.subscribe(`/topic/admin-chat/${ADMIN_ID}`, function (message) {
@@ -108,7 +108,7 @@ const Chat = () => {
   return (
     <Box m="20px" className="flex flex-col md:flex-row border h-[80vh] rounded mb-4 overflow-hidden">
       {/* Sidebar with horizontal scroll on mobile */}
-      <div className="w-full md:w-1/5 h-[80px] md:h-full flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto border-r md:border-r p-3 space-x-2 md:space-x-0 md:space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 whitespace-nowrap">
+      <div className="w-full md:w-1/5 h-[10vh] md:h-full flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto border-r md:border-r p-2 space-x-2 md:space-x-0 md:space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 whitespace-nowrap">
         {userList.map((user) => (
           <div
             key={user.id}
@@ -132,7 +132,7 @@ const Chat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="w-full md:w-4/5 h-full flex flex-col p-3 space-y-2">
+      <div className="w-full md:w-4/5 h-[70vh] md:h-full flex flex-col p-2 space-y-2">
         <div className="flex-1 overflow-y-auto p-3 mb-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           {messages.map((msg) => (
             <div
@@ -183,7 +183,7 @@ const Chat = () => {
             onClick={handleSendMessage}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Gửi
+            Send
           </button>
         </div>
       </div>

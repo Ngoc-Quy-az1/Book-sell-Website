@@ -135,12 +135,12 @@ const updateRowField = (id, field, value) => {
                 Revenue Generated
               </Typography>
               <Typography variant="h3" fontWeight="bold" color={colors.greenAccent[500]}>
-                {totalRevenue} Coins
+                {totalRevenue} VND
               </Typography>
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <BarChart />
+            <BarChart bar="5"/>
           </Box>
         </Box>
       </Box>

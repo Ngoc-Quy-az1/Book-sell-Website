@@ -88,12 +88,14 @@ const OrderList = () => {
     {
       field: "createdAt",
       headerName: "Create At",
+      minWidth: 90,
       flex: 1,
       cellClassName: "name-column--cell",
     },
     {
       field: "totalAmount",
       headerName: "Total Amount",
+      minWidth: 70,
       flex: 1,
       cellClassName: "name-column--cell",
       editable: true,
@@ -101,6 +103,7 @@ const OrderList = () => {
     {
       field: "status",
       headerName: "Status",
+      minWidth: 80,
       flex: 1,
       cellClassName: "name-column--cell",
       editable: true,
