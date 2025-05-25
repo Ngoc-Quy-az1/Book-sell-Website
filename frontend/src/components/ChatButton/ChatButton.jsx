@@ -237,11 +237,13 @@ const ChatButton = () => {
                   {msg.sender?.id === userId ? "Bạn" : msg.sender?.name || "Unknown"} -{" "}
                   {msg.createdAt
                     ? (() => {
-                      const date = new Date(msg.createdAt);
-                      const formattedDate = date.toLocaleDateString();
-                      const formattedTime = date.toLocaleTimeString();
-                      return `${formattedDate} ${formattedTime}`;
-                    })()
+                        const date = new Date(msg.createdAt);
+                        // Chuyển sang GMT+7
+                        date.setHours(date.getHours() + 7);
+                        const formattedDate = date.toLocaleDateString();
+                        const formattedTime = date.toLocaleTimeString();
+                        return `${formattedDate} ${formattedTime}`;
+                      })()
                     : "Invalid Date"}
                 </div>
               </div>
