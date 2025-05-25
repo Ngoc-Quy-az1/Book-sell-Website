@@ -92,14 +92,16 @@ export default function Cart() {
     });
   };
 
-  const deleteCartBookBackend = async (userId, bookId)=>{
-    await axios.delete(`${apiUrl}/api/cart/${userId}/${bookId}`,
-    //data,
-    {   
-      headers: {'Authorization': `Bearer ${Cookies.get('authToken')}`},
+  const deleteCartBookBackend = async (userId, bookId) => {
+    await axios.delete(`${apiUrl}/api/cart/${userId}/${bookId}`, {
+      headers: { 'Authorization': `Bearer ${Cookies.get('authToken')}` },
     })
     .catch((error) => {
-      console.error(' qqq Error fetching data:', error);
+      if (error.response) {
+        console.error('API error:', error.response.status, error.response.data);
+      } else {
+        console.error('Error fetching data:', error);
+      }
     });
   }
 
@@ -197,7 +199,7 @@ export default function Cart() {
     var newList = cartlist.slice();
     newList.splice(index, 1);
     setCartlist(newList);
-    await deleteCartBookBackend(14, cartlist[index].bookId )
+    await deleteCartBookBackend(userId, cartlist[index].bookId )
   }
 
   // Trừ số lượng voucher khi đặt hàng thành công

@@ -569,6 +569,31 @@ const UserDetail = () => {
                 Xác Nhận
               </button>
             </div>
+            {/* Hướng dẫn chuyển khoản */}
+            <div className="mb-4">
+              <h4 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-3">
+                Hướng dẫn chuyển khoản
+              </h4>
+              <ul className="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300 text-sm">
+                <li>Vui lòng chuyển khoản đúng số tiền được hiển thị</li>
+                <li>
+                  Ghi nội dung chuyển khoản theo cú pháp:{" "}
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                    [Họ và tên] + Số điện thoại đã đăng ký
+                  </span>
+                </li>
+                <li>
+                  Ví dụ:{" "}
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                    NguyenVanA 0987654321
+                  </span>
+                </li>
+                <li>
+                  Chuyển khoản với các nội dung trên xong, nhấn nút "Kiểm tra giao dịch" để kiểm tra thanh toán
+                </li>
+                <li>Thời gian xử lý: 30s -1 phút sau khi chuyển khoản</li>
+              </ul>
+            </div>
             {selectedRecharge && (
               <div className="mt-4 text-center">
                 <img

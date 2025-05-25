@@ -429,8 +429,8 @@ export default function PlaceOrder() {
                   </h4>
                   <ul className="list-disc pl-5 space-y-2">
                     <li>Vui lòng chuyển khoản đúng số tiền được hiển thị</li>
-                    <li>Ghi nội dung chuyển khoản theo cú pháp: <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">HOVATEN_[Họ và tên] + Số điện thoại đã đăng ký</span></li>
-                    <li>Ví dụ: <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">HOVATEN_Nguyễn Văn A + 0987654321</span></li>
+                    <li>Ghi nội dung chuyển khoản theo cú pháp: <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">[Họ và tên] + Số điện thoại đã đăng ký</span></li>
+                    <li>Ví dụ: <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">NguyenVanA 0987654321</span></li>
                     <li>Chuyển khoản với các nội dung trên xong, nhấn nút "Check Payment" để kiểm tra thanh toán</li>
                     <li>Thời gian xử lý: 30s -1 phút sau khi chuyển khoản</li>
                   </ul>
